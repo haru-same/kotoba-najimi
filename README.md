@@ -18,7 +18,7 @@ You will need [node.js](https://nodejs.org/en/) and Google Chrome on your comput
 
 Open the command line and go to the language-companion directory. Then run npm install to download the dependencies.
 ```
-cd kotoba-shituji
+cd kotoba-najimi
 npm install
 ```
 
