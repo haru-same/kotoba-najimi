@@ -1,0 +1,200 @@
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
+	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
+	<script type="text/javascript" src="/js/mobile-check.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/site.css">
+
+	<script type="text/javascript">
+		window.langToolsConfig = window.langToolsConfig || {};
+
+		const socket = io();
+		let textToFurigana = {};
+
+		const escapeQuotes = (text) => {
+			console.log('in', text);
+			console.log('out', text.replace(/"/g, "&quot;"));
+			return text.replace(/"/g, "&quot;");
+		};
+
+		const showTranslation = (target) => {
+			$node = $(target);
+        	$defContainer = $(".top-box");
+    		$defContainer.show();
+    		$defContainer.css("top", 0);
+    		$defContainer.css("left", 0);
+    		$defContainer.html($node.attr("trans"));
+    		let width = $defContainer.width();
+  			let height = $defContainer.height();
+    		const pos = $node.position();
+    		$defContainer.css("top", pos.top - height - 20);
+  			$defContainer.css("left", Math.min(pos.left + 16, $(window).width() - width - 32));
+  			e.stopPropagation();
+		}
+
+		const showDictionary = (def, xPosition, yPosition, node) => {
+			$node = $(node);
+        	$defContainer = $(".top-box");
+
+        	if(def == ""){
+        		return;
+        	} 
+
+        	if (def == "en"){
+        		showTranslation(node);
+        		return;
+        	}
+
+        	let scrollY = window.scrollY;
+        	$defContainer.show();
+
+        	if($node.closest(".top-box")[0] == $(".top-box")[0]) return;
+
+    		$defContainer.css("top", 0);
+    		$defContainer.css("left", 0);
+      		$defContainer.html(def);
+      		let width = $defContainer.width();
+      		let height = $defContainer.height();
+      		$defContainer.css("top", yPosition - height - 20 + scrollY);//$node.position().top - height);
+      		$defContainer.css("left", Math.min(xPosition, $(window).width() - width - 32));
+
+        	window.scrollTo(0, scrollY);
+		};
+
+		let timeout = null;
+		const flashMessage = (text) => {
+			$(".message").html(text);
+        	$(".message").show();
+
+        	if(timeout) clearTimeout(timeout);
+
+        	timeout = setTimeout(() => {
+        		$(".message").fadeOut();
+        	}, 1000 * text.length / 10);
+		};
+
+		const requestFullScreen = () => {
+		    var el = document.documentElement,
+		      rfs = el.requestFullscreen
+		        || el.webkitRequestFullScreen
+		        || el.mozRequestFullScreen
+		        || el.msRequestFullscreen 
+		    ;
+
+		    rfs.call(el);
+		}
+
+		socket.on('new-text', function(msg){
+			console.log(msg);
+			if(typeof msg == "string"){
+				msg = escapeQuotes(msg);
+				$("#output").append(`<div class='text-chunk' original="${msg}">${msg}</div>`);
+			} else {
+				msg.text = escapeQuotes(msg.text);
+				let translation = "";
+				if(msg.trans){
+					translation = `<div style="text-align:right"><div class="translation-button" trans="${escapeQuotes(msg.trans)}">en</div></div>`;
+				}
+				$("#output").append($(`<div class='text-chunk' original="${msg.text}">${translation}<div class='content'>${msg.html}</div></div>`));
+				textToFurigana[msg.text] = msg.html;
+			}
+			window.scrollTo(0,document.body.scrollHeight);
+
+			socket.emit('update-words');
+		});
+
+		$(document).ready(() => {
+			$("#output").append(`<div class='text-chunk'>Connecting...</div>`);
+		    $(".top-box").css('max-width', Math.min($(window).width() - 32, 600));
+		    $("#container").css("min-height", ($(window).height() - 32) + 'px');
+
+			window.isMobile = mobileAndTabletcheck();
+
+	        if(window.isMobile){
+	        	$(document.body).on('click', '.translation-button', (e) => {
+	        		showTranslation(e.target);
+	        	});
+	        }
+
+		    let currentWord = null;
+		    let currentPhrase = null;
+		    let lastWord = null;
+	        $(document).on("definition-changed", (e, def, xPosition, yPosition, node, word, length) => {
+	        	showDictionary(def, xPosition, yPosition, node);
+	        	if(word){
+	        		currentWord = word;
+	        		currentPhrase = $(node).closest('.text-chunk').attr('original');
+	        		console.log(currentWord, ", ", currentPhrase);
+		        }
+	        });
+
+	        $(document).mouseleave(function () {
+	        	$(".top-box").hide();
+			});
+
+	        $("#options-button").click(() => {
+	        	$.get('/options', (res) => {
+	        		$(document.body).append(res);
+	        	});
+	        });
+
+	        $("#fullscreen-button").click(() => {
+	        	requestFullScreen();
+	        });
+
+	        $("#do-reviews").click(() => {
+	        	window.open('/review', '_blank');
+	        });
+
+	        $(document).on('options-changed', () => {
+	        	console.log('options-changed');
+	        	$(".text-chunk").each((index, element) => {
+	        		console.log(window.langToolsConfig.showFurigana, element, $(element).attr('original'), $(element).attr('annotated'));
+	        		if(!window.langToolsConfig.hideFurigana){
+	        			$(element).find('.content').html(textToFurigana[$(element).attr('original')]);
+	        		} else {
+	        			$(element).find('.content').html($(element).attr('original'));
+	        		}
+	        	});
+	        });
+
+	        $(document).keypress((e) => {
+	        	console.log(e.which);
+				if(e.which == 116) {
+					socket.emit('test-text');
+				}
+				if(e.which == 102) {
+					if(currentWord != null){
+						$.get('/furigana', { text: currentWord }, (res) => {
+							let reading = prompt(`Enter pronunciation for:\n${currentWord}`, res);
+
+							if (reading == null || reading == "") {
+							    console.log("canceled reading");
+							} else {
+								$.post('/create-kanji-fact', { target: currentWord, context: currentPhrase, reading: reading }, (res2) => {
+									console.log(res2);
+								});
+							}
+						});
+					}
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="message"></div>
+	<div style="position:fixed; width:100%; top:0; left:0; background-color:white; padding:4px; text-align: right; box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);">
+		<span class="instruction-text">Hover over Kanji and [F] key to create fact (<a id="do-reviews">reviews</a>)</span>
+		<i id="options-button" class="fa fa-cog link-button header-button" aria-hidden="true"></i>
+		<i id="fullscreen-button" class="fa fa-expand link-button header-button" aria-hidden="true"></i>
+	</div>
+	<div class="top-box no-dict">Hover over words to translate...</div>
+    <div id="container" style="display:flex; align-items:flex-end; flex-direction:column">
+    	<div style="flex:2; display: flex;"></div>
+		<div id="output"></div>
+	</div>
+</body>

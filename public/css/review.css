@@ -1,0 +1,45 @@
+.recording {
+	background-color: red;
+}
+
+.partial {
+	color: gray;
+}
+
+.band {
+	padding-top: 16px;
+	padding-bottom: 16px;
+	background-color: rgba(255,255,255,0.5);
+	width: 100%;
+	border-style:none;
+}
+
+.error {
+	padding-top: 16px;
+	padding-bottom: 16px;
+	background-color: rgba(255,255,102,0.5);
+	display: none;
+	text-align: center;
+}
+
+body {
+	font-family: Sans-Serif;
+	background-color: #d9d9d9;
+	width:100%; 
+	padding: 0; 
+	margin: 100px 0;
+}
+
+.missed {
+	color: red;
+}
+
+.delete {
+	text-decoration: line-through;
+	color: #b3b3b3;
+}
+
+button {
+	text-align:center; 
+	font-size: 2rem;
+}

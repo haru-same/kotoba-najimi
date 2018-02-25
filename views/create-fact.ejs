@@ -1,0 +1,101 @@
+<html>
+<head>
+	<title>Create review</title>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script src="/js/wanakana.min.js"></script>
+	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+
+	<link rel="apple-touch-icon" sizes="120x120" href="icons/tita/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/tita/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/tita/favicon-16x16.png">
+	<link rel="manifest" href="icons/tita/site.webmanifest">
+	<link rel="mask-icon" href="icons/tita/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="icons/tita/favicon.ico">
+	<meta name="msapplication-TileColor" content="#2d89ef">
+	<meta name="msapplication-config" content="icons/tita/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<script type="text/javascript">
+		$(document).ready(() => {
+			const textInput = document.querySelector('.kana');
+			wanakana.bind(textInput);
+
+			let readingChanged = false;
+			const getReading = () => {
+				const input = $("#sentence-input").val();
+				$.get('/furigana', { text: input }, (res) => {
+					$("#reading-input").val(res);
+					readingChanged = false;
+				});
+			};
+
+			$("#sentence-input").on('change keydown paste input', function(){
+				if(!readingChanged){
+					getReading();
+				}
+			});
+
+			$("#reading-input").on('change keydown paste input', function(){
+				readingChanged = true;
+				if($("#reading-input").val() == ""){
+					readingChanged = false;
+					getReading();
+				}
+			});
+
+			$("#submit").click(() => {
+				if(confirm("Submit this?\n\n" + $("#sentence-input").val() + "\n\n" + $("#reading-input").val() + "\n\n" + $("#audio-input").val())){
+					$("#submit-band").text("Submitting...");
+					$.post('/create-recall-fact', { sentence: $("#sentence-input").val(), reading: $("#reading-input").val(), audio: $("#audio-input").val() }, (res) => {
+						console.log(res);
+						$("#submit-band").text("done");
+					});
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<input
+		class="band" 
+		id="sentence-input" 
+		name=""
+		style="text-align:center; font-size: 2rem"
+		type="text"
+		autocapitalize="none"
+		autocorrect="off"
+		autocomplete="false"
+		spellcheck="false"
+		placeholder="sentence"
+	/>
+	<br><br>
+	<input
+		class="band kana" 
+		id="reading-input" 
+		name="" 
+		style="text-align:center; font-size: 2rem"
+		type="text"
+		autocapitalize="none"
+		autocorrect="off"
+		autocomplete="false"
+		spellcheck="false"
+		placeholder="reading"
+	/>
+	<br><br>
+	<input
+		class="band" 
+		id="audio-input" 
+		name="" 
+		style="text-align:center; font-size: 2rem"
+		type="text"
+		autocapitalize="none"
+		autocorrect="off"
+		autocomplete="false"
+		spellcheck="false"
+		placeholder="audio name"
+	/>
+	<br><br>
+	<div id="submit-band" class="band" style="text-align:center; font-size: 2rem"><button id="submit" style="text-align:center; font-size: 2rem">submit new fact</button></div>
+</body>
+</html>
