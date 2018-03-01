@@ -2,7 +2,9 @@ const fs = require('fs');
 const winston = require('winston');
 const config = require('./config');
 
-const folderName = config.userdataPath;
+const folderName = config.userdataPath + '/review';
+if(!fs.existsSync(folderName)) fs.mkdirSync(folderName);
+
 const logPath = folderName + '/reviews.log';
 
 module.exports.getLogger = () => {

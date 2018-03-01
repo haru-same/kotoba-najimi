@@ -68,6 +68,8 @@ app.get('/new-text', function(req, res){
 		req.query.trans = req.query.trans.replace(/<br>/g, "");
 	}
 
+	console.log(req.query);
+
 	const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 	const furiOutput = furigana(req.query.text);
 	io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans });

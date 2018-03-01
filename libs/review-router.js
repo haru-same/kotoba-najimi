@@ -163,7 +163,7 @@ module.exports.init = (app) => {
 
 		if(reviewData.fact == null){
 			const facts = recallReviews.getAllFacts();
-			res.render('no-reviews', { time: reviewData.firstReview, cards: Object.keys(facts).length, next24hourReviews: reviewData.next24hourReviews, facts: facts, icon: 'joshua' });
+			res.render('no-reviews', { time: reviewData.time, cards: Object.keys(facts).length, next24hourReviews: reviewData.next24hourReviews, facts: facts, icon: 'joshua' });
 		} else {
 			res.render('recall-review', reviewData);
 		}

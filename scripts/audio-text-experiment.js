@@ -1,11 +1,7 @@
 const fs = require('fs');
+const logging = require('../libs/review-logging');
 
-let reviewEntries = [];
-const logStrings = fs.readFileSync('reviews.log', 'utf8').split('\n');
-for(const logString of logStrings){
-	if(logString != "")
-		reviewEntries.push(JSON.parse(logString));
-}
+let reviewEntries = logging.getLog();
 
 const data = {
 	text: {},

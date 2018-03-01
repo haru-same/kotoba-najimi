@@ -1,4 +1,5 @@
 {
-	"target": "ed6",
+	"openChrome": true,
+	"chromePath": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
 	"userdataPath": "../kotoba-najimi-userdata"
 }

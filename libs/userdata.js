@@ -1,7 +1,7 @@
 const fs = require('fs');
 const config = require('./config');
 
-const folderName = config.userdataPath;
+const folderName = config.userdataPath + '/review';
 const JsonExtension = '.json';
 
 if(!fs.existsSync(folderName)){
