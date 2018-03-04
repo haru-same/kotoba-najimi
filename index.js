@@ -60,6 +60,10 @@ app.get('/options', function(req, res){
 	res.render('options');
 });
 
+const usedKeys = {
+	"text": true,
+	"trans": true
+};
 app.get('/new-text', function(req, res){
 	console.log(req.query.text);
 
@@ -69,10 +73,16 @@ app.get('/new-text', function(req, res){
 	}
 
 	console.log(req.query);
+	const metadata = {};
+	for(const key in req.query){
+		if(!usedKeys[key]){
+			metadata[key] = req.query[key];
+		}
+	}
 
 	const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 	const furiOutput = furigana(req.query.text);
-	io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans });
+	io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans, metadata: metadata });
 	res.send('done');
 });
 

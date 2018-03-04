@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "edit-distance": "^1.0.1",
     "ejs": "^2.4.2",
     "express": "^4.14.0",
+    "glob": "^7.1.2",
     "hepburn": "^1.0.0",
     "kuromoji": "0.0.5",
     "opener": "^1.4.3",

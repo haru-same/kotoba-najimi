@@ -50,6 +50,10 @@ rt {
 	vertical-align: bottom;
 }
 
+.text-chunk-controls {
+	text-align: right;
+}
+
 .translation-button {
 	background-color: black;
 	font-size: 1.5rem;
@@ -129,4 +133,8 @@ rb {
 a {
 	color: blue;
 	cursor: pointer;
+}
+
+.add-recall {
+	font-size: 16px;
 }

@@ -28,5 +28,5 @@ module.exports.saveTable = (table) => {
 	}
 
 	const filename = nameToFilename(table.name);
-	fs.writeFileSync(filename, JSON.stringify(table.data));
+	fs.writeFileSync(filename, JSON.stringify(table.data, null, '\t'));
 };

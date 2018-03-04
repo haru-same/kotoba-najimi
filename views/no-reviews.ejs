@@ -1,5 +1,44 @@
+<% 
+	let timeString = "a long time";  
+	if(time == null){
+		timeString = "no cards have been made"
+	} else {
+		const minutes = (time - new Date().getTime()) / (1000 * 60);
+		const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
+		if(minutes < 60) {
+			timeString = Math.round(minutes);
+			if(timeString == 1) timeString += " minute";
+			else timeString += " minutes";
+		} else if(hours < 17) {
+			timeString =  Math.round(hours);
+			if(timeString == 1) timeString += " hour";
+			else timeString += " hours";
+		} else {
+			timeString = Math.round(hours / 24);
+			if(timeString == 1) timeString += " day";
+			else timeString += " days";
+		}
+	}
+
+
+	let dayStart = new Date();
+	dayStart.setHours(0,0,0,0);
+
+	let dayEnd = new Date();
+	dayEnd.setHours(23,59,59,999);
+
+	let createdToday = 0;
+	for(let id in facts){
+		const created = facts[id].created;
+		if(created >= dayStart && created <= dayEnd){
+			createdToday++;
+		}
+	}
+%>
 <html>
 <head>
+	<title>(<%= createdToday %>新枚) 復習</title>
+
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
 
@@ -20,45 +59,15 @@ if (typeof icon != 'undefined' && icon) {
 	<meta name="msapplication-TileColor" content="#2d89ef">
 	<meta name="msapplication-config" content="/icons/<%= iconDir %>/browserconfig.xml">
 	<meta name="theme-color" content="#ffffff">
+
+	<script type="text/javascript">
+		setTimeout(() => {
+			location.reload();
+		}, 1000 * 60 * 10);
+		// reload after 10 minutes
+	</script>
 </head>
 <body>
-	<% 
-		let timeString = "a long time";  
-		if(time == null){
-			timeString = "no cards have been made"
-		} else {
-			const minutes = (time - new Date().getTime()) / (1000 * 60);
-			const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
-			if(minutes < 60) {
-				timeString = Math.round(minutes);
-				if(timeString == 1) timeString += " minute";
-				else timeString += " minutes";
-			} else if(hours < 17) {
-				timeString =  Math.round(hours);
-				if(timeString == 1) timeString += " hour";
-				else timeString += " hours";
-			} else {
-				timeString = Math.round(hours / 24);
-				if(timeString == 1) timeString += " day";
-				else timeString += " days";
-			}
-		}
-
-
-		let dayStart = new Date();
-		dayStart.setHours(0,0,0,0);
-
-		let dayEnd = new Date();
-		dayEnd.setHours(23,59,59,999);
-
-		let createdToday = 0;
-		for(let id in facts){
-			const created = facts[id].created;
-			if(created >= dayStart && created <= dayEnd){
-				createdToday++;
-			}
-		}
-	%>
 	<div class="band" style="text-align:center; font-size: 2rem">
 		Next review in about <%= timeString %> (<%= next24hourReviews %> in the next day)
 		<div style="font-size: 1.5rem">

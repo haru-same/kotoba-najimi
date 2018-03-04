@@ -1,9 +1,13 @@
+const ejs = require('ejs');
+const fs = require('fs');
+
 const wanakana = require('./wanakana');
 const furigana = require('./furigana');
 const recallReviews = require('./recall-reviews');
 const kanjiReviews = require('./kanji-reviews');
 const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
+const gameTools = require('./game-tools/game-tools');
 
 const KanjiCondition = 1;
 const RecallCondition = 2;
@@ -19,7 +23,7 @@ const streakToInterval = (streak) => {
 		case 0:
 			return 5 * minute;
 		default:
-			return day * Math.pow(2, streak - 1) - 6 * hour;
+			return day * Math.pow(2, streak - 1) - 12 * hour;
 	}
 };
 
@@ -30,6 +34,22 @@ const setUpdatedDue = (state, result) => {
 		state.streak = -1;
 	}
 	state.due = new Date().getTime() + streakToInterval(state.streak);
+}
+
+const createRecallFact = (sentence, reading, audio) => {
+	const data = { sentence: sentence, reading: reading, audio: audio, type: RecallCondition };
+	const result = recallReviews.find("sentence", data.sentence);
+	if(result){
+		console.log("fact already recorded: ");
+		console.log(result.sentence);
+		res.json({ error: "fact already recorded: " + result.sentence });
+		return null;
+	}
+
+	recallReviews.add(data);
+
+	console.log("fact saved: ", data);
+	return data;
 }
 
 module.exports.init = (app) => {
@@ -50,13 +70,14 @@ module.exports.init = (app) => {
 	app.post('/create-kanji-fact', (req, res) => {
 		const data = req.body;
 		data.type = KanjiCondition;
-		const result = recallReviews.find("sentence", data.sentence);
-		if(result){
-			console.log("fact already recorded: ");
-			console.log(result.sentence);
-			res.json({ error: "fact already recorded: " + result.sentence })
-			return;
-		}
+
+		// const result = kanjiReviews.find("sentence", data.sentence);
+		// if(result){
+		// 	console.log("fact already recorded: ");
+		// 	console.log(result.sentence);
+		// 	res.json({ error: "fact already recorded: " + result.sentence })
+		// 	return;
+		// }
 
 		kanjiReviews.add(data);
 
@@ -165,6 +186,10 @@ module.exports.init = (app) => {
 			const facts = recallReviews.getAllFacts();
 			res.render('no-reviews', { time: reviewData.time, cards: Object.keys(facts).length, next24hourReviews: reviewData.next24hourReviews, facts: facts, icon: 'joshua' });
 		} else {
+			const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+			const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
+			reviewData.furiganaHtml = furiganaHtml;
+
 			res.render('recall-review', reviewData);
 		}
 	});
@@ -203,18 +228,22 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/create-recall-fact', (req, res) => {
-		const data = { sentence: req.body.sentence, reading: req.body.reading, audio: req.body.audio, type: RecallCondition };
-		const result = recallReviews.find("sentence", data.sentence);
-		if(result){
-			console.log("fact already recorded: ");
-			console.log(result.sentence);
-			res.json({ error: "fact already recorded: " + result.sentence })
+		const data = createRecallFact(req.body.sentence, req.body.reading, req.body.audio);
+		if(data){
+			res.send('success: ' + data.sentence);
 			return;
 		}
+		res.send('failed');
+	});
 
-		recallReviews.add(data);
-
-		console.log("fact saved: ", data);
-		res.send('success: ' + data.sentence);
+	app.post('/try-create-recall-fact', (req, res) => {
+		console.log(req.body);
+		const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
+		if(voice){
+			createRecallFact(req.body.text.replace(/\n/g, ''), req.body.reading, voice);
+			res.json({ success: true });
+		} else {
+			res.json({ success: false, error: 'Audio file could not be found. See server log.' });
+		}
 	});
 };

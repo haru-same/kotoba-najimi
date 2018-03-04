@@ -2,7 +2,7 @@
 <head>
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
 	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
 	<script type="text/javascript" src="/js/mobile-check.js"></script>
 
@@ -13,6 +13,8 @@
 
 		const socket = io();
 		let textToFurigana = {};
+		let id = 0;
+		let idToData = {};
 
 		const escapeQuotes = (text) => {
 			console.log('in', text);
@@ -98,9 +100,20 @@
 				if(msg.trans){
 					translation = `<div style="text-align:right"><div class="translation-button" trans="${escapeQuotes(msg.trans)}">en</div></div>`;
 				}
-				$("#output").append($(`<div class='text-chunk' original="${msg.text}">${translation}<div class='content'>${msg.html}</div></div>`));
+				const $newElement = $(`<div class='text-chunk' did="${id}" original="${msg.text}">${translation}<div class='content'>${msg.html}</div></div>`);
+				$("#output").append($newElement);
+				console.log(msg);
+
+				if(msg.metadata && msg.metadata.voice){
+					$newElement.prepend('<div class="text-chunk-controls"><i class="fas fa-plus link-button add-recall" title="Add a recall review"></i></div>');
+				}
+
+				idToData[id] = { text: msg.text };
+				idToData[id].metadata = msg.metadata;
+				console.log(idToData);
 				textToFurigana[msg.text] = msg.html;
 			}
+			id++;
 			window.scrollTo(0,document.body.scrollHeight);
 
 			socket.emit('update-words');
@@ -182,6 +195,22 @@
 					}
 				}
 			});
+
+			$(document).on('click', '.add-recall', function(e){ 
+				const did = $(e.target).closest('.text-chunk').attr('did');
+				console.log(did);
+				const textData = idToData[did];
+				const text = textData.text.replace(/\n/g, '');
+				$.get('/furigana', { text: text }, (res) => {
+					let reading = prompt(`Enter pronunciation for:\n${text}\n(voice: ${textData.metadata.voice})`, res);
+
+					if(reading){
+						$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading }, (res) => {
+							console.log(res);
+						});
+					}
+				});
+			}); 
 		});
 	</script>
 </head>
@@ -189,8 +218,8 @@
 	<div class="message"></div>
 	<div style="position:fixed; width:100%; top:0; left:0; background-color:white; padding:4px; text-align: right; box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);">
 		<span class="instruction-text">Hover over Kanji and [F] key to create fact (<a id="do-reviews">reviews</a>)</span>
-		<i id="options-button" class="fa fa-cog link-button header-button" aria-hidden="true"></i>
-		<i id="fullscreen-button" class="fa fa-expand link-button header-button" aria-hidden="true"></i>
+		<i id="options-button" class="fas fa-cog link-button header-button"></i>
+		<i id="fullscreen-button" class="fas fa-expand link-button header-button"></i>
 	</div>
 	<div class="top-box no-dict">Hover over words to translate...</div>
     <div id="container" style="display:flex; align-items:flex-end; flex-direction:column">
