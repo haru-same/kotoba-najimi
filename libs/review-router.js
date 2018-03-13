@@ -1,6 +1,8 @@
 const ejs = require('ejs');
 const fs = require('fs');
 
+const reviewTools = require('./review-tools');
+const decks = require('./review-data');
 const wanakana = require('./wanakana');
 const furigana = require('./furigana');
 const recallReviews = require('./recall-reviews');
@@ -9,22 +11,15 @@ const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
 const gameTools = require('./game-tools/game-tools');
 
-const KanjiCondition = 1;
-const RecallCondition = 2;
 const reviewLogger = reviewLogging.getLogger();
 
-const streakToInterval = (streak) => {
-	const minute = 1000 * 60;
-	const hour = minute * 60;
-	const day = hour * 24;
-	switch(streak){
-		case -1:
-			return 0;
-		case 0:
-			return 5 * minute;
-		default:
-			return day * Math.pow(2, streak - 1) - 12 * hour;
-	}
+const KanjiType = 1;
+const RecallType = 2;
+const WordRecallType = 3;
+
+const DECK_TO_ICON = {
+	kanji: "estelle",
+	recall: "joshua"
 };
 
 const setUpdatedDue = (state, result) => {
@@ -35,11 +30,12 @@ const setUpdatedDue = (state, result) => {
 	} else {
 		state.streak = 0;
 	}
-	state.due = new Date().getTime() + streakToInterval(state.streak);
-}
+	state.due = new Date().getTime() + reviewTools.streakToInterval(state.streak);
+};
 
 const createRecallFact = (sentence, reading, audio, word) => {
-	const data = { sentence: sentence, reading: reading, audio: audio, word: word, type: RecallCondition };
+	let type = RecallType;
+	const data = { sentence: sentence, reading: reading, audio: audio, word: word, type: RecallType };
 	
 	const result = recallReviews.find("sentence", data.sentence);
 	if(!word && result){
@@ -53,30 +49,196 @@ const createRecallFact = (sentence, reading, audio, word) => {
 
 	console.log("fact saved: ", data);
 	return data;
+};
+
+const renderNoReviews = (res, deckName) => {
+	const deck = decks.getDeck(deckName);
+	const reviewData = {
+		facts: deck.getAllFacts(),
+		states: deck.getAllStates(),
+		icon: DECK_TO_ICON[deckName] || 'estelle'
+	};
+	res.render('no-reviews', reviewData);
 }
 
-const renderReview = (id) => {
-	
+const renderReview = (res, deckName, id, debugData) => {
+	const deck = decks.getDeck(deckName);
+	if(!deck) {
+		res.send("deck not found: " + deckName);
+		return;
+	}
+
+	const reviewData = { };
+	reviewData.fact = deck.find(id);
+	if(!reviewData.fact){
+		res.send("fact not found: " + id);
+		return;
+	}
+
+	reviewData.deck = deckName;
+	reviewData.state = deck.findState(id);
+	reviewData.facts = deck.getAllFacts();
+	reviewData.states = deck.getAllStates();
+
+	switch(reviewData.fact.type){
+	case 1:
+		res.render('kanji-review', reviewData);
+		break;
+	case 2:
+	case 3:
+		const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+		const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
+		reviewData.furiganaHtml = furiganaHtml;
+		res.render('recall-review', reviewData);
+		break;
+	default:
+		res.send("unhandled type: " + reviewData.fact.type);
+		break;
+	}
+};
+
+const handleKanjiReviewResponse = (req, res) => {
+	const deck = decks.getDeck(req.body.deck);
+
+	const originalFact = deck.find('id', req.body.id);
+	if(!originalFact){
+		console.log("failed, no data changed");
+		res.send("failed, no data changed");
+		return;
+	}
+
+	const state = deck.findState('id', req.body.id);
+
+	const logMessage = { 
+		id: req.body.id, 
+		input: req.body.input, 
+		duration: req.body.duration, 
+		streak: state.streak, 
+		time: new Date().getTime(), 
+		tries: req.body.tries, 
+		type: 'kanji'
+	};
+
+	const original =  originalFact.target;
+	const reading = originalFact.reading;
+	let result = { correct: 0, reading: reading };
+
+	if(req.body.type == 't') {
+		const input = req.body.input;
+		if(reading == input || reading == wanakana.toKana(input)){
+			logMessage.result = 1;
+			result.correct = 1;
+			setUpdatedDue(state, 1);
+		} else {
+			logMessage.result = 0;
+			if(req.body.tries == 0) {
+				console.log('reseting card: ' + reading);
+				setUpdatedDue(state, -1);
+			}
+		}
+
+		reviewLogger.log({ level: 'info', message: logMessage });
+		res.json(result);
+	} else if(req.body.type == 's'){
+		logMessage.result = 0;
+		for(let i = 0; i < req.body.results.length; i++){
+			let transcript = req.body.results[i];
+			if(transcript == original || transcript == reading){
+				logMessage.result = 1;
+				result.correct = 1;
+				setUpdatedDue(state, 1);
+				break;
+			}
+		}
+
+		if(result.correct == 0 && req.body.tries == 0){
+			console.log('reseting card: ' + reading);
+			setUpdatedDue(state, -1);
+		}
+
+		logMessage.results = req.body.results;
+
+		reviewLogger.log({ level: 'info', message: logMessage });
+		res.json(result);
+	} else {
+		res.json(result);
+	}
+
+	deck.updateState(state);
+};
+
+const handleRecallReviewResponse = (req, res) => {
+	const deck = decks.getDeck(req.body.deck);
+
+	const input = req.body.input.replace(/ /g,'');
+	let originalFact = deck.find('id', req.body.id);
+	if(!originalFact){
+		const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
+		const testScoreInfo = reviewTools.scoreReview(testOriginal, input);
+		testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.body.id + "]. No data recorded.";
+		res.json(testScoreInfo);
+		return;
+	}
+
+	const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
+	const state = deck.findState('id', req.body.id);
+	const scoreInfo = reviewTools.scoreReview(original, input);
+	if(state.condition == 2){
+		result = 0;
+		if(scoreInfo.score > 0.95) {
+			setUpdatedDue(state, 1);
+		} else {
+			setUpdatedDue(state, -1);
+		}
+	} else {
+		setUpdatedDue(state, 1);
+	}
+	deck.updateState(state);
+
+	reviewLogger.log({ level: 'info', message: { 
+		id: req.body.id, 
+		type: "recall", 
+		condition: state.condition,
+		input: req.body.input, 
+		score: scoreInfo.score, 
+		duration: parseInt(req.body.duration)
+	} });
+
+	res.json(scoreInfo);
 }
 
 module.exports.init = (app) => {
 	app.get('/review', (req, res) => {
-		let reviewData = { fact: {}, condition: 0, remaining: -1 };
-		kanjiReviews.syncStates();
-		reviewData = kanjiReviews.getExpiredReview();
+		let deckName = 'kanji';
+		if(req.query.deck) deckName = req.query.deck;
 
-		const facts = kanjiReviews.getAllFacts();
-		if(reviewData.fact == null){
-			res.render('no-reviews', { time: reviewData.time, cards: Object.keys(facts).length, next24hourReviews: reviewData.next24hourReviews, facts: facts, icon: 'estelle' });
-		} else {
-			reviewData.facts = facts;
-			res.render('kanji-review', reviewData);
+		const deck = decks.getDeck(deckName);
+		if(!deck) {
+			res.send("deck not found: " + deckName);
+			return;
 		}
+
+		deck.syncStates();
+		if(req.query.dbg && req.query.id) {
+			renderReview(res, deckName, req.query.id);
+			return;
+		}
+
+		const expiredReviewId = deck.getExpiredReview();
+		if(expiredReviewId == null){
+			renderNoReviews(res, deckName);
+		} else {
+			renderReview(res, deckName, expiredReviewId);
+		}
+	});
+
+	app.get('/recall-review', (req, res) => {
+		res.redirect('/review?deck=recall');
 	});
 
 	app.post('/create-kanji-fact', (req, res) => {
 		const data = req.body;
-		data.type = KanjiCondition;
+		data.type = KanjiType;
 
 		// const result = kanjiReviews.find("sentence", data.sentence);
 		// if(result){
@@ -93,71 +255,19 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/review', (req, res) => {
-		const originalFact = kanjiReviews.find('id', req.body.id);
-		if(!originalFact){
-			console.log("failed, no data changed");
-			res.send("failed, no data changed");
-			return;
+		const deck = decks.getDeck(req.body.deck);
+		const fact = deck.find(req.body.id);
+		switch(fact.type){
+		case 1:
+			handleKanjiReviewResponse(req, res);
+			break;
+		case 2:
+		case 3:
+			handleRecallReviewResponse(req, res);
+			break;
+		default:
+			res.send("type not handled: " + fact.type);
 		}
-
-		const state = kanjiReviews.findState('id', req.body.id);
-
-		const logMessage = { 
-			id: req.body.id, 
-			input: req.body.input, 
-			duration: req.body.duration, 
-			streak: state.streak, 
-			time: new Date().getTime(), 
-			tries: req.body.tries, 
-			type: 'kanji'
-		};
-
-		const original =  originalFact.target;
-		const reading = originalFact.reading;
-		let result = { correct: 0, reading: reading };
-
-		if(req.body.type == 't') {
-			const input = req.body.input;
-			if(reading == input || reading == wanakana.toKana(input)){
-				logMessage.result = 1;
-				result.correct = 1;
-				setUpdatedDue(state, 1);
-			} else {
-				logMessage.result = 0;
-				if(req.body.tries == 0) {
-					console.log('reseting card: ' + reading);
-					setUpdatedDue(state, -1);
-				}
-			}
-
-			reviewLogger.log({ level: 'info', message: logMessage });
-			res.json(result);
-		} else if(req.body.type == 's'){
-			logMessage.result = 0;
-			for(let i = 0; i < req.body.results.length; i++){
-				let transcript = req.body.results[i];
-				if(transcript == original || transcript == reading){
-					logMessage.result = 1;
-					result.correct = 1;
-					setUpdatedDue(state, 1);
-					break;
-				}
-			}
-
-			if(result.correct == 0 && req.body.tries == 0){
-				console.log('reseting card: ' + reading);
-				setUpdatedDue(state, -1);
-			}
-
-			logMessage.results = req.body.results;
-
-			reviewLogger.log({ level: 'info', message: logMessage });
-			res.json(result);
-		} else {
-			res.json(result);
-		}
-
-		kanjiReviews.updateState(state);
 	});
 
 	app.post('/delete-review', (req, res) => {
@@ -175,38 +285,12 @@ module.exports.init = (app) => {
 		res.render('review-stats', { facts: facts, reviewStates: states, reviewLogs: reviewHistory });
 	});
 
-	app.get('/recall-review', (req, res) => {
-		let reviewData = { fact: {}, condition: 0, remaining: -1 };
-		if(req.query.test){
-			reviewData.fact = {
-				sentence: "じゃあ、あたしが遊撃士として魔法使いの企みを阻止できたら……",
-				reading: "じゃあ、あたしがゆうげきしとしてまほうつかいのたくらみをそしできたら……",
-				audio: "ch0010190369.ogg",
-				type: RecallCondition
-			};
-		} else {
-			recallReviews.syncStates();
-			reviewData = recallReviews.getExpiredReview();
-		}
-
-		if(reviewData.fact == null){
-			const facts = recallReviews.getAllFacts();
-			res.render('no-reviews', { time: reviewData.time, cards: Object.keys(facts).length, next24hourReviews: reviewData.next24hourReviews, facts: facts, icon: 'joshua' });
-		} else {
-			const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
-			const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
-			reviewData.furiganaHtml = furiganaHtml;
-
-			res.render('recall-review', reviewData);
-		}
-	});
-
 	app.post('/recall-review', (req, res) => {
 		const input = req.body.input.replace(/ /g,'');
 		let originalFact = recallReviews.find('id', req.body.id);
 		if(!originalFact){
 			const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
-			const testScoreInfo = recallReviews.scoreReview(testOriginal, input);
+			const testScoreInfo = reviewTools.scoreReview(testOriginal, input);
 			testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.body.id + "]. No data recorded.";
 			res.json(testScoreInfo);
 			return;
@@ -214,7 +298,7 @@ module.exports.init = (app) => {
 
 		const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
 		const state = recallReviews.findState('id', req.body.id);
-		const scoreInfo = recallReviews.scoreReview(original, input);
+		const scoreInfo = reviewTools.scoreReview(original, input);
 		if(state.condition == 2){
 			result = 0;
 			if(scoreInfo.score > 0.95) {

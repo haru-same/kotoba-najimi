@@ -30,3 +30,10 @@ module.exports.saveTable = (table) => {
 	const filename = nameToFilename(table.name);
 	fs.writeFileSync(filename, JSON.stringify(table.data, null, '\t'));
 };
+
+module.exports.deleteTable = (name) => {
+	const filename = nameToFilename(name);
+	if(fs.existsSync(filename)){
+		fs.unlink(filename);
+	}
+}

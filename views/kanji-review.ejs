@@ -1,43 +1,8 @@
-<% 
-	let timeString = "a long time";  
-	if(time == null){
-		timeString = "no cards have been made"
-	} else {
-		const minutes = (time - new Date().getTime()) / (1000 * 60);
-		const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
-		if(minutes < 60) {
-			timeString = Math.round(minutes);
-			if(timeString == 1) timeString += " minute";
-			else timeString += " minutes";
-		} else if(hours < 17) {
-			timeString =  Math.round(hours);
-			if(timeString == 1) timeString += " hour";
-			else timeString += " hours";
-		} else {
-			timeString = Math.round(hours / 24);
-			if(timeString == 1) timeString += " day";
-			else timeString += " days";
-		}
-	}
-
-
-	let dayStart = new Date();
-	dayStart.setHours(0,0,0,0);
-
-	let dayEnd = new Date();
-	dayEnd.setHours(23,59,59,999);
-
-	let createdToday = 0;
-	for(let id in facts){
-		const created = facts[id].created;
-		if(created >= dayStart && created <= dayEnd){
-			createdToday++;
-		}
-	}
-%>
+<% const reviewProgress = {}; %>
+<% include partial/review-progress %>
 <html>
 <head>
-	<title>(<%= createdToday %>新枚, まだ<%= remaining %>枚) 漢字復習</title>
+	<title>(<%= reviewProgress.createdToday %>新枚, まだ<%= reviewProgress.nowReviews %>枚) 漢字復習</title>
 
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
@@ -60,7 +25,7 @@
 		let complete = false;
 		let tries = 1;
 
-		<% if(condition == 0) { %>
+		<% if(state.condition == 0) { %>
 		const showCorrectAnswer = (res) => {
 			$('#reading-input').val(res.reading);
 		};
@@ -149,7 +114,7 @@
 						outResults.push(results[i].transcript);
 					}
 					// , results: results
-		    		$.post('/review', { id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries }, (res) => {
+		    		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries }, (res) => {
 		    			handleAnswerResponse(res);
 		    			$("#speech-out").toggleClass('partial', false);
 		    			$("#mic-button").toggleClass('recording', false);
@@ -185,7 +150,7 @@
 	        		if($("#reading-input").length > 0 && !complete){
 	        			lastInput = input;
 		        		$('#reading-input').attr('disabled', true);
-		        		$.post('/review', { id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries }, (res) => {
+		        		$.post('/review', { deck: "<%= deck %>" id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries }, (res) => {
 		        			handleAnswerResponse(res);
 		        			if(res.correct == 0){
 		        				$('#reading-input').attr('disabled', false);
@@ -212,7 +177,7 @@
 
 			$("#delete-review").click(() => {
 				if(confirm("Are you sure you want to delete this?")){
-					$.post('/delete-review', { id: targetId }, () => {
+					$.post('/delete-review', { deck: "<%= deck %>" id: targetId }, () => {
 						location.reload();
 					});
 				}
@@ -257,13 +222,13 @@
 <body>
 	<div class="band" style="text-align:center; font-size: 2rem"><%- fact.context.replace(fact.target, `『<b>${fact.target}</b>』`) %></div>
 	<br>
-	<% if(condition == 0) { %>
+	<% if(state.condition == 0) { %>
 	<input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem">
 	<% } else { %>
 	<div class="band"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
 	<% } %>
 	<div class="error"></div>
 	<div style="height: 100px;"></div>
-	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= remaining %> remaining) <button id="delete-review">delete</button></div>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
 </body>
 </html>

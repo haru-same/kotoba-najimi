@@ -19,10 +19,14 @@ class ReviewTable {
 
 	find(varName, value){
 		const factsTable = userdata.getTable(this.factTableName);
-		for(let id in factsTable.data){
-			const fact = factsTable.data[id];
-			if(fact[varName] == value){
-				return fact;
+		if(value == null){
+			return factsTable.data[varName];
+		} else {
+			for(let id in factsTable.data){
+				const fact = factsTable.data[id];
+				if(fact[varName] == value){
+					return fact;
+				}
 			}
 		}
 		return null;
@@ -40,6 +44,11 @@ class ReviewTable {
 		
 		userdata.saveTable(factsTable);
 		userdata.saveTable(statesTable);
+	}
+
+	deleteAll(){
+		userdata.deleteTable(this.factTableName);
+		userdata.deleteTable(this.stateTableName);
 	}
 
 	add(newFact){
@@ -82,10 +91,14 @@ class ReviewTable {
 
 	findState(varName, value){
 		const statesTable = userdata.getTable(this.stateTableName);
-		for(let id in statesTable.data){
-			const state = statesTable.data[id];
-			if(state[varName] == value){
-				return state;
+		if(value == null){
+			return statesTable.data[varName];
+		} else {
+			for(let id in statesTable.data){
+				const state = statesTable.data[id];
+				if(state[varName] == value){
+					return state;
+				}
 			}
 		}
 		return null;
@@ -103,41 +116,57 @@ class ReviewTable {
 		userdata.saveTable(statesTable);
 	}
 
-	sortReviews(factList){
-		shuffle(factList);
+	sortReviews(expiredList){
+		shuffle(expiredList);
 	}
 
 	getExpiredReview(){
-		const factsTable = userdata.getTable(this.factTableName);
+		// const factsTable = userdata.getTable(this.factTableName);
+		// const statesTable = userdata.getTable(this.stateTableName);
+
+		// const now = new Date().getTime();
+		// let firstReview = null;
+		// let factList = [];
+		// let dayFromNow = new Date().getTime() + 1000 * 60 * 60 * 24;
+		// let next24hourReviews = 0;
+		// for(const id in factsTable.data){
+		// 	if(statesTable.data[id].due < now){
+		// 		const fact = factsTable.data[id];
+		// 		factList.push(fact);
+		// 	} else {
+		// 		if(firstReview == null || statesTable.data[id].due < firstReview){
+		// 			firstReview = statesTable.data[id].due;
+		// 		}
+		// 	}
+
+		// 	if(statesTable.data[id].due < dayFromNow){
+		// 		next24hourReviews++;
+		// 	}
+		// }
+
+		// this.sortReviews(factList);
+		// const output = { fact: null, time: firstReview, remaining: factList.length, next24hourReviews: next24hourReviews };
+		// if(factList.length > 0) {
+		// 	output.fact = factList[0];
+		// 	output.condition = statesTable.data[factList[0].id].condition;
+		// }
+		// return output;
+
 		const statesTable = userdata.getTable(this.stateTableName);
-
 		const now = new Date().getTime();
-		let firstReview = null;
-		let factList = [];
-		let dayFromNow = new Date().getTime() + 1000 * 60 * 60 * 24;
-		let next24hourReviews = 0;
-		for(const id in factsTable.data){
+		const expiredList = [];
+		for(const id in statesTable.data){
 			if(statesTable.data[id].due < now){
-				const fact = factsTable.data[id];
-				factList.push(fact);
-			} else {
-				if(firstReview == null || statesTable.data[id].due < firstReview){
-					firstReview = statesTable.data[id].due;
-				}
-			}
-
-			if(statesTable.data[id].due < dayFromNow){
-				next24hourReviews++;
+				const state = statesTable.data[id];
+				expiredList.push(state);
 			}
 		}
 
-		this.sortReviews(factList);
-		const output = { fact: null, time: firstReview, remaining: factList.length, next24hourReviews: next24hourReviews };
-		if(factList.length > 0) {
-			output.fact = factList[0];
-			output.condition = statesTable.data[factList[0].id].condition;
+		if(expiredList.length == 0) {
+			return null;
 		}
-		return output;
+		this.sortReviews(expiredList);
+		return expiredList[0].id;
 	}
 }
 

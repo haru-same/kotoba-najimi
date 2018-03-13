@@ -1,43 +1,43 @@
+<% const reviewProgress = {}; %>
+<% include partial/review-progress %>
 <% 
-	let timeString = "a long time";  
-	if(time == null){
-		timeString = "no cards have been made"
+const oneDay = 24 * 60 * 60 * 1000;
+const now = new Date().getTime();
+reviewProgress.next24hourReviews = 0;
+let firstReview = null;
+for(const id in states){
+	if(!firstReview || states[id].due < firstReview.due){
+		firstReview = states[id];
+	}
+
+	if(states[id].due < now + oneDay) reviewProgress.next24hourReviews++;
+}
+
+reviewProgress.timeString = "a long time";  
+if(firstReview == null){
+	reviewProgress.timeString = "no cards have been made"
+} else {
+	const time = firstReview.due;
+	const minutes = (time - new Date().getTime()) / (1000 * 60);
+	const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
+	if(minutes < 60) {
+		reviewProgress.timeString = Math.round(minutes);
+		if(reviewProgress.timeString > 1) reviewProgress.timeString += " minute";
+		else reviewProgress.timeString += " minutes";
+	} else if(hours < 17) {
+		reviewProgress.timeString =  Math.round(hours);
+		if(reviewProgress.timeString == 1) timeString += " hour";
+		else reviewProgress.timeString += " hours";
 	} else {
-		const minutes = (time - new Date().getTime()) / (1000 * 60);
-		const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
-		if(minutes < 60) {
-			timeString = Math.round(minutes);
-			if(timeString == 1) timeString += " minute";
-			else timeString += " minutes";
-		} else if(hours < 17) {
-			timeString =  Math.round(hours);
-			if(timeString == 1) timeString += " hour";
-			else timeString += " hours";
-		} else {
-			timeString = Math.round(hours / 24);
-			if(timeString == 1) timeString += " day";
-			else timeString += " days";
-		}
+		reviewProgress.timeString = Math.round(hours / 24);
+		if(reviewProgress.timeString == 1) reviewProgress.timeString += " day";
+		else reviewProgress.timeString += " days";
 	}
-
-
-	let dayStart = new Date();
-	dayStart.setHours(0,0,0,0);
-
-	let dayEnd = new Date();
-	dayEnd.setHours(23,59,59,999);
-
-	let createdToday = 0;
-	for(let id in facts){
-		const created = facts[id].created;
-		if(created >= dayStart && created <= dayEnd){
-			createdToday++;
-		}
-	}
+}
 %>
 <html>
 <head>
-	<title>(<%= createdToday %>新枚) 復習</title>
+	<title>(<%= reviewProgress.createdToday %>新枚) 復習</title>
 
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
@@ -69,11 +69,11 @@ if (typeof icon != 'undefined' && icon) {
 </head>
 <body>
 	<div class="band" style="text-align:center; font-size: 2rem">
-		Next review in about <%= timeString %> (<%= next24hourReviews %> in the next day)
+		Next review in about <%= reviewProgress.timeString %> (<%= reviewProgress.next24hourReviews %> in the next day)
 		<div style="font-size: 1.5rem">
 		<br>
 		<br>
-		<%= cards %> total cards added (<%= createdToday %> today)<br>
+		<%= Object.keys(facts).length %> total cards added (<%= reviewProgress.createdToday %> today)<br>
 		<br>
 		<%= new Date() %>
 		</div>

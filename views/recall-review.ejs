@@ -1,6 +1,8 @@
+<% const reviewProgress = {}; %>
+<% include partial/review-progress %>
 <html>
 <head>
-	<title>(まだ<%= remaining %>枚) 繰り返すの復習</title>
+	<title>(まだ<%= reviewProgress.nowReviews %>枚) 繰り返すの復習</title>
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="/js/wanakana.min.js"></script>
 	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
@@ -40,7 +42,7 @@
 
 		const stateEnterHandlers = [
 			() => { // beginInput
-				<% if(condition == 1 || condition == 2) {%>
+				<% if(state.condition == 1 || state.condition == 2) {%>
 				state = AwaitingAudioState;
 				var audio = new Audio('/audio/<%- fact.audio %>');
 				$("#begin-band").hide();
@@ -71,7 +73,7 @@
 
 	        		state = SubmitInput;
 
-					$.post('/recall-review', { id: targetId, input: input, original: originalText, duration: new Date().getTime() - start }, (res) => {
+					$.post('/recall-review', { deck: "<%= deck %>" id: targetId, input: input, original: originalText, duration: new Date().getTime() - start }, (res) => {
 						console.log(res);
 
 						let outString = "";
@@ -101,7 +103,7 @@
 
 						$("#answer-text-container").show();
 
-						<% if(condition == 2) { %>
+						<% if(state.condition == 2) { %>
 						if(res.score >= 0.95) $("body").css('background-color', 'lightgreen');
 						else $("body").css('background-color', 'pink');
 						<% } else { %>
@@ -163,15 +165,15 @@
 </head>
 <body>
 	<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
-		<% if(condition == 1) {%>
+		<% if(state.condition == 1) {%>
 		<i class="fas fa-volume-up"></i>
-		<% } else if(condition == 2) { %>
+		<% } else if(state.condition == 2) { %>
 		<i class="fas fa-volume-up"></i> x1 word
 		<% } else { %>
 		<span id="original-text-container"><%- furiganaHtml %></span>
 		<% } %>
 	</div>
-	<% if(condition == 2) { %>
+	<% if(state.condition == 2) { %>
 	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
 		<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
 	</div>
@@ -196,6 +198,6 @@
 	<div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %><br><button id="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 	<div class="error"></div>
 	<div style="height: 100px;"></div>
-	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= remaining %> remaining) <button id="delete-review">delete</button></div>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
 </body>
 </html>
