@@ -100,9 +100,12 @@ io.on('connection', function (socket) {
 	for(let i in ips){
 		ips[i] = ips[i] + ":1414";
 	}
-	socket.emit('new-text', "Connection opened.");
-	socket.emit('new-text', `If you only have one monitor and still want to play fullscreen, you can use the tool on other devices on your local network (including a cell phone if needed) by entering one of these IP addresses into Chrome:<br>${ips.join(', ')}`);
-	socket.emit('new-text', "[DISCLAIMER] The furigana and dictionary entries may be wrong. You should double check anything that seems weird to avoid learning the wrong thing.");
+
+	if(openWindow){
+		socket.emit('new-text', "Connection opened.");
+		socket.emit('new-text', `If you only have one monitor and still want to play fullscreen, you can use the tool on other devices on your local network (including a cell phone if needed) by entering one of these IP addresses into Chrome:<br>${ips.join(', ')}`);
+		socket.emit('new-text', "[DISCLAIMER] The furigana and dictionary entries may be wrong. You should double check anything that seems weird to avoid learning the wrong thing.");
+	}
 
 	socket.on('test-text', () => {
 		const text = "やっと返してかえしてきやがったわけさ。";

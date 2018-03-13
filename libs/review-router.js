@@ -30,16 +30,19 @@ const streakToInterval = (streak) => {
 const setUpdatedDue = (state, result) => {
 	if(result == 1){
 		state.streak++;
-	} else {
+	} else if(result == -1) {
 		state.streak = -1;
+	} else {
+		state.streak = 0;
 	}
 	state.due = new Date().getTime() + streakToInterval(state.streak);
 }
 
-const createRecallFact = (sentence, reading, audio) => {
-	const data = { sentence: sentence, reading: reading, audio: audio, type: RecallCondition };
+const createRecallFact = (sentence, reading, audio, word) => {
+	const data = { sentence: sentence, reading: reading, audio: audio, word: word, type: RecallCondition };
+	
 	const result = recallReviews.find("sentence", data.sentence);
-	if(result){
+	if(!word && result){
 		console.log("fact already recorded: ");
 		console.log(result.sentence);
 		res.json({ error: "fact already recorded: " + result.sentence });
@@ -50,6 +53,10 @@ const createRecallFact = (sentence, reading, audio) => {
 
 	console.log("fact saved: ", data);
 	return data;
+}
+
+const renderReview = (id) => {
+	
 }
 
 module.exports.init = (app) => {
@@ -119,7 +126,7 @@ module.exports.init = (app) => {
 				logMessage.result = 0;
 				if(req.body.tries == 0) {
 					console.log('reseting card: ' + reading);
-					setUpdatedDue(state, 0);
+					setUpdatedDue(state, -1);
 				}
 			}
 
@@ -139,7 +146,7 @@ module.exports.init = (app) => {
 
 			if(result.correct == 0 && req.body.tries == 0){
 				console.log('reseting card: ' + reading);
-				setUpdatedDue(state, 0);
+				setUpdatedDue(state, -1);
 			}
 
 			logMessage.results = req.body.results;
@@ -207,9 +214,18 @@ module.exports.init = (app) => {
 
 		const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
 		const state = recallReviews.findState('id', req.body.id);
-		setUpdatedDue(state, 1);
-		recallReviews.updateState(state);
 		const scoreInfo = recallReviews.scoreReview(original, input);
+		if(state.condition == 2){
+			result = 0;
+			if(scoreInfo.score > 0.95) {
+				setUpdatedDue(state, 1);
+			} else {
+				setUpdatedDue(state, -1);
+			}
+		} else {
+			setUpdatedDue(state, 1);
+		}
+		recallReviews.updateState(state);
 
 		reviewLogger.log({ level: 'info', message: { 
 			id: req.body.id, 
@@ -228,7 +244,7 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/create-recall-fact', (req, res) => {
-		const data = createRecallFact(req.body.sentence, req.body.reading, req.body.audio);
+		const data = createRecallFact(req.body.sentence, req.body.reading, req.body.audio, req.body.word);
 		if(data){
 			res.send('success: ' + data.sentence);
 			return;
@@ -240,7 +256,7 @@ module.exports.init = (app) => {
 		console.log(req.body);
 		const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
 		if(voice){
-			createRecallFact(req.body.text.replace(/\n/g, ''), req.body.reading, voice);
+			createRecallFact(req.body.text.replace(/\n/g, ''), req.body.reading, voice, req.body.word);
 			res.json({ success: true });
 		} else {
 			res.json({ success: false, error: 'Audio file could not be found. See server log.' });

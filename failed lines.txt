@@ -1,0 +1,24 @@
+Failed lines:
+green チンピラ
+green 詫わびよう
+matometekakatte
+お国の事情は判るんやけど
+気楽なんは助かった
+
+
+
+ま、いつもに較べたら気楽なんは助かったわ。
+ま、いつもに比べたら気楽なんは助かったわ。
+
+unmatched: 92
+
+// need to convert all kanji down to most common Kanji
+
+と共とともに封印ふういんされた異い空間くうかんの一角いっかくだとすると
+
+broken text continuation (before first door)
+
+count: 169
+
+
+こんなものがあったとは

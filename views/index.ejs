@@ -89,6 +89,19 @@
 		    rfs.call(el);
 		}
 
+		const getVerifiedPronunciation = (text, message, callback) => {
+			if(!text) {
+				console.error("Can't get pronunciation for null or empty text.");
+				return;
+			}
+
+			$.get('/furigana', { text: text }, (res) => {
+				let reading = prompt(message, res);
+				if (reading == null || reading == "") console.log("canceled reading input");
+				else callback(reading);
+			});
+		};
+
 		socket.on('new-text', function(msg){
 			console.log(msg);
 			if(typeof msg == "string"){
@@ -134,12 +147,14 @@
 
 		    let currentWord = null;
 		    let currentPhrase = null;
+		    let currentDid = null;
 		    let lastWord = null;
 	        $(document).on("definition-changed", (e, def, xPosition, yPosition, node, word, length) => {
 	        	showDictionary(def, xPosition, yPosition, node);
 	        	if(word){
 	        		currentWord = word;
 	        		currentPhrase = $(node).closest('.text-chunk').attr('original');
+	        		currentDid = $(node).closest('.text-chunk').attr('did');
 	        		console.log(currentWord, ", ", currentPhrase);
 		        }
 	        });
@@ -176,24 +191,41 @@
 
 	        $(document).keypress((e) => {
 	        	console.log(e.which);
-				if(e.which == 116) {
-					socket.emit('test-text');
-				}
-				if(e.which == 102) {
-					if(currentWord != null){
-						$.get('/furigana', { text: currentWord }, (res) => {
-							let reading = prompt(`Enter pronunciation for:\n${currentWord}`, res);
+	        	switch(e.which){
+        		// 1 key
+        		case 49:
+        			socket.emit('test-text');
+        			break;
+        		// f key
+        		case 102:
+        			if(!currentWord) break;
 
-							if (reading == null || reading == "") {
-							    console.log("canceled reading");
-							} else {
-								$.post('/create-kanji-fact', { target: currentWord, context: currentPhrase, reading: reading }, (res2) => {
-									console.log(res2);
-								});
-							}
+    				getVerifiedPronunciation(currentWord, `Enter pronunciation for:\n${currentWord}`, (reading) => {
+						$.post('/create-kanji-fact', { target: currentWord, context: currentPhrase, reading: reading }, (res) => {
+							console.log(res);
 						});
-					}
-				}
+    				});
+					break;
+				// r key
+        		case 114:
+        			console.log('did is: ', currentDid);
+        			if(!currentDid) break;
+        			if(!currentWord) break;
+					const did = currentDid;
+					const word = currentWord;
+					const textData = idToData[did];
+					console.log('word found', word);
+					if(!textData || !textData.metadata.voice) break;
+					const text = textData.text.replace(/\n/g, '');
+					console.log('text data with voice found');
+
+					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
+						$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading, word: word }, (res) => {
+							console.log(res);
+						});
+					});
+        			break; 
+	        	}
 			});
 
 			$(document).on('click', '.add-recall', function(e){ 
@@ -201,14 +233,11 @@
 				console.log(did);
 				const textData = idToData[did];
 				const text = textData.text.replace(/\n/g, '');
-				$.get('/furigana', { text: text }, (res) => {
-					let reading = prompt(`Enter pronunciation for:\n${text}\n(voice: ${textData.metadata.voice})`, res);
 
-					if(reading){
-						$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading }, (res) => {
-							console.log(res);
-						});
-					}
+				getVerifiedPronunciation(text, `Enter pronunciation for:\n${text}\n(voice: ${textData.metadata.voice})`, (reading) => {
+					$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading }, (res) => {
+						console.log(res);
+					});
 				});
 			}); 
 		});

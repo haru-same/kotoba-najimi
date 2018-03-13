@@ -1,5 +1,6 @@
 const toolSets = {
 	'ed6sc': require('./ed6sc-tools'),
+	'ed6t3': require('./ed6t3-tools'),
 	'ed7zero': require('./ed7zero-tools'),
 	'woff': require('./woff-tools')
 }

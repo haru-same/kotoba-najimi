@@ -40,12 +40,13 @@
 
 		const stateEnterHandlers = [
 			() => { // beginInput
-				<% if(condition == 1) {%>
+				<% if(condition == 1 || condition == 2) {%>
 				state = AwaitingAudioState;
 				var audio = new Audio('/audio/<%- fact.audio %>');
 				$("#begin-band").hide();
 				audio.addEventListener("ended", function(){
 					$("#original-text").hide();
+					$("#blanked-text").show();
 					$('input').show();
 					$('input').focus();
 
@@ -65,7 +66,6 @@
 				if($("input").length > 0){
 					const input = $('input').val();
 
-					$("body").css('background-color', 'lightblue');
 					$("#continue").show();
 	        		$('input').attr('disabled', true);
 
@@ -100,6 +100,13 @@
 						}
 
 						$("#answer-text-container").show();
+
+						<% if(condition == 2) { %>
+						if(res.score >= 0.95) $("body").css('background-color', 'lightgreen');
+						else $("body").css('background-color', 'pink');
+						<% } else { %>
+						$("body").css('background-color', 'lightblue');
+						<% } %>
 
 						state = DoneState;
 					});
@@ -146,6 +153,11 @@
 					//});
 				}
 			});
+
+			$("#post-play-button").click(() => {
+				const audio = new Audio('/audio/<%- fact.audio %>');
+				audio.play();
+			});
 		});
 	</script>
 </head>
@@ -153,10 +165,17 @@
 	<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
 		<% if(condition == 1) {%>
 		<i class="fas fa-volume-up"></i>
+		<% } else if(condition == 2) { %>
+		<i class="fas fa-volume-up"></i> x1 word
 		<% } else { %>
 		<span id="original-text-container"><%- furiganaHtml %></span>
 		<% } %>
 	</div>
+	<% if(condition == 2) { %>
+	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
+		<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
+	</div>
+	<% } %>
 	<!-- <input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem"> -->
 	<!-- れいのきゅうしのひと、つれてきてくれたかい？ -->
 	<div id="begin-band" class="band" style="text-align:center; font-size: 2rem">
@@ -174,7 +193,7 @@
 		spellcheck="false"
 	/>
 	<div id="output-text" class="band" style="text-align:center; font-size: 2rem"></div>
-	<div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %></div>
+	<div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %><br><button id="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 	<div class="error"></div>
 	<div style="height: 100px;"></div>
 	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= remaining %> remaining) <button id="delete-review">delete</button></div>

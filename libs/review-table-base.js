@@ -51,11 +51,17 @@ class ReviewTable {
 		userdata.saveTable(factsTable);
 	}
 
+	assignCondition(fact, counts){
+		if(counts[0] < counts[1]) return 0;
+		if(counts[1] < counts[0]) return 1;
+		return Math.floor(Math.random() * 2);
+	}
+
 	syncStates(){
 		const factsTable = userdata.getTable(this.factTableName);
 		const statesTable = userdata.getTable(this.stateTableName);
 
-		let counts = [ 0, 0 ];
+		let counts = { 0: 0, 1: 0 };
 		for(const id in statesTable.data){
 			if(statesTable.data[id].condition == 0) counts[0]++;
 			if(statesTable.data[id].condition == 1) counts[1]++;
@@ -63,9 +69,8 @@ class ReviewTable {
 
 		for(const id in factsTable.data){
 			if(!statesTable.data[id]){
-				let condition = Math.floor(Math.random() * 2);
-				if(counts[0] < counts[1]) condition = 0;
-				if(counts[1] < counts[0]) condition = 1;
+				const condition = this.assignCondition(factsTable.data[id], counts);
+				if(!counts[condition]) counts[condition] = 0;
 				counts[condition]++;
 
 				statesTable.data[id] = { id: id, condition: condition, streak: 0, due: new Date().getTime() };
@@ -98,6 +103,10 @@ class ReviewTable {
 		userdata.saveTable(statesTable);
 	}
 
+	sortReviews(factList){
+		shuffle(factList);
+	}
+
 	getExpiredReview(){
 		const factsTable = userdata.getTable(this.factTableName);
 		const statesTable = userdata.getTable(this.stateTableName);
@@ -122,7 +131,7 @@ class ReviewTable {
 			}
 		}
 
-		shuffle(factList);
+		this.sortReviews(factList);
 		const output = { fact: null, time: firstReview, remaining: factList.length, next24hourReviews: next24hourReviews };
 		if(factList.length > 0) {
 			output.fact = factList[0];

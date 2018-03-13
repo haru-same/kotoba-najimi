@@ -162,10 +162,14 @@
 	        };
 
 			$("#mic-button").click(() => {
+				if(new Date().getTime() - start > 5 * 60 * 1000) start = new Date().getTime();
+				
 				startRecording();
 			});
 
 			$(document).keypress((e) => {
+				if(new Date().getTime() - start > 5 * 60 * 1000) start = new Date().getTime();
+
 	        	console.log(e.which);
 	        	if(e.which == 13) {
 	        		if(complete){

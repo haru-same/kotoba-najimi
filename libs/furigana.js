@@ -22,7 +22,7 @@ module.exports = function(text, options){
 	options = options || {};
 
 	var tokens = jaTools.getTokensSync(text);
-	console.log(tokens);
+	// console.log(tokens);
 	var outTokens = [];
 	for(var i in tokens){
 		if(tokens[i].r){
@@ -35,7 +35,7 @@ module.exports = function(text, options){
 			outTokens.push(tokens[i]);
 		}
 	}
-	console.log(outTokens);
+	// console.log(outTokens);
 
 	if(options.onlyFurigana){
 		let text = "";
