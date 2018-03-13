@@ -1,4 +1,8 @@
-<% const reviewProgress = {}; %>
+<% 
+const reviewProgress = {}; 
+let mode = state.condition;
+if(fact.type == 3) mode = 2;
+%>
 <% include partial/review-progress %>
 <html>
 <head>
@@ -42,7 +46,7 @@
 
 		const stateEnterHandlers = [
 			() => { // beginInput
-				<% if(state.condition == 1 || state.condition == 2) {%>
+				<% if(mode == 1 || mode == 2) {%>
 				state = AwaitingAudioState;
 				var audio = new Audio('/audio/<%- fact.audio %>');
 				$("#begin-band").hide();
@@ -73,7 +77,7 @@
 
 	        		state = SubmitInput;
 
-					$.post('/recall-review', { deck: "<%= deck %>" id: targetId, input: input, original: originalText, duration: new Date().getTime() - start }, (res) => {
+					$.post('/review', { deck: "<%= deck %>", id: targetId, input: input, original: originalText, duration: new Date().getTime() - start }, (res) => {
 						console.log(res);
 
 						let outString = "";
@@ -103,7 +107,7 @@
 
 						$("#answer-text-container").show();
 
-						<% if(state.condition == 2) { %>
+						<% if(mode == 2) { %>
 						if(res.score >= 0.95) $("body").css('background-color', 'lightgreen');
 						else $("body").css('background-color', 'pink');
 						<% } else { %>
@@ -165,15 +169,15 @@
 </head>
 <body>
 	<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
-		<% if(state.condition == 1) {%>
+		<% if(mode == 1) {%>
 		<i class="fas fa-volume-up"></i>
-		<% } else if(state.condition == 2) { %>
+		<% } else if(mode == 2) { %>
 		<i class="fas fa-volume-up"></i> x1 word
 		<% } else { %>
 		<span id="original-text-container"><%- furiganaHtml %></span>
 		<% } %>
 	</div>
-	<% if(state.condition == 2) { %>
+	<% if(mode == 2) { %>
 	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
 		<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
 	</div>

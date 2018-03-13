@@ -53,6 +53,11 @@ module.exports.createFact = (deckName, type, data) => {
 		}
 	}
 
+	data.type = type;
 	const deck = module.exports.getDeck(deckName);
 	deck.add(data);
 };
+
+module.exports.KANJI_TYPE = KANJI_TYPE;
+module.exports.AUDIO_SENTENCE_TYPE = AUDIO_SENTENCE_TYPE;
+module.exports.AUDIO_WORD_TYPE = AUDIO_WORD_TYPE;

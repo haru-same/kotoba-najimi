@@ -5,7 +5,7 @@ const reviewTools = require('./review-tools');
 const decks = require('./review-data');
 const wanakana = require('./wanakana');
 const furigana = require('./furigana');
-const recallReviews = require('./recall-reviews');
+// const recallReviews = require('./recall-reviews');
 const kanjiReviews = require('./kanji-reviews');
 const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
@@ -33,21 +33,27 @@ const setUpdatedDue = (state, result) => {
 	state.due = new Date().getTime() + reviewTools.streakToInterval(state.streak);
 };
 
-const createRecallFact = (sentence, reading, audio, word) => {
-	let type = RecallType;
-	const data = { sentence: sentence, reading: reading, audio: audio, word: word, type: RecallType };
+// const createRecallFact = (sentence, reading, audio, word) => {
+// 	let type = RecallType;
+// 	const data = { sentence: sentence, reading: reading, audio: audio, word: word, type: RecallType };
 	
-	const result = recallReviews.find("sentence", data.sentence);
-	if(!word && result){
-		console.log("fact already recorded: ");
-		console.log(result.sentence);
-		res.json({ error: "fact already recorded: " + result.sentence });
-		return null;
-	}
+// 	const result = recallReviews.find("sentence", data.sentence);
+// 	if(!word && result){
+// 		console.log("fact already recorded: ");
+// 		console.log(result.sentence);
+// 		res.json({ error: "fact already recorded: " + result.sentence });
+// 		return null;
+// 	}
 
-	recallReviews.add(data);
+// 	recallReviews.add(data);
 
-	console.log("fact saved: ", data);
+// 	console.log("fact saved: ", data);
+// 	return data;
+// };
+
+const createAudioWordFact = (data) => {
+	let type = decks.AUDIO_WORD_TYPE;
+	decks.createFact('kanji', type, data);
 	return data;
 };
 
@@ -85,11 +91,20 @@ const renderReview = (res, deckName, id, debugData) => {
 		res.render('kanji-review', reviewData);
 		break;
 	case 2:
-	case 3:
 		const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
 		const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
 		reviewData.furiganaHtml = furiganaHtml;
 		res.render('recall-review', reviewData);
+		break;
+	case 3:
+		if(reviewData.state.condition == 1){
+			res.render('kanji-review', reviewData);
+		} else {
+			const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+			const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
+			reviewData.furiganaHtml = furiganaHtml;
+			res.render('recall-review', reviewData);
+		}
 		break;
 	default:
 		res.send("unhandled type: " + reviewData.fact.type);
@@ -119,7 +134,7 @@ const handleKanjiReviewResponse = (req, res) => {
 		type: 'kanji'
 	};
 
-	const original =  originalFact.target;
+	const original =  originalFact.target || originalFact.word;
 	const reading = originalFact.reading;
 	let result = { correct: 0, reading: reading };
 
@@ -257,13 +272,17 @@ module.exports.init = (app) => {
 	app.post('/review', (req, res) => {
 		const deck = decks.getDeck(req.body.deck);
 		const fact = deck.find(req.body.id);
+		const state = deck.findState(req.body.id);
 		switch(fact.type){
 		case 1:
 			handleKanjiReviewResponse(req, res);
 			break;
 		case 2:
-		case 3:
 			handleRecallReviewResponse(req, res);
+			break;
+		case 3:
+			if(state.condition == 0) handleRecallReviewResponse(req, res);
+			else handleKanjiReviewResponse(req, res);
 			break;
 		default:
 			res.send("type not handled: " + fact.type);
@@ -341,6 +360,17 @@ module.exports.init = (app) => {
 		const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
 		if(voice){
 			createRecallFact(req.body.text.replace(/\n/g, ''), req.body.reading, voice, req.body.word);
+			res.json({ success: true });
+		} else {
+			res.json({ success: false, error: 'Audio file could not be found. See server log.' });
+		}
+	});
+
+	app.post('/create-audio-word-fact', (req, res) => {
+		console.log("creating fact", req.body);
+		const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
+		if(voice){
+			createAudioWordFact({ sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, audio: voice });
 			res.json({ success: true });
 		} else {
 			res.json({ success: false, error: 'Audio file could not be found. See server log.' });

@@ -220,7 +220,7 @@
 					console.log('text data with voice found');
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
-						$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading, word: word }, (res) => {
+						$.post('/create-audio-word-fact', { text: text, metadata: textData.metadata, reading: reading, word: word }, (res) => {
 							console.log(res);
 						});
 					});

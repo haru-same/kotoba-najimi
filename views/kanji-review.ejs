@@ -150,7 +150,7 @@
 	        		if($("#reading-input").length > 0 && !complete){
 	        			lastInput = input;
 		        		$('#reading-input').attr('disabled', true);
-		        		$.post('/review', { deck: "<%= deck %>" id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries }, (res) => {
+		        		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries }, (res) => {
 		        			handleAnswerResponse(res);
 		        			if(res.correct == 0){
 		        				$('#reading-input').attr('disabled', false);
@@ -177,7 +177,7 @@
 
 			$("#delete-review").click(() => {
 				if(confirm("Are you sure you want to delete this?")){
-					$.post('/delete-review', { deck: "<%= deck %>" id: targetId }, () => {
+					$.post('/delete-review', { deck: "<%= deck %>", id: targetId }, () => {
 						location.reload();
 					});
 				}
@@ -220,7 +220,9 @@
 	</style>
 </head>
 <body>
-	<div class="band" style="text-align:center; font-size: 2rem"><%- fact.context.replace(fact.target, `『<b>${fact.target}</b>』`) %></div>
+	<div class="band" style="text-align:center; font-size: 2rem">
+		<%- fact.type == 1 ? fact.context.replace(fact.target, ` <b>${fact.target}</b> `) : fact.sentence.replace(fact.word, ` <b>${fact.word}</b> `) %>
+	</div>
 	<br>
 	<% if(state.condition == 0) { %>
 	<input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem">
