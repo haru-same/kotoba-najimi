@@ -1,5 +1,6 @@
 const ejs = require('ejs');
 const fs = require('fs');
+const mediaserver = require('mediaserver');
 
 const reviewTools = require('./review-tools');
 const decks = require('./review-data');
@@ -32,6 +33,13 @@ const setUpdatedDue = (state, result) => {
 	}
 	state.due = new Date().getTime() + reviewTools.streakToInterval(state.streak);
 };
+
+const resetFact = (deckName, id) => {
+	const deck = decks.getDeck(deckName);
+	const state = deck.findState(id);
+	setUpdatedDue(state, -1);
+	deck.updateState(state);
+}
 
 // const createRecallFact = (sentence, reading, audio, word) => {
 // 	let type = RecallType;
@@ -83,8 +91,25 @@ const renderReview = (res, deckName, id, debugData) => {
 
 	reviewData.deck = deckName;
 	reviewData.state = deck.findState(id);
+
+	for(const key in debugData){
+		const split = key.split('__');
+		if(split.length == 2){
+			reviewData[split[0]][split[1]] = debugData[key];
+		}
+	}
+	reviewData.debug = false;
+	if(debugData) reviewData.debug = debugData.debug;
+	console.log(reviewData);
+
 	reviewData.facts = deck.getAllFacts();
 	reviewData.states = deck.getAllStates();
+
+	if(reviewData.fact.type == 3 && reviewData.state.streak == 3){
+		reviewData.onlyKanji = true;
+		res.render('kanji-review', reviewData);
+		return;
+	}
 
 	switch(reviewData.fact.type){
 	case 1:
@@ -138,6 +163,8 @@ const handleKanjiReviewResponse = (req, res) => {
 	const reading = originalFact.reading;
 	let result = { correct: 0, reading: reading };
 
+	console.log('streak was:', state.streak);
+
 	if(req.body.type == 't') {
 		const input = req.body.input;
 		if(reading == input || reading == wanakana.toKana(input)){
@@ -152,7 +179,6 @@ const handleKanjiReviewResponse = (req, res) => {
 			}
 		}
 
-		reviewLogger.log({ level: 'info', message: logMessage });
 		res.json(result);
 	} else if(req.body.type == 's'){
 		logMessage.result = 0;
@@ -173,13 +199,19 @@ const handleKanjiReviewResponse = (req, res) => {
 
 		logMessage.results = req.body.results;
 
-		reviewLogger.log({ level: 'info', message: logMessage });
 		res.json(result);
 	} else {
 		res.json(result);
 	}
 
-	deck.updateState(state);
+	console.log('streak is:', state.streak);
+
+	if(req.body.debug == 'true') {
+		console.log('debug is on, no data recorded');
+	} else {
+		reviewLogger.log({ level: 'info', message: logMessage })
+		deck.updateState(state);
+	}
 };
 
 const handleRecallReviewResponse = (req, res) => {
@@ -198,7 +230,7 @@ const handleRecallReviewResponse = (req, res) => {
 	const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
 	const scoreInfo = reviewTools.scoreReview(original, input);
-	if(state.condition == 2){
+	if(req.body.type == 'rw'){
 		result = 0;
 		if(scoreInfo.score > 0.95) {
 			setUpdatedDue(state, 1);
@@ -208,16 +240,21 @@ const handleRecallReviewResponse = (req, res) => {
 	} else {
 		setUpdatedDue(state, 1);
 	}
-	deck.updateState(state);
 
-	reviewLogger.log({ level: 'info', message: { 
-		id: req.body.id, 
-		type: "recall", 
-		condition: state.condition,
-		input: req.body.input, 
-		score: scoreInfo.score, 
-		duration: parseInt(req.body.duration)
-	} });
+	if(req.body.debug == 'true') {
+		console.log('debug is on, no data recorded');
+	} else {
+		deck.updateState(state);
+
+		reviewLogger.log({ level: 'info', message: { 
+			id: req.body.id, 
+			type: "recall", 
+			condition: state.condition,
+			input: req.body.input, 
+			score: scoreInfo.score, 
+			duration: parseInt(req.body.duration)
+		} });
+	}
 
 	res.json(scoreInfo);
 }
@@ -235,7 +272,12 @@ module.exports.init = (app) => {
 
 		deck.syncStates();
 		if(req.query.dbg && req.query.id) {
-			renderReview(res, deckName, req.query.id);
+			const dbgData = { debug: true };
+			for(const key in req.query){
+				if(key.includes('__'))
+					dbgData[key] = req.query[key];
+			}
+			renderReview(res, deckName, req.query.id, dbgData);
 			return;
 		}
 
@@ -273,16 +315,15 @@ module.exports.init = (app) => {
 		const deck = decks.getDeck(req.body.deck);
 		const fact = deck.find(req.body.id);
 		const state = deck.findState(req.body.id);
-		switch(fact.type){
-		case 1:
+
+		console.log('posting review: ', req.body);
+
+		switch(req.body.type){
+		case 't': case 's':
 			handleKanjiReviewResponse(req, res);
 			break;
-		case 2:
+		case 'rw': case 'rs':
 			handleRecallReviewResponse(req, res);
-			break;
-		case 3:
-			if(state.condition == 0) handleRecallReviewResponse(req, res);
-			else handleKanjiReviewResponse(req, res);
 			break;
 		default:
 			res.send("type not handled: " + fact.type);
@@ -304,43 +345,43 @@ module.exports.init = (app) => {
 		res.render('review-stats', { facts: facts, reviewStates: states, reviewLogs: reviewHistory });
 	});
 
-	app.post('/recall-review', (req, res) => {
-		const input = req.body.input.replace(/ /g,'');
-		let originalFact = recallReviews.find('id', req.body.id);
-		if(!originalFact){
-			const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
-			const testScoreInfo = reviewTools.scoreReview(testOriginal, input);
-			testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.body.id + "]. No data recorded.";
-			res.json(testScoreInfo);
-			return;
-		}
+	// app.post('/recall-review', (req, res) => {
+	// 	const input = req.body.input.replace(/ /g,'');
+	// 	let originalFact = recallReviews.find('id', req.body.id);
+	// 	if(!originalFact){
+	// 		const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
+	// 		const testScoreInfo = reviewTools.scoreReview(testOriginal, input);
+	// 		testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.body.id + "]. No data recorded.";
+	// 		res.json(testScoreInfo);
+	// 		return;
+	// 	}
 
-		const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
-		const state = recallReviews.findState('id', req.body.id);
-		const scoreInfo = reviewTools.scoreReview(original, input);
-		if(state.condition == 2){
-			result = 0;
-			if(scoreInfo.score > 0.95) {
-				setUpdatedDue(state, 1);
-			} else {
-				setUpdatedDue(state, -1);
-			}
-		} else {
-			setUpdatedDue(state, 1);
-		}
-		recallReviews.updateState(state);
+	// 	const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
+	// 	const state = recallReviews.findState('id', req.body.id);
+	// 	const scoreInfo = reviewTools.scoreReview(original, input);
+	// 	if(state.condition == 2){
+	// 		result = 0;
+	// 		if(scoreInfo.score > 0.95) {
+	// 			setUpdatedDue(state, 1);
+	// 		} else {
+	// 			setUpdatedDue(state, -1);
+	// 		}
+	// 	} else {
+	// 		setUpdatedDue(state, 1);
+	// 	}
+	// 	recallReviews.updateState(state);
 
-		reviewLogger.log({ level: 'info', message: { 
-			id: req.body.id, 
-			type: "recall", 
-			condition: state.condition,
-			input: req.body.input, 
-			score: scoreInfo.score, 
-			duration: parseInt(req.body.duration)
-		} });
+	// 	reviewLogger.log({ level: 'info', message: { 
+	// 		id: req.body.id, 
+	// 		type: "recall", 
+	// 		condition: state.condition,
+	// 		input: req.body.input, 
+	// 		score: scoreInfo.score, 
+	// 		duration: parseInt(req.body.duration)
+	// 	} });
 
-		res.json(scoreInfo);
-	});
+	// 	res.json(scoreInfo);
+	// });
 
 	app.get('/create-fact', (req, res) => {
 		res.render('create-fact');
@@ -369,11 +410,33 @@ module.exports.init = (app) => {
 	app.post('/create-audio-word-fact', (req, res) => {
 		console.log("creating fact", req.body);
 		const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
+		const img = gameTools.tryStoreImageFile(req.body.metadata);
 		if(voice){
-			createAudioWordFact({ sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, audio: voice });
+			createAudioWordFact({ sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, audio: voice, image: img });
 			res.json({ success: true });
 		} else {
 			res.json({ success: false, error: 'Audio file could not be found. See server log.' });
 		}
+	});
+
+	app.get('/test-media', (req, res) => {
+		mediaserver.pipe(req, res, 'C:/Users/Gabriel Culbertson/Documents/GitHub/kotoba-najimi/public/audio/ed6sc/ch0010190368.ogg');
+	});
+
+	app.post('/log-meaning-assessment', (req, res) => {
+		const logMessage = { 
+			id: req.body.id,
+			word: req.body.word,
+			result: req.body.result,
+			input: req.body.input,
+			time: new Date().getTime(), 
+			type: 'meaning'
+		};
+		reviewLogger.log({ level: 'info', message: logMessage });
+
+		if(req.body.result == 0){
+			resetFact('kanji', req.body.id);
+		}
+		res.send('done');
 	});
 };

@@ -1,0 +1,35 @@
+<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
+	<% if(mode == 1) {%>
+	<i class="fas fa-volume-up"></i>
+	<% } else if(mode == 2) { %>
+	<i class="fas fa-volume-up"></i> x1 word
+	<% } else { %>
+	<span id="original-text-container"><%- furiganaHtml %></span>
+	<% } %>
+</div>
+<% if(mode == 2) { %>
+<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
+	<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
+</div>
+<% } %>
+<!-- <input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem"> -->
+<!-- れいのきゅうしのひと、つれてきてくれたかい？ -->
+<div id="begin-band" class="band" style="text-align:center; font-size: 2rem">
+	<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-play"></i></button>
+</div>
+<input
+	class="band" 
+	id="reading-input-<%= Math.round(1000000*Math.random()) %>" 
+	name="" 
+	style="text-align:center; font-size: 2rem"
+	type="text"
+	autocapitalize="none"
+	autocorrect="off"
+	autocomplete="false"
+	spellcheck="false"
+/>
+<div id="output-text" class="band" style="text-align:center; font-size: 2rem"></div>
+<div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %><br><button id="post-play-button"><i class="fas fa-volume-up"></i></button></div>
+<div class="error"></div>
+<div style="height: 100px;"></div>
+<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>

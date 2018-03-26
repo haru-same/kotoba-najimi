@@ -17,6 +17,7 @@
     "glob": "^7.1.2",
     "hepburn": "^1.0.0",
     "kuromoji": "0.0.5",
+    "mediaserver": "^0.1.1",
     "opener": "^1.4.3",
     "socket.io": "^1.4.8",
     "uuid": "^3.2.1",

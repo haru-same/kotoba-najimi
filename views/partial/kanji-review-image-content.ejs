@@ -1,0 +1,79 @@
+<div style="max-width: 900px; margin:auto; overflow: hidden">
+	<div style="height: calc(100% - 200px)"></div>
+
+	<div class="band" style="text-align:center; font-size: 2rem">
+		<div style="margin-left: 50px; margin-right: 50px">
+		<% if (typeof onlyKanji != 'undefined' && onlyKanji) { %>
+		<b><%- fact.type == 1 ? fact.target : fact.word %></b>
+		<% } else { %>
+		<%- fact.type == 1 ? fact.context.replace(fact.target, ` <b>${fact.target}</b> `).replace(/\n/g, '<br>') : fact.sentence.replace(fact.word, ` <b>${fact.word}</b> `).replace(/\n/g, '<br>') %>
+		<% } %>
+		</div>
+	</div>
+	<br>
+	<% if(state.condition == 0) { %>
+	<input 
+		class="band" 
+		id="reading-input" 
+		type="text" name="" 
+		style="text-align:center; font-size: 2rem"
+		name=""
+		autocapitalize="none"
+		autocorrect="off"
+		autocomplete="false"
+		spellcheck="false"
+	/>
+	<% } else { %>
+	<div class="band"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
+	<% } %>
+	<div class="error"></div>
+	<% if(typeof onlyKanji != 'undefined' && onlyKanji){ %>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Do you know the meaning of this Kanji? <button id="meaning-0">No</button><button id="meaning-1">Yes</button></div>
+	<% } else { %>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
+	<% } %>
+</div>
+
+<div class="background-image">
+</div>
+
+<style type="text/css">
+	body {
+		background: black;
+		overflow: hidden;
+	}
+
+	.band {
+		background-color: rgba(255, 255, 255, 0.8);
+		border-radius: 8px;
+	}
+
+	.background-image {
+		background: url('<%= fact.image %>');
+		position: absolute;
+		z-index: -1;
+		top:0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-size: cover;
+		background-position: center;
+		-webkit-filter: blur(2px);
+		-moz-filter: blur(2px);
+		-o-filter: blur(2px);
+		-ms-filter: blur(2px);
+		filter: blur(2px);
+		opacity: 0.8;
+		overflow: hidden;
+	}
+</style>
+
+<script type="text/javascript">
+	setCorrectColor = () => {
+		$(".band").css('background-color', 'rgba(144, 238, 144, 0.8)');
+	};
+
+	setWrongColor = () => {
+		$(".band").css('background-color', 'rgba(255, 192, 203, 0.8)');
+	};
+</script>

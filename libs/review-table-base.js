@@ -61,8 +61,8 @@ class ReviewTable {
 	}
 
 	assignCondition(fact, counts){
-		if(counts[0] < counts[1]) return 0;
-		if(counts[1] < counts[0]) return 1;
+		if(counts[fact.type][0] < counts[fact.type][1]) return 0;
+		if(counts[fact.type][1] < counts[fact.type][0]) return 1;
 		return Math.floor(Math.random() * 2);
 	}
 
@@ -70,17 +70,19 @@ class ReviewTable {
 		const factsTable = userdata.getTable(this.factTableName);
 		const statesTable = userdata.getTable(this.stateTableName);
 
-		let counts = { 0: 0, 1: 0 };
+		let counts = {};// { 0: 0, 1: 0 };
 		for(const id in statesTable.data){
-			if(statesTable.data[id].condition == 0) counts[0]++;
-			if(statesTable.data[id].condition == 1) counts[1]++;
+			if(!counts[factsTable.data[id].type]) counts[factsTable.data[id].type] = { 0: 0, 1: 0 };
+
+			if(statesTable.data[id].condition == 0) counts[factsTable.data[id].type][0]++;
+			if(statesTable.data[id].condition == 1) counts[factsTable.data[id].type][1]++;
 		}
 
 		for(const id in factsTable.data){
 			if(!statesTable.data[id]){
 				const condition = this.assignCondition(factsTable.data[id], counts);
-				if(!counts[condition]) counts[condition] = 0;
-				counts[condition]++;
+				if(!counts[factsTable.data[id].type][condition]) counts[factsTable.data[id].type][condition] = 0;
+				counts[factsTable.data[id].type][condition]++;
 
 				statesTable.data[id] = { id: id, condition: condition, streak: 0, due: new Date().getTime() };
 			}

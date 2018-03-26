@@ -1,9 +1,14 @@
-<% const reviewProgress = {}; %>
+<% 
+const reviewProgress = {}; 
+const hideImage = typeof onlyKanji != 'undefined' && onlyKanji;
+if(hideImage) state.condition = 0;
+%>
 <% include partial/review-progress %>
 <html>
 <head>
 	<title>(<%= reviewProgress.createdToday %>新枚, まだ<%= reviewProgress.nowReviews %>枚) 漢字復習</title>
 
+	<script src="/js/wanakana.min.js"></script>
 	<script src="/js/jquery-3.2.1.min.js"></script>
 	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
 
@@ -23,7 +28,11 @@
 		let results = {};
 		let lastInput = "";
 		let complete = false;
-		let tries = 1;
+		<% 
+		let initialTryCount = 1; 
+		if(typeof onlyKanji != 'undefined' && onlyKanji) initialTryCount = 0;
+		%>
+		let tries = <%= initialTryCount %>;
 
 		<% if(state.condition == 0) { %>
 		const showCorrectAnswer = (res) => {
@@ -35,16 +44,24 @@
 		};
 		<% } %>
 
+		let setCorrectColor = () => {
+			$("body").css('background-color', 'lightgreen');
+		};
+
+		let setWrongColor = () => {
+			$("body").css('background-color', 'pink');
+		};
+
 		const handleAnswerResponse = (res) => {
 			console.log(res);
 			start = new Date().getTime();
 			if(res.correct == 1){
-				$("body").css('background-color', 'lightgreen');
+				setCorrectColor();
 				$("#continue").show();
 				complete = true;
 				showCorrectAnswer(res);
 			} else {
-				$("body").css('background-color', 'pink');
+				setWrongColor();
 				if(tries == 0){
 					$("#continue").show();
 					complete = true;
@@ -61,6 +78,9 @@
 		};
 
 		$(document).ready(() => {
+			const textInput = document.querySelector('input');
+			wanakana.bind(textInput);
+
 			var recognition = new webkitSpeechRecognition();
 			recognition.continuous = false;
 	        recognition.interimResults = true;
@@ -114,7 +134,7 @@
 						outResults.push(results[i].transcript);
 					}
 					// , results: results
-		    		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries }, (res) => {
+		    		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries, debug: <%= debug %> }, (res) => {
 		    			handleAnswerResponse(res);
 		    			$("#speech-out").toggleClass('partial', false);
 		    			$("#mic-button").toggleClass('recording', false);
@@ -136,9 +156,15 @@
 				if(new Date().getTime() - start > 5 * 60 * 1000) start = new Date().getTime();
 
 	        	console.log(e.which);
+	        	// enter pressed
 	        	if(e.which == 13) {
 	        		if(complete){
+	        			<% if(hideImage){ %>
+		        		showError("Answer the question below.");
+		        		<% } else { %>
 		        		location.reload();
+		        		<% } %>
+		        		return;
 		        	}
 
 	        		const input = $('#reading-input').val();
@@ -150,7 +176,7 @@
 	        		if($("#reading-input").length > 0 && !complete){
 	        			lastInput = input;
 		        		$('#reading-input').attr('disabled', true);
-		        		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries }, (res) => {
+		        		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 't', input: input, duration: new Date().getTime() - start, tries: tries, debug: <%= debug %> }, (res) => {
 		        			handleAnswerResponse(res);
 		        			if(res.correct == 0){
 		        				$('#reading-input').attr('disabled', false);
@@ -160,6 +186,7 @@
 		        	}
 				}
 
+				//space pressed
 				if(e.which == 32) {
 					if($("#mic-button").length > 0 && !$("#mic-button").attr('disabled') && !complete){
 						startRecording();
@@ -167,11 +194,13 @@
 				}
 			});
 
+			<% if(!hideImage){ %>
 			$("#continue").click(() => {
 				if(complete){
 	        		location.reload();
 	        	}
 			});
+			<% } %>
 
 			$('#reading-input').focus();
 
@@ -181,6 +210,20 @@
 						location.reload();
 					});
 				}
+			});
+
+			$("#meaning-0").click(() => {
+				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 0, input: lastInput }, () => {
+					console.log('post finished');
+					location.reload();
+				});
+			});
+
+			$("#meaning-1").click(() => {
+				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 1, input: lastInput }, () => {
+					console.log('post finished');
+					location.reload();
+				});
 			});
 		});
 	</script>
@@ -220,17 +263,10 @@
 	</style>
 </head>
 <body>
-	<div class="band" style="text-align:center; font-size: 2rem">
-		<%- fact.type == 1 ? fact.context.replace(fact.target, ` <b>${fact.target}</b> `) : fact.sentence.replace(fact.word, ` <b>${fact.word}</b> `) %>
-	</div>
-	<br>
-	<% if(state.condition == 0) { %>
-	<input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem">
+	<% if(fact.image && !hideImage) { %>
+	<%- include('partial/kanji-review-image-content', { reviewProgress: reviewProgress }) %>
 	<% } else { %>
-	<div class="band"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
+	<%- include('partial/kanji-review-band-content', { reviewProgress: reviewProgress }) %>
 	<% } %>
-	<div class="error"></div>
-	<div style="height: 100px;"></div>
-	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
 </body>
 </html>

@@ -26,7 +26,7 @@ if(firstReview == null){
 		else reviewProgress.timeString += " minutes";
 	} else if(hours < 17) {
 		reviewProgress.timeString =  Math.round(hours);
-		if(reviewProgress.timeString == 1) timeString += " hour";
+		if(reviewProgress.timeString == 1) reviewProgress.timeString += " hour";
 		else reviewProgress.timeString += " hours";
 	} else {
 		reviewProgress.timeString = Math.round(hours / 24);

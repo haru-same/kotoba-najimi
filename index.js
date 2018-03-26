@@ -7,6 +7,8 @@ const fs = require('fs');
 const opener = require('opener');
 const uuidv4 = require('uuid/v4');
 
+const exec = require('child_process').execFile;
+
 const ejs = require('ejs');
 
 const furigana = require('./libs/furigana');
@@ -82,7 +84,29 @@ app.get('/new-text', function(req, res){
 
 	const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 	const furiOutput = furigana(req.query.text);
-	io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans, metadata: metadata });
+
+ 	if(metadata.game == 'ed6t3'){
+		setTimeout(() => {
+			exec('ScreenCapture.exe', (err, data) => {
+				let id = "";
+			    const lines = data.split('\r\n');
+			    for(const line of lines){
+			    	if(!line.includes(':')) continue;
+			    	const split = line.split(':');
+			    	if(split[0] == 'id'){
+			    		id = split[1];
+			    	}
+			    }
+
+			    console.log('id is: ' + id);
+			    metadata.img = id;
+			    io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans, metadata: metadata });
+		    });  
+		}, 1000);
+	} else {
+		io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans, metadata: metadata });
+	}
+
 	res.send('done');
 });
 

@@ -1,0 +1,30 @@
+<div class="band" style="text-align:center; font-size: 2rem">
+	<% if (typeof onlyKanji != 'undefined' && onlyKanji) { %>
+	<%- fact.type == 1 ? fact.target : fact.word %>
+	<% } else { %>
+	<%- fact.type == 1 ? fact.context.replace(fact.target, ` <b>${fact.target}</b> `) : fact.sentence.replace(fact.word, ` <b>${fact.word}</b> `) %>
+	<% } %>
+</div>
+<br>
+<% if(state.condition == 0) { %>
+<input 
+	class="band" 
+	id="reading-input" 
+	type="text" name="" 
+	style="text-align:center; font-size: 2rem"
+	name=""
+	autocapitalize="none"
+	autocorrect="off"
+	autocomplete="false"
+	spellcheck="false"
+/>
+<% } else { %>
+<div class="band"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
+<% } %>
+<div class="error"></div>
+<div style="height: 100px;"></div>
+<% if(typeof onlyKanji != 'undefined' && onlyKanji){ %>
+<div id="continue" class="band" style="display: none; font-style: italic; text-align: center; font-size: 2em"><%= fact.type == 1 ? fact.context : fact.sentence %><br>Do you know the meaning of this Kanji? <br> <button style="font-size: 1em">No</button><button id="meaning-1"  style="font-size: 1em">Yes</button></div>
+<% } else { %>
+<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
+<% } %>
