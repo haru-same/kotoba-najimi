@@ -7,6 +7,8 @@ function precisionRound(number, precision) {
 let textReviews = 0;
 let audioReviews = 0;
 for(let id in reviewStates){
+	if(facts[id].type && facts[id].type != 1) continue;
+
 	if(reviewStates[id].condition == 0){
 		textReviews++;
 	} else if(reviewStates[id].condition == 1){
@@ -41,10 +43,12 @@ let audioReviewLogCount = 0;
 for(const logEntry of reviewLogs){
 	const reviewState = reviewStates[logEntry.message.id];
 	if(!reviewState) continue;
+	if(facts[logEntry.message.id].type && facts[logEntry.message.id].type != 1) continue;
 
 	if(reviewState.condition == 0){
 		if(logEntry.message.duration){
-			textTime += parseInt(logEntry.message.duration);
+			const dur = parseInt(logEntry.message.duration);
+			if (dur < 60 * 1000) textTime += dur;
 			textReviewLogCount++;
 		}
 
@@ -86,6 +90,18 @@ for(const id in reviewStates){
 		streakCounts[reviewStates[id].condition][reviewStates[id].streak] = 0;
 	}
 	streakCounts[reviewStates[id].condition][reviewStates[id].streak]++;
+}
+
+let factsWithAudioCount = 0;
+let factsWithImagesCount = 0;
+for(const id in facts){
+	if(facts[id].audio){
+		factsWithAudioCount++;
+	}
+
+	if(facts[id].image){
+		factsWithImagesCount++;
+	}
 }
 %>
 <html>
@@ -139,11 +155,16 @@ for(const id in reviewStates){
 		Spent <%= Math.floor(textTime / (1000 * 60 * 60)) %>h<%= Math.floor(textTime / (1000 * 60)) % 60 %>m on text reviews (avg. <%= precisionRound((textTime / 1000) / textReviewLogCount, 2) %> sec/rev)
 		<br>
 		<br>
-		<%= audioReviews %> audio reviews (<%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
+		<%= audioReviews %> speech reviews (<%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
 		<br>
 		[<%= reviewScores.audio[-1].correct %>/<%= reviewScores.audio[-1].total %>, <%= reviewScores.audio[1].correct %>/<%= reviewScores.audio[1].total %>, <%= reviewScores.audio[2].correct %>/<%= reviewScores.audio[2].total %>]
 		<br>
 		Spent <%= Math.floor(audioTime / (1000 * 60 * 60)) %>h<%= Math.floor(audioTime / (1000 * 60)) % 60 %>m on audio reviews (avg. <%= precisionRound((audioTime / 1000) / audioReviewLogCount, 2) %> sec/rev)
+		<br>
+		<br>
+		<%= factsWithAudioCount %> facts with audio
+		<br>
+		<%= factsWithImagesCount %> facts with image
 		<br>
 		<br>
 		<table align="center">
@@ -160,9 +181,12 @@ for(const id in reviewStates){
 			</tr>
 			<% } %>
 		</table>
+		<br>
+		<br>
+		<%- include('partial/audio-stats') %>
+		<br>
+		<br>
 		<div style="font-size: 1.5rem">
-		<br>
-		<br>
 		<%= new Date() %> (began <%= Math.round((new Date().getTime() - earliestCreated)/(24 * 60 * 60 * 1000)) %> days ago)
 		</div>
 	</div>

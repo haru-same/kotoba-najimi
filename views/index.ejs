@@ -63,7 +63,7 @@
       		$defContainer.css("top", yPosition - height - 20 + scrollY);//$node.position().top - height);
       		$defContainer.css("left", Math.min(xPosition, $(window).width() - width - 32));
 
-        	window.scrollTo(0, scrollY);
+        	window.scrollTo(0, scrollY + 30);
 		};
 
 		let timeout = null;
@@ -243,9 +243,9 @@
 		});
 	</script>
 </head>
-<body>
+<body class="dark">
 	<div class="message"></div>
-	<div style="position:fixed; width:100%; top:0; left:0; background-color:white; padding:4px; text-align: right; box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);">
+	<div class="top-bar" style="position:fixed; width:100%; top:0; left:0; padding:4px; text-align: right; box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);">
 		<span class="instruction-text">Hover over Kanji and [F] key to create fact (<a id="do-reviews">reviews</a>)</span>
 		<i id="options-button" class="fas fa-cog link-button header-button"></i>
 		<i id="fullscreen-button" class="fas fa-expand link-button header-button"></i>

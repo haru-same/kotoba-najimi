@@ -12,10 +12,18 @@ const exec = require('child_process').execFile;
 const ejs = require('ejs');
 
 const furigana = require('./libs/furigana');
+const renderFurigana = require('./libs/render-furigana');
 const reviewRouter = require('./libs/review-router');
 const config = require('./libs/config');
 const ip = require('./libs/network-ip');
 const cleanHtml = require('./libs/clean-html');
+
+// (() => {
+// 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+// 	let furiganaText = "やせおとろえて";
+// 	const furiganaHtml = ejs.render(template, { elements: renderFurigana("痩せ衰えて", furiganaText) });
+// 	console.log(furiganaHtml);
+// })();
 
 let openWindow = true;
 let hasUnknownArgv = false;
@@ -115,6 +123,16 @@ app.get('/furigana', (req, res) => {
 	let furi = furigana(req.query.text, { onlyFurigana: true });
 	console.log('furi-out: ', furi);
 	res.send(furi);
+});
+
+app.get('/render-furigana', (req, res) => {
+	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+	let furiganaText = req.query.reading;
+	if(!req.query.reading){
+		furiganaText = furigana(req.query.text, { onlyFurigana: true });
+	}
+	const furiganaHtml = ejs.render(template, { elements: renderFurigana(req.query.text, furiganaText) });
+	res.send(furiganaHtml);
 });
 
 io.on('connection', function (socket) {

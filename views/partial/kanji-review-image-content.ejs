@@ -30,7 +30,7 @@
 	<% if(typeof onlyKanji != 'undefined' && onlyKanji){ %>
 	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Do you know the meaning of this Kanji? <button id="meaning-0">No</button><button id="meaning-1">Yes</button></div>
 	<% } else { %>
-	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button></div>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 	<% } %>
 </div>
 

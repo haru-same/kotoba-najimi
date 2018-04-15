@@ -7,10 +7,8 @@ if(hideImage) state.condition = 0;
 <html>
 <head>
 	<title>(<%= reviewProgress.createdToday %>新枚, まだ<%= reviewProgress.nowReviews %>枚) 漢字復習</title>
-
-	<script src="/js/wanakana.min.js"></script>
-	<script src="/js/jquery-3.2.1.min.js"></script>
-	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
+	<%- include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
 
 	<link rel="apple-touch-icon" sizes="76x76" href="/icons/estelle-dot/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/icons/estelle-dot/favicon-32x32.png">
@@ -195,11 +193,11 @@ if(hideImage) state.condition = 0;
 			});
 
 			<% if(!hideImage){ %>
-			$("#continue").click(() => {
-				if(complete){
-	        		location.reload();
-	        	}
-			});
+			// $("#continue").click(() => {
+			// 	if(complete){
+	  //       		location.reload();
+	  //       	}
+			// });
 			<% } %>
 
 			$('#reading-input').focus();
@@ -225,45 +223,16 @@ if(hideImage) state.condition = 0;
 					location.reload();
 				});
 			});
+
+			$(".post-play-button").click(() => {
+				const audio = new Audio('/audio/<%- fact.audio %>');
+				audio.play();
+			});
 		});
 	</script>
-
-	<style type="text/css">
-		.recording {
-			background-color: red;
-		}
-
-		.partial {
-			color: gray;
-		}
-
-		.band {
-			padding-top: 16px;
-			padding-bottom: 16px;
-			background-color: rgba(255,255,255,0.5);
-			width: 100%;
-			border-style:none;
-		}
-
-		.error {
-			padding-top: 16px;
-			padding-bottom: 16px;
-			background-color: rgba(255,255,102,0.5);
-			display: none;
-			text-align: center;
-		}
-
-		body {
-			font-family: Sans-Serif;
-			background-color: #d9d9d9;
-			width:100%; 
-			padding: 0; 
-			margin: 100px 0;
-		}
-	</style>
 </head>
 <body>
-	<% if(fact.image && !hideImage) { %>
+	<% if(fact.image && !hideImage && state['image-condition'] == 1) { %>
 	<%- include('partial/kanji-review-image-content', { reviewProgress: reviewProgress }) %>
 	<% } else { %>
 	<%- include('partial/kanji-review-band-content', { reviewProgress: reviewProgress }) %>

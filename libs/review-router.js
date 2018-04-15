@@ -12,11 +12,14 @@ const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
 const gameTools = require('./game-tools/game-tools');
 
-const reviewLogger = reviewLogging.getLogger();
+const dictionaryAudio = require('./dictionary-audio');
 
 const KanjiType = 1;
 const RecallType = 2;
 const WordRecallType = 3;
+
+const DailyRecallCount = 4;
+const DailyDictionaryListeningCount = 10;
 
 const DECK_TO_ICON = {
 	kanji: "estelle",
@@ -75,7 +78,88 @@ const renderNoReviews = (res, deckName) => {
 	res.render('no-reviews', reviewData);
 }
 
-const renderReview = (res, deckName, id, debugData) => {
+const getRecallReview = () => {
+	let start = new Date();
+	start.setHours(0,0,0,0);
+	start = start.getTime();
+	const reviewHistory = reviewLogging.getLog();
+
+	let count = 0;
+	const used = {};
+	for(const item of reviewHistory){
+		if(item.message.source == "daily-recall"){
+			used[item.message.id] = true;
+		}
+
+		if(item.message.source == "daily-recall" && item.message.time && item.message.time > start){
+			count++;
+		}
+	}
+
+	if(count >= DailyRecallCount) return null;
+	console.log(count);
+
+	const deck = decks.getDeck("kanji");
+	const facts = deck.getAllFacts();
+	const states = deck.getAllStates();
+	const available = [];
+	for(const id in facts){
+		if(!used[id] && facts[id].audio && parseInt(states[id].streak) > 3) 
+			available.push(id);
+	}
+
+	return available[Math.floor(Math.random() * available.length)];
+}
+
+getListenMeaningReview = () => {
+	let start = new Date();
+	start.setHours(0,0,0,0);
+	start = start.getTime();
+	const reviewHistory = reviewLogging.getLog();
+
+	let count = 0;
+	const used = {};
+	for(const item of reviewHistory){
+		if(item.message.type == "listening-meaning"){
+			used[item.message.id] = true;
+		}
+
+		if(item.message.type == "listening-meaning" && item.message.time && item.message.time > start){
+			count++;
+		}
+	}
+
+	console.log("listen for meaning today's count:", count);
+	if(count >= DailyDictionaryListeningCount) return null;
+
+	const deck = decks.getDeck("kanji");
+	const facts = deck.getAllFacts();
+	const states = deck.getAllStates();
+	const available = [];
+	for(const id in facts){
+		if(!used[id] && facts[id].audio && parseInt(states[id].streak) > 3) 
+			available.push(id);
+	}
+	console.log('listen for meaning count:', available.length);
+	return available[Math.floor(Math.random() * available.length)];
+}
+
+const getImageCondition = () => {
+	const states = decks.getDeck('kanji').getAllStates();
+	let withImage = 0;
+	let withoutImage = 0;
+	for(const id in states){
+		const state = states[id];
+		if(state['image-condition'] == 1) withImage++;
+		else if(state['image-condition'] == 0) withoutImage++;
+	}
+
+	if(withImage > withoutImage) return 0;
+	if(withoutImage > withImage) return 1;
+	return Math.floor(Math.random() * 2);
+}
+
+const renderReview = (res, deckName, id, options, debugData) => {
 	const deck = decks.getDeck(deckName);
 	if(!deck) {
 		res.send("deck not found: " + deckName);
@@ -92,6 +176,11 @@ const renderReview = (res, deckName, id, debugData) => {
 	reviewData.deck = deckName;
 	reviewData.state = deck.findState(id);
 
+	if(reviewData.fact.image && !('image-condition' in reviewData.state)){
+		reviewData.state['image-condition'] = getImageCondition();
+		deck.updateState(reviewData.state);
+	}
+
 	for(const key in debugData){
 		const split = key.split('__');
 		if(split.length == 2){
@@ -105,13 +194,20 @@ const renderReview = (res, deckName, id, debugData) => {
 	reviewData.facts = deck.getAllFacts();
 	reviewData.states = deck.getAllStates();
 
+	reviewData.options = options || {};
+
+	let type = reviewData.fact.type;
+
 	if(reviewData.fact.type == 3 && reviewData.state.streak == 3){
 		reviewData.onlyKanji = true;
-		res.render('kanji-review', reviewData);
-		return;
+		type = 1;
 	}
 
-	switch(reviewData.fact.type){
+	if(options && options.type) type = options.type;
+	console.log("type:" + type);
+	console.log(reviewData.fact);
+
+	switch(type){
 	case 1:
 		res.render('kanji-review', reviewData);
 		break;
@@ -131,8 +227,11 @@ const renderReview = (res, deckName, id, debugData) => {
 			res.render('recall-review', reviewData);
 		}
 		break;
+	case 4:
+		res.render('listen-meaning-review', reviewData);
+		break;
 	default:
-		res.send("unhandled type: " + reviewData.fact.type);
+		res.send("unhandled type: " + type);
 		break;
 	}
 };
@@ -149,14 +248,17 @@ const handleKanjiReviewResponse = (req, res) => {
 
 	const state = deck.findState('id', req.body.id);
 
+	let source = "normal";
+	if(req.body.source) source = req.body.source;
+
 	const logMessage = { 
 		id: req.body.id, 
 		input: req.body.input, 
 		duration: req.body.duration, 
 		streak: state.streak, 
-		time: new Date().getTime(), 
 		tries: req.body.tries, 
-		type: 'kanji'
+		type: 'kanji',
+		source: source
 	};
 
 	const original =  originalFact.target || originalFact.word;
@@ -209,7 +311,7 @@ const handleKanjiReviewResponse = (req, res) => {
 	if(req.body.debug == 'true') {
 		console.log('debug is on, no data recorded');
 	} else {
-		reviewLogger.log({ level: 'info', message: logMessage })
+		reviewLogging.log(logMessage);
 		deck.updateState(state);
 	}
 };
@@ -227,9 +329,16 @@ const handleRecallReviewResponse = (req, res) => {
 		return;
 	}
 
-	const original = wanakana._katakanaToHiragana(originalFact.reading).replace(/ /g,'');
+	let source = "normal";
+	if(req.body.source) source = req.body.source;
+
+	let originalText = originalFact.reading;
+	if(source == 'daily-recall') originalText = originalFact['sentence-reading']
+	const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
+	const preStreak = state.streak;
 	const scoreInfo = reviewTools.scoreReview(original, input);
+	
 	if(req.body.type == 'rw'){
 		result = 0;
 		if(scoreInfo.score > 0.95) {
@@ -241,19 +350,23 @@ const handleRecallReviewResponse = (req, res) => {
 		setUpdatedDue(state, 1);
 	}
 
+	
+
 	if(req.body.debug == 'true') {
 		console.log('debug is on, no data recorded');
 	} else {
-		deck.updateState(state);
+		if(source != 'daily-recall') deck.updateState(state);
 
-		reviewLogger.log({ level: 'info', message: { 
+		reviewLogging.log({ 
 			id: req.body.id, 
 			type: "recall", 
 			condition: state.condition,
 			input: req.body.input, 
 			score: scoreInfo.score, 
-			duration: parseInt(req.body.duration)
-		} });
+			duration: parseInt(req.body.duration),
+			streak: preStreak,
+			source: source
+		});
 	}
 
 	res.json(scoreInfo);
@@ -277,15 +390,41 @@ module.exports.init = (app) => {
 				if(key.includes('__'))
 					dbgData[key] = req.query[key];
 			}
-			renderReview(res, deckName, req.query.id, dbgData);
+			renderReview(res, deckName, req.query.id, null, dbgData);
 			return;
 		}
 
 		const expiredReviewId = deck.getExpiredReview();
 		if(expiredReviewId == null){
-			renderNoReviews(res, deckName);
+			const recallReview = getRecallReview();
+			if(deckName == 'kanji' && recallReview) {
+				console.log(recallReview);
+				renderReview(res, 'kanji', recallReview, { type: 2, overrideMode: 1, source: 'daily-recall' });
+			} else {
+				renderNoReviews(res, deckName);
+			}
 		} else {
 			renderReview(res, deckName, expiredReviewId);
+		}
+	});
+
+	app.get('/listen-meaning-review', (req, res) => {
+		let deckName = 'kanji';
+		if(req.query.deck) deckName = req.query.deck;
+
+		const deck = decks.getDeck(deckName);
+		if(!deck) {
+			res.send("deck not found: " + deckName);
+			return;
+		}
+
+		deck.syncStates();
+
+		const expiredReviewId = getListenMeaningReview();
+		if(expiredReviewId == null){
+			renderNoReviews(res, deckName);
+		} else {
+			renderReview(res, deckName, expiredReviewId, { type: 4 });
 		}
 	});
 
@@ -423,20 +562,42 @@ module.exports.init = (app) => {
 		mediaserver.pipe(req, res, 'C:/Users/Gabriel Culbertson/Documents/GitHub/kotoba-najimi/public/audio/ed6sc/ch0010190368.ogg');
 	});
 
+	app.get('/dictionary-word-audio', (req, res) => {
+		const word = req.query.word;
+		console.log(word);
+		dictionaryAudio.getAudioFilePath(word, (file) => {
+			if(file){
+				mediaserver.pipe(req, res, file);
+			} else {
+				console.log('no audio found for: ' + word);
+				res.send('failed');
+			}
+		});
+	});
+
 	app.post('/log-meaning-assessment', (req, res) => {
+		// console.log(req.body);
 		const logMessage = { 
 			id: req.body.id,
 			word: req.body.word,
 			result: req.body.result,
 			input: req.body.input,
 			time: new Date().getTime(), 
-			type: 'meaning'
+			type: req.body.type || 'meaning'
 		};
-		reviewLogger.log({ level: 'info', message: logMessage });
+		reviewLogging.log(logMessage);
 
-		if(req.body.result == 0){
+		if(req.body.result == 0 && !req.body.skipReset){
 			resetFact('kanji', req.body.id);
 		}
+		res.send('done');
+	});
+
+	app.post('/sentence-reading', (req, res) => {
+		const deck = decks.getDeck("kanji");
+		const fact = deck.find(req.body.id);
+		fact['sentence-reading'] = req.body.sentenceReading;
+		deck.updateFact(fact);
 		res.send('done');
 	});
 };

@@ -19,7 +19,7 @@ module.exports.scoreReview = (original, input) => {
 				totalCount++;
 			} 
 
-			if(pair[1] != null){
+			if(pair[0] == null && pair[1] != null){
 				correctCount--;
 			}
 		} else {

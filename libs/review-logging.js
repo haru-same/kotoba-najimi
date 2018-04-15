@@ -7,14 +7,16 @@ if(!fs.existsSync(folderName)) fs.mkdirSync(folderName);
 
 const logPath = folderName + '/reviews.log';
 
+const logger = winston.createLogger({
+	level: 'info',
+	format: winston.format.json(),
+	transports: [
+		new winston.transports.File({ filename: logPath })
+	]
+});
+
 module.exports.getLogger = () => {
-	return winston.createLogger({
-		level: 'info',
-		format: winston.format.json(),
-		transports: [
-			new winston.transports.File({ filename: logPath })
-		]
-	});
+	return logger;
 };
 
 module.exports.getLog = () => {
@@ -25,4 +27,9 @@ module.exports.getLog = () => {
 			reviewHistory.push(JSON.parse(logString));
 	}
 	return reviewHistory;
+};
+
+module.exports.log = (message) => {
+	message.time = new Date().getTime();
+	logger.log({ level: 'info', message: message });
 };

@@ -7,6 +7,10 @@ body {
 	font-size: 24px;
 }
 
+body.dark {
+	background-color: black;
+}
+
 label {
 	font-family: Sans-Serif;
 	font-size: 16px;
@@ -42,12 +46,23 @@ rt {
 	color:white;
 }
 
+.dark .top-box {
+	box-shadow: -3px -3px 16px 10px rgba(.5,.5,.5,0.2), 3px 3px 20px 10px rgba(.5,.5,.5,0.19);
+	background-color: #333333;
+	color: lightgray;
+}
+
 .text-chunk {
 	background-color: white;
 	margin: 4px;
 	padding: 8px 16px;
 	box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);
 	vertical-align: bottom;
+}
+
+.dark .text-chunk {
+	background-color: #1a1a1a;
+	color: gray;
 }
 
 .text-chunk-controls {
@@ -115,6 +130,10 @@ rb {
 	color: #808080;
 }
 
+.dark rb {
+	color: lightgray;
+}
+
 .bold {
 	color: black;
 	font-weight: bold;
@@ -137,4 +156,12 @@ a {
 
 .add-recall {
 	font-size: 16px;
+}
+
+.top-bar {
+	background-color:white;
+}
+
+.dark > .top-bar {
+	background-color: black;
 }

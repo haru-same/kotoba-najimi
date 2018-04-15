@@ -1,0 +1,265 @@
+<%
+function precisionRound(number, precision) {
+	var factor = Math.pow(10, precision);
+	return Math.round(number * factor) / factor;
+}
+
+const average = (arr) => {
+	let sum = 0;
+	for(const val of arr){
+		sum += val;
+	}
+	return sum / arr.length;
+};
+
+const timeToDayString = (time) => {
+	return precisionRound(time / (1000*60*60*24), 1) + 'd';
+}
+
+const timeToHoursString = (time) => {
+	return precisionRound(time / (60 * 60 * 1000), 1) + 'h';
+}
+
+const timeToSecondsString = (time) => {
+	return precisionRound(time / 1000, 1) + 's';
+}
+
+const toPercent = (num) => {
+	return (Math.round(1000 * num) / 10) + '%';
+}
+
+const audioCards = {
+	listening: {},
+	speaking: {}
+};
+
+for(const id in facts){
+	if(facts[id].type && facts[id].type == 3 && reviewStates[id]){
+		const state = { knowReading: false, knowMeaning: false };
+		if(reviewStates[id].condition == 0){
+			audioCards.listening[id] = state;
+		} else {
+			audioCards.speaking[id] = state;
+		}
+	}
+}
+
+const learnedReading = {};
+const forgotReading = {};
+const learnedMeaning = {};
+
+const readingKnown = {};
+const meaningKnown = {};
+
+const slices = ['listening', 'speaking', 'withImage', 'withoutImage'];
+const counts = {};
+for(const countType of ['meaning', 'reading', 'listenmeaning']){
+	counts[countType] = { count: 0 };
+	for(const totalCorrect of ['total', 'correct']){
+		counts[countType][totalCorrect] = {};
+		for(const slice of slices){
+			counts[countType][totalCorrect][slice] = 0;
+		}
+	}
+}
+
+const timeCounts = {};
+for(const countType of ['reviewDuration']){
+	timeCounts[countType] = { };
+	for(const countTime of ['count', 'time']){
+		timeCounts[countType][countTime] = {};
+		for(const slice of slices){
+			timeCounts[countType][countTime][slice] = 0;
+		}
+	}
+}
+
+const staticCounts = {};
+for(const countType of ['meaningKnown', 'readingKnown', 'forgotReading']){
+	staticCounts[countType] = { };
+	for(const slice of slices){
+		staticCounts[countType][slice] = 0;
+	}
+}
+console.log(staticCounts);
+
+const addToCount = (logType, id, result) => {
+	counts[logType].count++;
+	if(audioCards.listening[id]){
+		counts[logType].total.listening++;
+		if(result) counts[logType].correct.listening++;
+	} else if(audioCards.speaking[id]){
+		counts[logType].total.speaking++;
+		if(result) counts[logType].correct.speaking++;
+	}
+
+	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
+		if(reviewStates[id]['image-condition'] == 1){
+			counts[logType].total.withImage++;
+			if(result) counts[logType].correct.withImage++;
+		} else if(reviewStates[id]['image-condition'] == 0){
+			counts[logType].total.withoutImage++;
+			if(result) counts[logType].correct.withoutImage++;
+		}
+	}
+};
+
+const addToTimeCount = (logType, id, time) => {
+	if(time > 60*1000) return;
+
+	if(audioCards.listening[id]){
+		// console.log(time);
+		timeCounts[logType].count.listening++;
+		timeCounts[logType].time.listening += time;
+	} else if(audioCards.speaking[id]){
+		timeCounts[logType].count.speaking++;
+		timeCounts[logType].time.speaking += time;
+	}
+
+	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
+		if(reviewStates[id]['image-condition'] == 1){
+			timeCounts[logType].count.withImage++;
+			timeCounts[logType].time.withImage += time;
+		} else if(reviewStates[id]['image-condition'] == 0){
+			timeCounts[logType].count.withoutImage++;
+			timeCounts[logType].time.withoutImage += time;
+		}
+	}
+};
+
+const addToStaticCount = (logType, id) => {
+	if(audioCards.listening[id]){
+		staticCounts[logType].listening++;
+	} else if(audioCards.speaking[id]){
+		staticCounts[logType].speaking++;
+	}
+
+	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
+		if(reviewStates[id]['image-condition'] == 1){
+			staticCounts[logType].withImage++;
+		} else if(reviewStates[id]['image-condition'] == 0){
+			staticCounts[logType].withoutImage++;
+		}
+	}
+};
+
+for(const logEntry of reviewLogs){
+	if(!logEntry.message.id) continue;
+
+	const id = logEntry.message.id;
+	let result = 0;
+	if(logEntry.message.result == 1 || logEntry.message.score == 1){
+		result = 1;
+	} 
+
+	if(logEntry.message.duration){
+		addToTimeCount('reviewDuration', id, parseInt(logEntry.message.duration));
+	}
+
+	if(logEntry.message.tries == "1" && logEntry.message.result == 0) continue;
+
+	if(logEntry.message.type == 'meaning'){
+		addToCount('meaning', id, result);
+
+		if(result == 1){
+			learnedMeaning[id] = true;
+			meaningKnown[id] = true;
+		}
+	}
+
+	if(logEntry.message.type == 'listening-meaning'){
+		addToCount('listenmeaning', id, result);
+	} 
+
+	if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id])){
+		addToCount('reading', id, result);
+
+		if(result == 1){
+			learnedReading[id] = true;
+			readingKnown[id] = true;
+		}
+	}
+
+	if(result == 0 && learnedReading[id]){
+		readingKnown[id] = false;
+
+		if(!forgotReading[id]){
+			forgotReading[id] = true;
+		}
+	}
+}
+
+const countsTableHeader = [''];
+for(const slice of slices) {
+	countsTableHeader.push(slice);
+}
+
+const countsTable = [countsTableHeader];
+for(const key1 in counts) {
+	const row = [];
+	row.push(key1);
+	for(const slice of slices){
+		const percent = toPercent(counts[key1].correct[slice]/counts[key1].total[slice]);
+		row.push(`${percent} (${counts[key1].correct[slice]}/${counts[key1].total[slice]})`);
+	}
+	countsTable.push(row);
+}
+
+const timeCountsTable = [countsTableHeader];
+for(const key1 in timeCounts) {
+	const row = [];
+	row.push(key1);
+	for(const slice of slices){
+		const duration = timeToHoursString(timeCounts[key1].time[slice]);
+		const averageTime = timeToSecondsString(timeCounts[key1].time[slice]/timeCounts[key1].count[slice]);
+		row.push(`${duration} (${timeCounts[key1].count[slice]}, avg. ${averageTime})`);
+	}
+	timeCountsTable.push(row);
+}
+
+for(const id in forgotReading) addToStaticCount('forgotReading', id);
+for(const id in readingKnown) if(readingKnown[id]) addToStaticCount('readingKnown', id);
+for(const id in meaningKnown) if(meaningKnown[id]) addToStaticCount('meaningKnown', id);
+
+const staticCountsTable = [countsTableHeader];
+for(const key in staticCounts) {
+	const row = [];
+	row.push(key);
+	for(const slice of slices){
+		row.push(staticCounts[key][slice]);
+	}
+	staticCountsTable.push(row);
+}
+%>
+<table align="center">
+	<% for(const row of countsTable){%>
+	<tr>
+		<% for(const item of row){%>
+		<td><%= item %></td>
+		<%}%>
+	</tr>
+	<% } %>
+	</tr>
+</table>
+<br><br>
+<table align="center">
+	<% for(const row of timeCountsTable){%>
+	<tr>
+		<% for(const item of row){%>
+		<td><%= item %></td>
+		<%}%>
+	</tr>
+	<% } %>
+	</tr>
+</table>
+<br><br>
+<table align="center">
+	<% for(const row of staticCountsTable){%>
+	<tr>
+		<% for(const item of row){%>
+		<td><%= item %></td>
+		<%}%>
+	</tr>
+	<% } %>
+	</tr>
+</table>

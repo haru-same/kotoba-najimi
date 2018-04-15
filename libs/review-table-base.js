@@ -60,6 +60,18 @@ class ReviewTable {
 		userdata.saveTable(factsTable);
 	}
 
+	updateFact(item){
+		if(!item.id){
+			console.error("not valid:");
+			console.error(item);
+			return;
+		}
+
+		const factsTable = userdata.getTable(this.factTableName);
+		factsTable.data[item.id] = item;
+		userdata.saveTable(factsTable);
+	}
+
 	assignCondition(fact, counts){
 		if(counts[fact.type][0] < counts[fact.type][1]) return 0;
 		if(counts[fact.type][1] < counts[fact.type][0]) return 1;
