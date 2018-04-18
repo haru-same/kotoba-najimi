@@ -10,6 +10,7 @@ const furigana = require('./furigana');
 const kanjiReviews = require('./kanji-reviews');
 const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
+const clean = require('./clean');
 const gameTools = require('./game-tools/game-tools');
 
 const dictionaryAudio = require('./dictionary-audio');
@@ -19,7 +20,8 @@ const RecallType = 2;
 const WordRecallType = 3;
 
 const DailyRecallCount = 4;
-const DailyDictionaryListeningCount = 10;
+const DailyDictionaryListeningCount = 20;
+const DailyRecallMinLength = 18;
 
 const DECK_TO_ICON = {
 	kanji: "estelle",
@@ -104,9 +106,10 @@ const getRecallReview = () => {
 	const states = deck.getAllStates();
 	const available = [];
 	for(const id in facts){
-		if(!used[id] && facts[id].audio && parseInt(states[id].streak) > 3) 
+		if(!used[id] && facts[id].audio && parseInt(states[id].streak) > 3 && clean.cleanPunctuation(facts[id].sentence).replace(/ /g, "").length > DailyRecallMinLength) 
 			available.push(id);
 	}
+	console.log('available for recall', available.length);
 
 	return available[Math.floor(Math.random() * available.length)];
 }

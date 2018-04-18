@@ -4,6 +4,28 @@ function precisionRound(number, precision) {
 	return Math.round(number * factor) / factor;
 }
 
+const toDaysAgo = (time) => {
+	return Math.round((new Date().getTime() - time)/(24 * 60 * 60 * 1000));
+};
+
+let knownFactCount4 = 0;
+let knownFactCount8 = 0;
+let knownSpeakingFact = 0;
+let knownTypingFact = 0;
+for(let id in reviewStates){
+	if(reviewStates[id].streak >= 4) knownFactCount4++;
+	if(reviewStates[id].streak >= 5) knownFactCount8++;
+
+	if(facts[id].type == null || facts[id].type == 1){
+		if(reviewStates[id].condition == 0 && reviewStates[id].streak >= 5){
+			knownTypingFact++;
+		}
+		else if(reviewStates[id].condition == 1 && reviewStates[id].streak >= 5){
+			knownSpeakingFact++;	
+		}
+	}
+}
+
 let textReviews = 0;
 let audioReviews = 0;
 for(let id in reviewStates){
@@ -32,9 +54,23 @@ const reviewScores = {
 };
 
 let earliestCreated = new Date().getTime();
+let speakingTypingExperimentStart = null;
+let speakingTypingExperimentEnd = null;
+let speakingListeningExperimentStart = null;
+let speakingListeningExperimentEnd = null;
 for(const id in facts){
 	if(facts[id].created && facts[id].created < earliestCreated){
 		earliestCreated = facts[id].created;
+	}
+
+	if(facts[id].created && facts[id].type == 1){
+		if(!speakingTypingExperimentStart) speakingTypingExperimentStart = facts[id].created;
+		speakingTypingExperimentEnd = facts[id].created;
+	}
+
+	if(facts[id].created && facts[id].type == 3){
+		if(!speakingListeningExperimentStart) speakingListeningExperimentStart = facts[id].created;
+		speakingListeningExperimentEnd = facts[id].created;
 	}
 }
 
@@ -148,14 +184,18 @@ for(const id in facts){
 </head>
 <body>
 	<div class="band" style="text-align:center; font-size: 2rem">
-		<%= textReviews %> text reviews (<%= Math.round(100 * reviewScores.text[-1].correct /  reviewScores.text[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.text[1].correct / reviewScores.text[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.text[2].correct / reviewScores.text[2].total) %>% two day or more accuracy)
+		<%= knownFactCount4 %>/<%= Object.keys(reviewStates).length %> facts known (4 day gap)<br>
+		<%= knownFactCount8 %>/<%= Object.keys(reviewStates).length %> facts known (8 day gap)
+		<br><br>
+
+		<%= textReviews %> text reviews (<%= knownTypingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.text[-1].correct /  reviewScores.text[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.text[1].correct / reviewScores.text[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.text[2].correct / reviewScores.text[2].total) %>% two day or more accuracy)
 		<br>
 		[<%= reviewScores.text[-1].correct %>/<%= reviewScores.text[-1].total %>, <%= reviewScores.text[1].correct %>/<%= reviewScores.text[1].total %>, <%= reviewScores.text[2].correct %>/<%= reviewScores.text[2].total %>]
 		<br>
 		Spent <%= Math.floor(textTime / (1000 * 60 * 60)) %>h<%= Math.floor(textTime / (1000 * 60)) % 60 %>m on text reviews (avg. <%= precisionRound((textTime / 1000) / textReviewLogCount, 2) %> sec/rev)
 		<br>
 		<br>
-		<%= audioReviews %> speech reviews (<%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
+		<%= audioReviews %> speech reviews (<%= knownSpeakingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
 		<br>
 		[<%= reviewScores.audio[-1].correct %>/<%= reviewScores.audio[-1].total %>, <%= reviewScores.audio[1].correct %>/<%= reviewScores.audio[1].total %>, <%= reviewScores.audio[2].correct %>/<%= reviewScores.audio[2].total %>]
 		<br>
@@ -187,7 +227,11 @@ for(const id in facts){
 		<br>
 		<br>
 		<div style="font-size: 1.5rem">
-		<%= new Date() %> (began <%= Math.round((new Date().getTime() - earliestCreated)/(24 * 60 * 60 * 1000)) %> days ago)
+		<%= new Date() %> (began <%= toDaysAgo(earliestCreated) %> days ago)
+		<br>
+		Speaking/typing began <%= toDaysAgo(speakingTypingExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingTypingExperimentEnd) %> days ago)
+		<br>
+		Speaking/listening began <%= toDaysAgo(speakingListeningExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingListeningExperimentEnd) %> days ago)
 		</div>
 	</div>
 </body>

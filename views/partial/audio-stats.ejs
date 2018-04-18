@@ -47,6 +47,7 @@ for(const id in facts){
 const learnedReading = {};
 const forgotReading = {};
 const learnedMeaning = {};
+const forgotMeaning = {};
 
 const readingKnown = {};
 const meaningKnown = {};
@@ -75,7 +76,7 @@ for(const countType of ['reviewDuration']){
 }
 
 const staticCounts = {};
-for(const countType of ['meaningKnown', 'readingKnown', 'forgotReading']){
+for(const countType of ['meaningKnown', 'readingKnown', 'forgotMeaning', 'forgotReading']){
 	staticCounts[countType] = { };
 	for(const slice of slices){
 		staticCounts[countType][slice] = 0;
@@ -165,6 +166,12 @@ for(const logEntry of reviewLogs){
 			learnedMeaning[id] = true;
 			meaningKnown[id] = true;
 		}
+
+		if(result == 0 && learnedMeaning[id]){
+			meaningKnown[id] = false;
+			forgotMeaning[id] = true;
+			console.log(id);
+		}
 	}
 
 	if(logEntry.message.type == 'listening-meaning'){
@@ -180,12 +187,10 @@ for(const logEntry of reviewLogs){
 		}
 	}
 
-	if(result == 0 && learnedReading[id]){
+	const isReadingEntry = logEntry.message.type == 'kanji' || logEntry.message.type == 'recall';
+	if(result == 0 && learnedReading[id] && isReadingEntry){
 		readingKnown[id] = false;
-
-		if(!forgotReading[id]){
-			forgotReading[id] = true;
-		}
+		forgotReading[id] = true;
 	}
 }
 
@@ -218,6 +223,7 @@ for(const key1 in timeCounts) {
 }
 
 for(const id in forgotReading) addToStaticCount('forgotReading', id);
+for(const id in forgotMeaning) addToStaticCount('forgotMeaning', id);
 for(const id in readingKnown) if(readingKnown[id]) addToStaticCount('readingKnown', id);
 for(const id in meaningKnown) if(meaningKnown[id]) addToStaticCount('meaningKnown', id);
 
