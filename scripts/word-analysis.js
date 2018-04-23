@@ -13,6 +13,8 @@ const WordReviewCount = 10;
 // console.log(jaDictionary.wordSearch());
 
 const wordAccuracy = {};
+const firstResult = {};
+const wordAccuracy10AfterFirst = {};
 const wordAccuracy10 = {};
 const wordGraduated = {};
 const earlyWordAccuracy = {};
@@ -24,11 +26,16 @@ for(const entry of reviewEntries){
 	const word = fact.word || fact.target;
 	let result = 0;
 	if(entry.message.score == 1 || entry.message.result == 1) result = 1;
+
+	if(entry.message.tries == '1' && result == 0){
+		continue;
+	}
 	
 	if(!wordAccuracy[word]) wordAccuracy[word] = { total: 0, correct: 0 };
 	if(!wordAccuracy10[word]) wordAccuracy10[word] = { total: 0, correct: 0 };
 	if(!earlyWordAccuracy[word]) earlyWordAccuracy[word] = { total: 0, correct: 0 };
 	if(!lateWordAccuracy[word]) lateWordAccuracy[word] = { total: 0, correct: 0 };
+	if(!wordAccuracy10AfterFirst[word]) wordAccuracy10AfterFirst[word] = { total: 0, correct: 0 };
 
 	if(wordAccuracy10[word].total < WordReviewCount) {
 		wordAccuracy10[word].total++;
@@ -47,6 +54,19 @@ for(const entry of reviewEntries){
 	} else {
 		earlyWordAccuracy[word].total++;
 		earlyWordAccuracy[word].correct += result;
+	}
+
+
+	if(entry.message.tries == '1' && result == 0){
+		continue;
+	}
+
+// wordAccuracy[word].total == 1
+	if(wordAccuracy[word].total == 2){ //firstResult[word] == null){
+		firstResult[word] = result;
+	} else if(wordAccuracy[word].total < 12){
+		wordAccuracy10AfterFirst[word].total++;
+		wordAccuracy10AfterFirst[word].correct += result;
 	}
 }
 
@@ -90,6 +110,15 @@ for(const word in wordGraduated){
 	}
 }
 fs.writeFileSync('output/early-late.txt', earlyLateWordsAcc.join('\n'));
+
+const firstToLongTerm = [];
+for(const word in firstResult){
+	const longTerm = wordAccuracy10AfterFirst[word];
+	if(longTerm.total > 5){
+		firstToLongTerm.push(`${firstResult[word]}\t${longTerm.correct/longTerm.total}`)
+	}
+}
+fs.writeFileSync('output/first-longterm.txt', firstToLongTerm.join('\n'));
 
 const wordFrequency = {};
 const lines = fs.readFileSync('data/word-frequency.txt', 'utf8').split('\r\n');

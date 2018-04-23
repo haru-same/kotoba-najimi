@@ -54,7 +54,7 @@ const meaningKnown = {};
 
 const slices = ['listening', 'speaking', 'withImage', 'withoutImage'];
 const counts = {};
-for(const countType of ['meaning', 'reading', 'listenmeaning']){
+for(const countType of ['meaning', 'reading', 'listenmeaning', 'newcloze' ]){
 	counts[countType] = { count: 0 };
 	for(const totalCorrect of ['total', 'correct']){
 		counts[countType][totalCorrect] = {};
@@ -176,6 +176,10 @@ for(const logEntry of reviewLogs){
 
 	if(logEntry.message.type == 'listening-meaning'){
 		addToCount('listenmeaning', id, result);
+	} 
+
+	if(logEntry.message.type == 'fresh-cloze'){
+		addToCount('newcloze', id, result);
 	} 
 
 	if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id])){

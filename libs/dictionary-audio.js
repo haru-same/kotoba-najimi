@@ -5,7 +5,7 @@ const uuidv4 = require('uuid/v4');
 
 const jaDictionary = require('./ja-dictionary');
 
-const audioCacheDirectory = 'audiocache';
+const audioCacheDirectory = 'cache';
 const dictionaryAudioTableFile = 'dictionary-audio.json';
 
 if(!fs.existsSync(audioCacheDirectory)){

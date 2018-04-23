@@ -3,7 +3,8 @@ const fs = require('fs');
 const config = {
 	"openChrome": true,
 	"chromePath": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-	"userdataPath": "userdata"
+	"userdataPath": "userdata",
+	"useRomaji": false
 };
 
 if(fs.existsSync('./config.json')){

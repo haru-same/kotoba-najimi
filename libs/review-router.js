@@ -8,6 +8,7 @@ const wanakana = require('./wanakana');
 const furigana = require('./furigana');
 // const recallReviews = require('./recall-reviews');
 const kanjiReviews = require('./kanji-reviews');
+const clozeReviews = require('./cloze-reviews');
 const shuffle = require('./shuffle');
 const reviewLogging = require('./review-logging');
 const clean = require('./clean');
@@ -21,6 +22,7 @@ const WordRecallType = 3;
 
 const DailyRecallCount = 4;
 const DailyDictionaryListeningCount = 20;
+const DailyFreshClozeCount = 20;
 const DailyRecallMinLength = 18;
 
 const DECK_TO_ICON = {
@@ -98,8 +100,7 @@ const getRecallReview = () => {
 		}
 	}
 
-	if(count >= DailyRecallCount) return null;
-	console.log(count);
+	console.log("today's recall", count);
 
 	const deck = decks.getDeck("kanji");
 	const facts = deck.getAllFacts();
@@ -110,6 +111,7 @@ const getRecallReview = () => {
 			available.push(id);
 	}
 	console.log('available for recall', available.length);
+	if(count >= DailyRecallCount) return null;
 
 	return available[Math.floor(Math.random() * available.length)];
 }
@@ -133,7 +135,6 @@ getListenMeaningReview = () => {
 	}
 
 	console.log("listen for meaning today's count:", count);
-	if(count >= DailyDictionaryListeningCount) return null;
 
 	const deck = decks.getDeck("kanji");
 	const facts = deck.getAllFacts();
@@ -144,7 +145,56 @@ getListenMeaningReview = () => {
 			available.push(id);
 	}
 	console.log('listen for meaning count:', available.length);
+	if(count >= DailyDictionaryListeningCount) return null;
 	return available[Math.floor(Math.random() * available.length)];
+}
+
+getClozeReview = (req) => {
+	let start = new Date();
+	start.setHours(0,0,0,0);
+	start = start.getTime();
+	const reviewHistory = reviewLogging.getLog();
+
+	let count = 0;
+	const used = {};
+	for(const item of reviewHistory){
+		if(item.message.type == "fresh-cloze"){
+			used[item.message.id] = true;
+		}
+
+		if(item.message.type == "fresh-cloze" && item.message.time && item.message.time > start){
+			count++;
+		}
+	}
+
+	console.log("cloze today's count:", count);
+
+	const deck = decks.getDeck("kanji");
+	const facts = deck.getAllFacts();
+	const states = deck.getAllStates();
+	const available = [];
+	for(const id in facts){
+		if(!used[id] && facts[id].audio && parseInt(states[id].streak) > 3 && clozeReviews.getClozeSentence(id)) 
+			available.push(id);
+	}
+	console.log('cloze count:', available.length);
+	if(count >= DailyFreshClozeCount && !req.query.dbg) return null;
+	return available[Math.floor(Math.random() * available.length)];
+}
+
+getChoices = (targetId, count) => {
+	const deck = decks.getDeck("kanji");
+	const facts = deck.getAllFacts();
+	const states = deck.getAllStates();
+	let available = [];
+	for(const id in facts){
+		if(id != targetId && facts[id].type == 3 && parseInt(states[id].streak) > 3 && clozeReviews.getClozeSentence(id)) 
+			available.push(facts[id].word);
+	}
+	shuffle(available);
+	available =  available.slice(0, 4);
+	available.push(facts[targetId].word);
+	return available;
 }
 
 const getImageCondition = () => {
@@ -210,28 +260,33 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	console.log("type:" + type);
 	console.log(reviewData.fact);
 
+	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+	const sentence = reviewData.fact.sentence || reviewData.fact.context;
+	const furiganaHtml = ejs.render(template, { elements: furigana(sentence) });
+	reviewData.furiganaHtml = furiganaHtml;
+
 	switch(type){
 	case 1:
 		res.render('kanji-review', reviewData);
 		break;
 	case 2:
-		const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
-		const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
-		reviewData.furiganaHtml = furiganaHtml;
 		res.render('recall-review', reviewData);
 		break;
 	case 3:
 		if(reviewData.state.condition == 1){
 			res.render('kanji-review', reviewData);
 		} else {
-			const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
-			const furiganaHtml = ejs.render(template, { elements: furigana(reviewData.fact.sentence) });
-			reviewData.furiganaHtml = furiganaHtml;
 			res.render('recall-review', reviewData);
 		}
 		break;
 	case 4:
 		res.render('listen-meaning-review', reviewData);
+		break;
+	case 5:
+		reviewData.clozeSentence = options.clozeSentence;
+		reviewData.clozeSentenceHtml = ejs.render(template, { elements: furigana(options.clozeSentence.replace(reviewData.fact.word, '____')) });
+		reviewData.clozeChoices = options.clozeChoices;
+		res.render('cloze-review', reviewData);
 		break;
 	default:
 		res.send("unhandled type: " + type);
@@ -431,6 +486,28 @@ module.exports.init = (app) => {
 		}
 	});
 
+	app.get('/cloze-review', (req, res) => {
+		let deckName = 'kanji';
+		if(req.query.deck) deckName = req.query.deck;
+
+		const deck = decks.getDeck(deckName);
+		if(!deck) {
+			res.send("deck not found: " + deckName);
+			return;
+		}
+
+		deck.syncStates();
+
+		const expiredReviewId = getClozeReview(req);
+		const clozeSentence = clozeReviews.getClozeSentence(expiredReviewId);
+		const clozeChoices = getChoices(expiredReviewId);
+		if(expiredReviewId == null){
+			renderNoReviews(res, deckName);
+		} else {
+			renderReview(res, deckName, expiredReviewId, { type: 5, clozeSentence: clozeSentence, clozeChoices: clozeChoices });
+		}
+	});
+
 	app.get('/recall-review', (req, res) => {
 		res.redirect('/review?deck=recall');
 	});
@@ -586,13 +663,30 @@ module.exports.init = (app) => {
 			result: req.body.result,
 			input: req.body.input,
 			time: new Date().getTime(), 
-			type: req.body.type || 'meaning'
+			type: req.body.type || 'meaning',
+			duration: req.body.duration
 		};
 		reviewLogging.log(logMessage);
 
 		if(req.body.result == 0 && !req.body.skipReset){
 			resetFact('kanji', req.body.id);
 		}
+		res.send('done');
+	});
+
+	app.post('/log-cloze', (req, res) => {
+		// console.log(req.body);
+		const logMessage = { 
+			id: req.body.id,
+			word: req.body.word,
+			result: req.body.result,
+			input: req.body.input,
+			choices: req.body.choices,
+			clozeSentence: req.body.clozeSentence,
+			type: req.body.type || 'cloze',
+			duration: req.body.duration
+		};
+		reviewLogging.log(logMessage);
 		res.send('done');
 	});
 

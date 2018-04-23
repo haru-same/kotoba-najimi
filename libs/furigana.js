@@ -1,4 +1,9 @@
-var jaTools = require('./ja-tools');
+const jaTools = require('./ja-tools');
+const wanakana = require('./wanakana');
+
+const config = require('./config');
+
+const useRomaji = config.useRomaji;
 
 function breakDown(token){
 	if(token.r[token.r.length - 1] != token.s[token.s.length - 1]){
@@ -24,15 +29,26 @@ module.exports = function(text, options){
 	var tokens = jaTools.getTokensSync(text);
 	// console.log(tokens);
 	var outTokens = [];
-	for(var i in tokens){
-		if(tokens[i].r){
-			var split = breakDown(tokens[i]);
-			outTokens.push(split.kanji);
-			if(split.kana){
-				outTokens.push(split.kana);
+
+	if(useRomaji){
+		for(const token of tokens){
+			if(token.r) {
+				outTokens.push({ s: token.s, r: wanakana.toRomaji(token.r) });
+			} else {
+				outTokens.push({ s: token.s, r: wanakana.toRomaji(token.s) });
 			}
-		} else {
-			outTokens.push(tokens[i]);
+		}
+	} else {
+		for(var i in tokens){
+			if(tokens[i].r){
+				var split = breakDown(tokens[i]);
+				outTokens.push(split.kanji);
+				if(split.kana){
+					outTokens.push(split.kana);
+				}
+			} else {
+				outTokens.push(tokens[i]);
+			}
 		}
 	}
 	// console.log(outTokens);

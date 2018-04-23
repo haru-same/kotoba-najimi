@@ -63,7 +63,7 @@ app
 reviewRouter.init(app);
 
 app.get('/', function(req, res){
-	res.render('index');
+	res.render('index', { config: config });
 });
 
 app.get('/options', function(req, res){
@@ -150,7 +150,7 @@ io.on('connection', function (socket) {
 	}
 
 	socket.on('test-text', () => {
-		const text = "やっと返してかえしてきやがったわけさ。";
+		const text = "やっと返してきやがったわけさ。";
 		const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 		const furiOutput = furigana(text);
 		io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: text });

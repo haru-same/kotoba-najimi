@@ -1,5 +1,6 @@
 {
 	"openChrome": true,
 	"chromePath": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-	"userdataPath": "../kotoba-najimi-userdata"
+	"userdataPath": "../kotoba-najimi-userdata",
+	"useRomaji": false
 }
