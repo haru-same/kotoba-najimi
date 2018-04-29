@@ -1,7 +1,24 @@
 <% 
 const reviewProgress = {}; 
-const hideImage = typeof onlyKanji != 'undefined' && onlyKanji;
-if(hideImage) state.condition = 0;
+const hideImage = options.onlyKanji;
+let condition = 0;
+if(state.condition) condition = state.condition;
+if(hideImage) condition = 0;
+
+if(options.useTextInput == null){
+	options.useTextInput = false;
+	if(condition == 0) options.useTextInput = true;
+}
+
+if(options.useCloze == null){
+	options.useCloze = false;
+}
+
+if(options.replacement == null){
+	const word = fact.target || fact.word;
+	options.replacement = ` <b>${word}</b> `;
+	if(options.useCloze) options.replacement = '____';
+}
 %>
 <% include partial/review-progress %>
 <html>
@@ -28,13 +45,20 @@ if(hideImage) state.condition = 0;
 		let complete = false;
 		<% 
 		let initialTryCount = 1; 
-		if(typeof onlyKanji != 'undefined' && onlyKanji) initialTryCount = 0;
+		if(options.onlyKanji) initialTryCount = 0;
 		%>
 		let tries = <%= initialTryCount %>;
 
-		<% if(state.condition == 0) { %>
+		const renderFurigana = () => {
+			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
+				$('#prompt').html($('#prompt').html().replace('____', ` <b>${res}</b> `));
+			});
+		};
+
+		<% if(options.useTextInput) { %>
 		const showCorrectAnswer = (res) => {
 			$('#reading-input').val(res.reading);
+			renderFurigana();
 		};
 		<% } else { %> 
 		const showCorrectAnswer = (res) => {
@@ -132,7 +156,7 @@ if(hideImage) state.condition = 0;
 						outResults.push(results[i].transcript);
 					}
 					// , results: results
-		    		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries, debug: <%= debug %> }, (res) => {
+		    		$.post('/review', { deck: "<%= deck %>", id: targetId, type: 's', results: outResults, duration: new Date().getTime() - start, tries: tries, debug: <%= debug %>, cloze: <%= options.useCloze %> }, (res) => {
 		    			handleAnswerResponse(res);
 		    			$("#speech-out").toggleClass('partial', false);
 		    			$("#mic-button").toggleClass('recording', false);
@@ -211,14 +235,14 @@ if(hideImage) state.condition = 0;
 			});
 
 			$("#meaning-0").click(() => {
-				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 0, input: lastInput }, () => {
+				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', streak: <%= state.streak %>, word: '<%= fact.word %>', result: 0, input: lastInput }, () => {
 					console.log('post finished');
 					location.reload();
 				});
 			});
 
 			$("#meaning-1").click(() => {
-				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 1, input: lastInput }, () => {
+				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', streak: <%= state.streak %>, word: '<%= fact.word %>', result: 1, input: lastInput }, () => {
 					console.log('post finished');
 					location.reload();
 				});
@@ -233,9 +257,9 @@ if(hideImage) state.condition = 0;
 </head>
 <body>
 	<% if(fact.image && !hideImage && state['image-condition'] == 1) { %>
-	<%- include('partial/kanji-review-image-content', { reviewProgress: reviewProgress }) %>
+	<%- include('partial/kanji-review-image-content', { reviewProgress: reviewProgress, parentOptions: options }) %>
 	<% } else { %>
-	<%- include('partial/kanji-review-band-content', { reviewProgress: reviewProgress }) %>
+	<%- include('partial/kanji-review-band-content', { reviewProgress: reviewProgress, parentOptions: options }) %>
 	<% } %>
 </body>
 </html>

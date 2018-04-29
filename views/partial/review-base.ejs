@@ -1,0 +1,29 @@
+<script type="text/javascript">
+	let start = new Date().getTime();
+	const fact = <%- JSON.stringify(fact) %>;
+
+	let setCorrectColor = () => {
+		$("body").css('background-color', 'lightgreen');
+	};
+
+	let setWrongColor = () => {
+		$("body").css('background-color', 'pink');
+	};
+
+	const showError = (text) => {
+		$(".error").text(text);
+		$('.error').fadeIn().delay(5000).fadeOut();
+	};
+
+	$(document).ready(() => {
+		$("#post-play-button").click(() => {
+			const audio = new Audio('/audio/<%- fact.audio %>');
+			audio.play();
+		});
+
+		$(".post-play-button").click(() => {
+			const audio = new Audio('/audio/<%- fact.audio %>');
+			audio.play();
+		});
+	});
+</script>

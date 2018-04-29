@@ -25,21 +25,61 @@ const timeToSecondsString = (time) => {
 }
 
 const toPercent = (num) => {
+	if(num !== num) return null;
 	return (Math.round(1000 * num) / 10) + '%';
 }
 
+// console.log('test');
 const audioCards = {
+	speaking0: {},
+	typing0: {},
 	listening: {},
-	speaking: {}
+	speaking: {},
+	clozeExpListening: {},
+	clozeExpSpeaking: {},
+	cloze: {}
 };
 
 for(const id in facts){
+	const state = { knowReading: false, knowMeaning: false };
+
+	if(facts[id].type && facts[id].type == 1 && reviewStates[id]){
+		if(reviewStates[id].condition != null) {
+			switch(reviewStates[id].condition){
+			case 0:
+				audioCards.typing0[id] = state;
+				break;
+			case 1:
+				audioCards.speaking0[id] = state;
+				break;
+			}
+		}
+	}
+
 	if(facts[id].type && facts[id].type == 3 && reviewStates[id]){
-		const state = { knowReading: false, knowMeaning: false };
-		if(reviewStates[id].condition == 0){
-			audioCards.listening[id] = state;
-		} else {
-			audioCards.speaking[id] = state;
+		if(reviewStates[id].condition == null && reviewStates[id].experiments && reviewStates[id].experiments['listen-speak-cloze'] != null) {
+			switch(reviewStates[id].experiments['listen-speak-cloze']){
+			case 0:
+				audioCards.clozeExpListening[id] = state;
+				audioCards.listening[id] = state;
+				break;
+			case 1:
+				audioCards.clozeExpSpeaking[id] = state;
+				audioCards.speaking[id] = state;
+				break;
+			case 2:
+				audioCards.cloze[id] = state;
+				break;
+			}
+		} else if(reviewStates[id].condition != null) {
+			switch(reviewStates[id].condition){
+			case 0:
+				audioCards.listening[id] = state;
+				break;
+			case 1:
+				audioCards.speaking[id] = state;
+				break;
+			}
 		}
 	}
 }
@@ -52,9 +92,26 @@ const forgotMeaning = {};
 const readingKnown = {};
 const meaningKnown = {};
 
-const slices = ['listening', 'speaking', 'withImage', 'withoutImage'];
+const slices = [ 'speaking0', 'typing0', 'listening', 'speaking', 'clozeExpListening', 'clozeExpSpeaking', 'cloze', 'withImage', 'withoutImage' ];
+
+const streakToDescription = { "-1": "Just got it wrong", 0: "New or just fixed" };
+for(let i = 1; i < 10; i++){
+	streakToDescription[i] = Math.pow(2, i - 1) + " days old";
+}
+
+const streakCounts = {};
+for(const streak in streakToDescription){
+	streakCounts[streak] = { count: 0 };
+	for(const totalCorrect of ['total', 'correct']){
+		streakCounts[streak][totalCorrect] = {};
+		for(const slice of slices){
+			streakCounts[streak][totalCorrect][slice] = 0;
+		}
+	}
+}
+
 const counts = {};
-for(const countType of ['meaning', 'reading', 'listenmeaning', 'newcloze' ]){
+for(const countType of [ 'text-inverted-cloze', 'audio-inverted-cloze', 'meaning', 'reading', 'listen-meaning-0', 'listen-meaning-1', 'newcloze' ]){
 	counts[countType] = { count: 0 };
 	for(const totalCorrect of ['total', 'correct']){
 		counts[countType][totalCorrect] = {};
@@ -65,7 +122,7 @@ for(const countType of ['meaning', 'reading', 'listenmeaning', 'newcloze' ]){
 }
 
 const timeCounts = {};
-for(const countType of ['reviewDuration']){
+for(const countType of ['reviewDuration', 'listen-meaning-0', 'listen-meaning-1', 'text-inverted-cloze', 'audio-inverted-cloze' ]){
 	timeCounts[countType] = { };
 	for(const countTime of ['count', 'time']){
 		timeCounts[countType][countTime] = {};
@@ -84,23 +141,30 @@ for(const countType of ['meaningKnown', 'readingKnown', 'forgotMeaning', 'forgot
 }
 console.log(staticCounts);
 
-const addToCount = (logType, id, result) => {
-	counts[logType].count++;
-	if(audioCards.listening[id]){
-		counts[logType].total.listening++;
-		if(result) counts[logType].correct.listening++;
-	} else if(audioCards.speaking[id]){
-		counts[logType].total.speaking++;
-		if(result) counts[logType].correct.speaking++;
+// const getReviewType = (logEntry) => {
+// 	const reviewType = { base: "", sub: "" };
+// 	const 
+// };
+
+const addToCount = (logType, id, result, countSet) => {
+	countSet = countSet || counts;
+
+	countSet[logType].count++;
+
+	for(const key in audioCards){
+		if(audioCards[key][id]){
+			countSet[logType].total[key]++;
+			if(result) countSet[logType].correct[key]++;
+		}
 	}
 
 	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
 		if(reviewStates[id]['image-condition'] == 1){
-			counts[logType].total.withImage++;
-			if(result) counts[logType].correct.withImage++;
+			countSet[logType].total.withImage++;
+			if(result) countSet[logType].correct.withImage++;
 		} else if(reviewStates[id]['image-condition'] == 0){
-			counts[logType].total.withoutImage++;
-			if(result) counts[logType].correct.withoutImage++;
+			countSet[logType].total.withoutImage++;
+			if(result) countSet[logType].correct.withoutImage++;
 		}
 	}
 };
@@ -108,13 +172,11 @@ const addToCount = (logType, id, result) => {
 const addToTimeCount = (logType, id, time) => {
 	if(time > 60*1000) return;
 
-	if(audioCards.listening[id]){
-		// console.log(time);
-		timeCounts[logType].count.listening++;
-		timeCounts[logType].time.listening += time;
-	} else if(audioCards.speaking[id]){
-		timeCounts[logType].count.speaking++;
-		timeCounts[logType].time.speaking += time;
+	for(const key in audioCards){
+		if(audioCards[key][id]){
+			timeCounts[logType].count[key]++;
+			timeCounts[logType].time[key] += time;
+		}
 	}
 
 	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
@@ -129,10 +191,8 @@ const addToTimeCount = (logType, id, time) => {
 };
 
 const addToStaticCount = (logType, id) => {
-	if(audioCards.listening[id]){
-		staticCounts[logType].listening++;
-	} else if(audioCards.speaking[id]){
-		staticCounts[logType].speaking++;
+	for(const key in audioCards){
+		if(audioCards[key][id]) staticCounts[logType][key]++;
 	}
 
 	if(facts[id] && facts[id].image && facts[id].type == 3 && parseInt(facts[id].created) > 1522209600000){
@@ -144,6 +204,10 @@ const addToStaticCount = (logType, id) => {
 	}
 };
 
+for(const id in reviewStates){
+	addToCount(reviewStates[id].streak, id, 0, streakCounts);
+}
+
 for(const logEntry of reviewLogs){
 	if(!logEntry.message.id) continue;
 
@@ -154,7 +218,27 @@ for(const logEntry of reviewLogs){
 	} 
 
 	if(logEntry.message.duration){
-		addToTimeCount('reviewDuration', id, parseInt(logEntry.message.duration));
+		const duration = parseInt(logEntry.message.duration);
+		let type = "reviewDuration";
+		switch(logEntry.message.type){
+		case "listening-meaning":
+			if(logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3)
+				type = 'listen-meaning-1';
+			else 
+				type = 'listen-meaning-0';
+			break;
+		case "inverted-cloze":
+			switch(logEntry.message.promptType){
+			case 'text':
+				type = 'text-inverted-cloze';
+				break;
+			case 'audio':
+				type = 'audio-inverted-cloze';
+				break;
+			} 
+			break;
+		}
+		addToTimeCount(type, id, duration);
 	}
 
 	if(logEntry.message.tries == "1" && logEntry.message.result == 0) continue;
@@ -175,7 +259,11 @@ for(const logEntry of reviewLogs){
 	}
 
 	if(logEntry.message.type == 'listening-meaning'){
-		addToCount('listenmeaning', id, result);
+		console.log('streak: ' + logEntry.message.streak, (logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3) == true);
+		if(logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3)
+			addToCount('listen-meaning-1', id, result);
+		else 
+			addToCount('listen-meaning-0', id, result);
 	} 
 
 	if(logEntry.message.type == 'fresh-cloze'){
@@ -196,11 +284,32 @@ for(const logEntry of reviewLogs){
 		readingKnown[id] = false;
 		forgotReading[id] = true;
 	}
+
+	if(logEntry.message.type == 'inverted-cloze'){
+		switch(logEntry.message.promptType){
+		case 'text':
+			addToCount('text-inverted-cloze', id, result);
+			break;
+		case 'audio':
+			addToCount('audio-inverted-cloze', id, result);
+			break;
+		} 
+	}
 }
 
 const countsTableHeader = [''];
 for(const slice of slices) {
 	countsTableHeader.push(slice);
+}
+
+const streakCountsTable = [countsTableHeader];
+for(let i = -1; i < 9; i++) {
+	const row = [];
+	row.push(streakToDescription[i]);
+	for(const slice of slices){
+		row.push(streakCounts[i].total[slice]);
+	}
+	streakCountsTable.push(row);
 }
 
 const countsTable = [countsTableHeader];
@@ -209,7 +318,11 @@ for(const key1 in counts) {
 	row.push(key1);
 	for(const slice of slices){
 		const percent = toPercent(counts[key1].correct[slice]/counts[key1].total[slice]);
-		row.push(`${percent} (${counts[key1].correct[slice]}/${counts[key1].total[slice]})`);
+		if(percent){
+			row.push(`${percent} (${counts[key1].correct[slice]}/${counts[key1].total[slice]})`);
+		} else {
+			row.push(`-`);
+		}
 	}
 	countsTable.push(row);
 }
@@ -219,9 +332,13 @@ for(const key1 in timeCounts) {
 	const row = [];
 	row.push(key1);
 	for(const slice of slices){
-		const duration = timeToHoursString(timeCounts[key1].time[slice]);
-		const averageTime = timeToSecondsString(timeCounts[key1].time[slice]/timeCounts[key1].count[slice]);
-		row.push(`${duration} (${timeCounts[key1].count[slice]}, avg. ${averageTime})`);
+		if(timeCounts[key1].count[slice] == 0){
+			row.push(`-`);
+		} else {
+			const duration = timeToHoursString(timeCounts[key1].time[slice]);
+			const averageTime = timeToSecondsString(timeCounts[key1].time[slice]/timeCounts[key1].count[slice]);
+			row.push(`${duration}<br>(${timeCounts[key1].count[slice]}, avg. ${averageTime})`);
+		}
 	}
 	timeCountsTable.push(row);
 }
@@ -241,7 +358,17 @@ for(const key in staticCounts) {
 	staticCountsTable.push(row);
 }
 %>
-<table align="center">
+<table>
+	<% for(const row of streakCountsTable){%>
+	<tr>
+		<% for(const item of row){%>
+		<td><%= item %></td>
+		<%}%>
+	</tr>
+	<% } %>
+</table>
+<br><br>
+<table>
 	<% for(const row of countsTable){%>
 	<tr>
 		<% for(const item of row){%>
@@ -252,18 +379,17 @@ for(const key in staticCounts) {
 	</tr>
 </table>
 <br><br>
-<table align="center">
+<table>
 	<% for(const row of timeCountsTable){%>
 	<tr>
 		<% for(const item of row){%>
-		<td><%= item %></td>
+		<td><%- item %></td>
 		<%}%>
 	</tr>
 	<% } %>
-	</tr>
 </table>
 <br><br>
-<table align="center">
+<table>
 	<% for(const row of staticCountsTable){%>
 	<tr>
 		<% for(const item of row){%>
@@ -271,5 +397,4 @@ for(const key in staticCounts) {
 		<%}%>
 	</tr>
 	<% } %>
-	</tr>
 </table>

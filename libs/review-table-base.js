@@ -1,7 +1,8 @@
 const uuidv4 = require('uuid/v4');
 
-const shuffle = require('./shuffle');
 const userdata = require('./userdata');
+const experiments = require('./experiments');
+const util = require('./util');
 
 class ReviewTable {
 	constructor(factTableName, stateTableName){
@@ -92,11 +93,13 @@ class ReviewTable {
 
 		for(const id in factsTable.data){
 			if(!statesTable.data[id]){
-				const condition = this.assignCondition(factsTable.data[id], counts);
-				if(!counts[factsTable.data[id].type][condition]) counts[factsTable.data[id].type][condition] = 0;
-				counts[factsTable.data[id].type][condition]++;
+				// const condition = this.assignCondition(factsTable.data[id], counts);
+				// if(!counts[factsTable.data[id].type][condition]) counts[factsTable.data[id].type][condition] = 0;
+				// counts[factsTable.data[id].type][condition]++;
 
-				statesTable.data[id] = { id: id, condition: condition, streak: 0, due: new Date().getTime() };
+				const state = { id: id, streak: 0, due: new Date().getTime() }; //condition: condition, 
+				experiments.assignExperimentConditions(factsTable.data[id].type, statesTable.data, state);
+				statesTable.data[id] = state;
 			}
 		}
 
@@ -131,7 +134,7 @@ class ReviewTable {
 	}
 
 	sortReviews(expiredList){
-		shuffle(expiredList);
+		util.shuffle(expiredList);
 	}
 
 	getExpiredReview(){

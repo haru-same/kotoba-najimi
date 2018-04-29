@@ -65,6 +65,18 @@ if (typeof icon != 'undefined' && icon) {
 			location.reload();
 		}, 1000 * 60 * 10);
 		// reload after 10 minutes
+		 
+		$(document).ready(() => {
+			$('#submit-text').click(() => {
+				const note = $('#note-area').val();
+				$.post('/log-note', { note: note }, (res) => {
+					console.log(res);
+					if(res == 'done'){
+						$('#note-area').val("");
+					}
+				});
+			});
+		});
 	</script>
 </head>
 <body>
@@ -75,6 +87,11 @@ if (typeof icon != 'undefined' && icon) {
 		<br>
 		<%= Object.keys(facts).length %> total cards added (<%= reviewProgress.createdToday %> today)<br>
 		<br>
+		<br><br>
+		<textarea id="note-area" rows="4" cols="100" placeholder="enter a note..."></textarea>
+		<br>
+		<button id="submit-text">Submit</button>
+		<br><br>
 		<%= new Date() %>
 		</div>
 	</div>

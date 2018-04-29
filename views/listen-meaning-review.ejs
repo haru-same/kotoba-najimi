@@ -127,18 +127,29 @@ if(hideImage) state.condition = 0;
 				}
 			});
 
+			const logMeaning = (result) => {
+				$.post('/log-meaning-assessment', { 
+					id: '<%= fact.id %>', 
+					word: '<%= fact.word %>', 
+					streak: <%= state.streak %>, 
+					result: result, 
+					input: lastInput, 
+					type: 'listening-meaning', 
+					skipReset: true,
+					duration: new Date().getTime() - start
+				}, 
+					() => {
+						console.log('post finished');
+						location.reload();
+					});
+			};
+
 			$("#meaning-0").click(() => {
-				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 0, input: lastInput, type: 'listening-meaning', skipReset: true }, () => {
-					console.log('post finished');
-					location.reload();
-				});
+				logMeaning(0);
 			});
 
 			$("#meaning-1").click(() => {
-				$.post('/log-meaning-assessment', { id: '<%= fact.id %>', word: '<%= fact.word %>', result: 1, input: lastInput, type: 'listening-meaning', skipReset: true }, () => {
-					console.log('post finished');
-					location.reload();
-				});
+				logMeaning(1);
 			});
 
 			$(".post-play-button").click(() => {

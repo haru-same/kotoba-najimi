@@ -10,7 +10,9 @@ const states = decks.getDeck('kanji').getAllStates();
 
 const types = [ 'speaking1', 'typing', 'speaking2', 'listening' ];
 
-const getStreakAccuracies = (nameSuffix, dateCutoff, skipFiles) => {
+const getStreakAccuracies = (nameSuffix, dates, skipFiles) => {
+	if(!nameSuffix) nameSuffix = "";
+
 	const streakAccuracies = {};
 	for(const t of types){
 		const arr = {};
@@ -45,13 +47,18 @@ const getStreakAccuracies = (nameSuffix, dateCutoff, skipFiles) => {
 
 	const known = {};
 	for(const t of types) known[t] = 0;
-	const firstTime = 1516352445527;
+	let firstTime = 1516352445527;
+	if(dates && dates.start) firstTime = dates.start;
+	console.log(firstTime);
 
 	// const endAddTime = firstTime + (1000*60*60*24* 68);
 
+	const triedIds = {};
+
 	for(const entry of reviewEntries){
+		if(!entry.message.time) continue;
 		if(entry.message.time && parseInt(entry.message.time) < firstTime) continue;
-		if(entry.message.time && firstTime && parseInt(entry.message.time) - firstTime > dateCutoff) break;
+		if(entry.message.time && dates && parseInt(entry.message.time) > dates.end) break;
 
 		if(!entry.message.id || !facts[entry.message.id]) continue;
 
@@ -87,22 +94,28 @@ const getStreakAccuracies = (nameSuffix, dateCutoff, skipFiles) => {
 				if(streak > 3 && !result) known['speaking1']--;
 			}
 		} else if(fact.type == 3){
-			// console.log(state.condition);
-			if(state.condition == 0){
-				streakAccuracies['listening'][streak].total++;
-				streakAccuracies['listening'][streak].correct += result;
-				addResultToCount(entry.message.id, 'speaking2', result);
-
-				if(streak == 3 && result) known['listening']++;
-				if(streak > 3 && !result) known['listening']--;
+			if(streak == 3) {
+				if(triedIds[fact.id]) continue;
+				else triedIds[fact.id] = true;
 			}
+
+			if(streak != 3) continue;
+
 			if(state.condition == 1){
 				streakAccuracies['speaking2'][streak].total++;
 				streakAccuracies['speaking2'][streak].correct += result;
-				addResultToCount(entry.message.id, 'listening', result);
+				addResultToCount(entry.message.id, 'speaking2', result);
 
 				if(streak == 3 && result) known['speaking2']++;
 				if(streak > 3 && !result) known['speaking2']--;
+			}
+			if(state.condition == 0){
+				streakAccuracies['listening'][streak].total++;
+				streakAccuracies['listening'][streak].correct += result;
+				addResultToCount(entry.message.id, 'listening', result);
+
+				if(streak == 3 && result) known['listening']++;
+				if(streak > 3 && !result) known['listening']--;
 			}
 		}
 	}
@@ -116,6 +129,9 @@ const getStreakAccuracies = (nameSuffix, dateCutoff, skipFiles) => {
 		for(const t of types){
 			if(streakAccuracies[t][i].total == 0) row.push(0);
 			else row.push(streakAccuracies[t][i].correct/streakAccuracies[t][i].total);
+		}
+		for(const t of types){
+			row.push(streakAccuracies[t][i].total);
 		}
 		streakLines.push(row.join('\t'));
 	}
@@ -159,14 +175,18 @@ getStreakAccuracies();
 // getStreakAccuracies('-8week', 1000*60*60*24 * 28 * 2);
 // 
 
+const startDate = 1516352445527;
 const dayAccRows = [['', '']];
 for(const t of types) dayAccRows[0].push(t);
 dayAccRows[0] = dayAccRows[0].join('\t');
-for(let i = 1; i <= 91; i++){
-	const result = getStreakAccuracies(null, 1000*60*60*24 * i, true);
+for(let i = 0; i < 100; i++){
+	const _start = startDate + 1000*60*60*24 * 5;
+	const start = startDate + 1000*60*60*24 * i;
+	const end = start + 1000*60*60*24 * 4;
+	const result = getStreakAccuracies(null, { start: start, end: end }, true);
 	const row = [i, i-61 ];
 	for(const t of types) {
-		row.push(result.known[t]);
+		row.push(result.acc[t]);
 			//overallAcc[t]);
 	}
 	dayAccRows.push(row.join('\t'));

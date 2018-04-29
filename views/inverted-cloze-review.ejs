@@ -1,0 +1,116 @@
+<% 
+const reviewProgress = {}; 
+
+const choiceIds = [];
+for(const choice of options.clozeChoices){
+	choiceIds.push(choice.id);
+}
+%>
+<% include partial/review-progress %>
+<html>
+<head>
+	<title>(まだ<%= reviewProgress.nowReviews %>枚) 繰り返すの復習</title>
+	<%- include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+
+	<link rel="apple-touch-icon" sizes="120x120" href="/icons/joshua-dot/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icons/joshua-dot/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icons/joshua-dot/favicon-16x16.png">
+	<link rel="manifest" href="/icons/joshua-dot/site.webmanifest">
+	<link rel="mask-icon" href="/icons/joshua-dot/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/icons/joshua-dot/favicon.ico">
+	<meta name="msapplication-TileColor" content="#00a300">
+	<meta name="msapplication-config" content="/icons/joshua-dot/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<%- include('partial/review-base') %>
+
+	<script type="text/javascript">
+		let voices = window.speechSynthesis.getVoices();
+		let voice = null;
+
+		$(document).ready(() => {
+			let canRespond = true;
+			$(".answer-button").click((e) => {
+				if(!canRespond) return;
+
+				canRespond = false;
+				const answer = $(e.target).closest(".answer-button").attr('answer');
+
+				console.log(answer, fact.id);
+				if(answer == fact.id) setCorrectColor();
+				else setWrongColor();
+
+				const result = answer == fact.id ? 1 : 0;
+				$(e.target).closest(".answer-button").css('background-color', 'pink');
+				$(`.answer-button[answer='${fact.id}']`).css('background-color', 'lightgreen');
+
+				const reviewData =  { 
+        			id: fact.id, 
+        			input: answer,
+        			duration: new Date().getTime() - start, 
+        			debug: <%= debug %>, 
+        			type: 'inverted-cloze',
+        			promptType: '<%= options.promptType %>',
+        			source: 'inverted-cloze',
+        			word: '<%= fact.word %>',
+        			result: result,
+					choices: '<%- JSON.stringify(choiceIds) %>',
+        		};
+
+				$.post('/log-cloze', reviewData, (res) => {
+					console.log('done');
+				});
+			});
+
+			$("#begin-input").click((e) => {
+				const audio = new Audio(`/dictionary-word-audio?word=${fact.word || fact.target}`);
+				audio.addEventListener("error", function(e) { 
+					console.log('trying to play');
+					voices = window.speechSynthesis.getVoices();
+					let voice = null;
+					for(const v of voices){
+						if(v.lang == 'ja-JP') {
+							voice = v;
+						}
+					}
+					const msg = new SpeechSynthesisUtterance();
+					msg.voice = voice;
+					msg.text = fact.reading;
+					speechSynthesis.speak(msg);
+				});
+				audio.play();
+				$("#begin-input").prop("disabled", true);
+			});
+		});
+	</script>
+
+	<style type="text/css">
+		.answer-button {
+			width: 800px;
+			text-align: left;
+			padding: 8px 32px;
+		}
+	</style>
+</head>
+<body>
+	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem;">
+		<% if(options.promptType == 'text'){ %>
+		<span id="original-text-container"><%= fact.word || fact.target %></span>
+		<% } else { %>
+		<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-play"></i></button>
+		<% } %>
+	</div>
+
+	<div class='band' style="text-align:center">
+	<% for(const choice of options.clozeChoices) { %>
+	<button class="answer-button" answer="<%= choice.id %>"><%- choice.clozeSentenceHtml %></button><br>
+	<% } %>
+	</div>
+
+	<div id="output-text" class="band" style="text-align:center; font-size: 2rem"></div>
+	<div class="error"></div>
+	<div style="height: 100px;"></div>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
+</body>
+</html>

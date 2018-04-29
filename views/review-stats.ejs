@@ -90,7 +90,9 @@ for(const logEntry of reviewLogs){
 
 		for(let key in reviewScores.text){
 			if(!logEntry.message.streak) logEntry.message.streak = 0;
-			if(logEntry.message.streak && logEntry.message.streak >= parseInt(key)){
+
+			if((key == '-1' && logEntry.message.streak && logEntry.message.streak == '-1') 
+				|| (key != '-1' && logEntry.message.streak && logEntry.message.streak >= parseInt(key))){
 				reviewScores.text[key].total++;
 				if(logEntry.message.result == 1){
 					reviewScores.text[key].correct++;
@@ -122,6 +124,8 @@ for(let i = 1; i < 10; i++){
 }
 
 for(const id in reviewStates){
+	if(reviewStates[id].condition == null) continue;
+
 	if(!streakCounts[reviewStates[id].condition][reviewStates[id].streak]){
 		streakCounts[reviewStates[id].condition][reviewStates[id].streak] = 0;
 	}
@@ -180,58 +184,53 @@ for(const id in facts){
 			padding: 0; 
 			margin: 100px 0;
 		}
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		tr {
+			border-bottom: 1px solid #d0d0d0;
+		}
 	</style>
 </head>
 <body>
-	<div class="band" style="text-align:center; font-size: 2rem">
-		<%= knownFactCount4 %>/<%= Object.keys(reviewStates).length %> facts known (4 day gap)<br>
-		<%= knownFactCount8 %>/<%= Object.keys(reviewStates).length %> facts known (8 day gap)
-		<br><br>
+	<div class="band" style="text-align:left; font-size: 1rem">
+		<div style="margin-left: 200px; width: calc(100% - 400px)">
+			<%= knownFactCount4 %>/<%= Object.keys(reviewStates).length %> facts known (4 day gap)<br>
+			<%= knownFactCount8 %>/<%= Object.keys(reviewStates).length %> facts known (8 day gap)
+			<br><br>
 
-		<%= textReviews %> text reviews (<%= knownTypingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.text[-1].correct /  reviewScores.text[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.text[1].correct / reviewScores.text[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.text[2].correct / reviewScores.text[2].total) %>% two day or more accuracy)
-		<br>
-		[<%= reviewScores.text[-1].correct %>/<%= reviewScores.text[-1].total %>, <%= reviewScores.text[1].correct %>/<%= reviewScores.text[1].total %>, <%= reviewScores.text[2].correct %>/<%= reviewScores.text[2].total %>]
-		<br>
-		Spent <%= Math.floor(textTime / (1000 * 60 * 60)) %>h<%= Math.floor(textTime / (1000 * 60)) % 60 %>m on text reviews (avg. <%= precisionRound((textTime / 1000) / textReviewLogCount, 2) %> sec/rev)
-		<br>
-		<br>
-		<%= audioReviews %> speech reviews (<%= knownSpeakingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
-		<br>
-		[<%= reviewScores.audio[-1].correct %>/<%= reviewScores.audio[-1].total %>, <%= reviewScores.audio[1].correct %>/<%= reviewScores.audio[1].total %>, <%= reviewScores.audio[2].correct %>/<%= reviewScores.audio[2].total %>]
-		<br>
-		Spent <%= Math.floor(audioTime / (1000 * 60 * 60)) %>h<%= Math.floor(audioTime / (1000 * 60)) % 60 %>m on audio reviews (avg. <%= precisionRound((audioTime / 1000) / audioReviewLogCount, 2) %> sec/rev)
-		<br>
-		<br>
-		<%= factsWithAudioCount %> facts with audio
-		<br>
-		<%= factsWithImagesCount %> facts with image
-		<br>
-		<br>
-		<table align="center">
-			<tr>
-				<th>Streak</th>
-				<th>Text</th>
-				<th>Audio</th>
-			</tr>
-			<% for(let i = -1; i < 10; i++){%>
-			<tr>
-				<td><%= streakToDescription[i] %></td>
-				<th><%= streakCounts[0][i] || "-" %></th>
-				<th><%= streakCounts[1][i] || "-" %></th>
-			</tr>
-			<% } %>
-		</table>
-		<br>
-		<br>
-		<%- include('partial/audio-stats') %>
-		<br>
-		<br>
-		<div style="font-size: 1.5rem">
-		<%= new Date() %> (began <%= toDaysAgo(earliestCreated) %> days ago)
-		<br>
-		Speaking/typing began <%= toDaysAgo(speakingTypingExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingTypingExperimentEnd) %> days ago)
-		<br>
-		Speaking/listening began <%= toDaysAgo(speakingListeningExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingListeningExperimentEnd) %> days ago)
+			<%= textReviews %> text reviews (<%= knownTypingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.text[-1].correct /  reviewScores.text[-1].total) %>% first-day accuracy, <%= Math.round(100 * reviewScores.text[1].correct / reviewScores.text[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.text[2].correct / reviewScores.text[2].total) %>% two day or more accuracy)
+			<br>
+			[<%= reviewScores.text[-1].correct %>/<%= reviewScores.text[-1].total %>, <%= reviewScores.text[1].correct %>/<%= reviewScores.text[1].total %>, <%= reviewScores.text[2].correct %>/<%= reviewScores.text[2].total %>]
+			<br>
+			Spent <%= Math.floor(textTime / (1000 * 60 * 60)) %>h<%= Math.floor(textTime / (1000 * 60)) % 60 %>m on text reviews (avg. <%= precisionRound((textTime / 1000) / textReviewLogCount, 2) %> sec/rev)
+			<br>
+			<br>
+			<%= audioReviews %> speech reviews (<%= knownSpeakingFact %> 8-day-gap-known, <%= Math.round(100 * reviewScores.audio[-1].correct /  reviewScores.audio[-1].total) %>% overall accuracy, <%= Math.round(100 * reviewScores.audio[1].correct / reviewScores.audio[1].total) %>% day or more accuracy, <%= Math.round(100 * reviewScores.audio[2].correct / reviewScores.audio[2].total) %>% two day or more accuracy)
+			<br>
+			[<%= reviewScores.audio[-1].correct %>/<%= reviewScores.audio[-1].total %>, <%= reviewScores.audio[1].correct %>/<%= reviewScores.audio[1].total %>, <%= reviewScores.audio[2].correct %>/<%= reviewScores.audio[2].total %>]
+			<br>
+			Spent <%= Math.floor(audioTime / (1000 * 60 * 60)) %>h<%= Math.floor(audioTime / (1000 * 60)) % 60 %>m on audio reviews (avg. <%= precisionRound((audioTime / 1000) / audioReviewLogCount, 2) %> sec/rev)
+			<br>
+			<br>
+			<%= factsWithAudioCount %> facts with audio
+			<br>
+			<%= factsWithImagesCount %> facts with image
+			<br>
+			<br>
+			<%- include('partial/audio-stats') %>
+			<br>
+			<br>
+			<div style="font-size: 1rem">
+			<%= new Date() %> (began <%= toDaysAgo(earliestCreated) %> days ago)
+			<br>
+			Speaking/typing began <%= toDaysAgo(speakingTypingExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingTypingExperimentEnd) %> days ago)
+			<br>
+			Speaking/listening began <%= toDaysAgo(speakingListeningExperimentStart) %> days ago (last entry <%= toDaysAgo(speakingListeningExperimentEnd) %> days ago)
+			</div>
 		</div>
 	</div>
 </body>

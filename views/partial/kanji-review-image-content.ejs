@@ -1,17 +1,17 @@
 <div style="max-width: 900px; margin:auto; overflow: hidden">
 	<div style="height: calc(100% - 200px)"></div>
 
-	<div class="band" style="text-align:center; font-size: 2rem">
+	<div id="prompt" class="band" style="text-align:center; font-size: 2rem">
 		<div style="margin-left: 50px; margin-right: 50px">
-		<% if (typeof onlyKanji != 'undefined' && onlyKanji) { %>
+		<% if (options.onlyKanji) { %>
 		<b><%- fact.type == 1 ? fact.target : fact.word %></b>
 		<% } else { %>
-		<%- fact.type == 1 ? fact.context.replace(fact.target, ` <b>${fact.target}</b> `).replace(/\n/g, '<br>') : fact.sentence.replace(fact.word, ` <b>${fact.word}</b> `).replace(/\n/g, '<br>') %>
+		<%- fact.type == 1 ? fact.context.replace(fact.target, options.replacement).replace(/\n/g, '<br>') : fact.sentence.replace(fact.word, options.replacement).replace(/\n/g, '<br>') %>
 		<% } %>
 		</div>
 	</div>
 	<br>
-	<% if(state.condition == 0) { %>
+	<% if(options.useTextInput) { %>
 	<input 
 		class="band" 
 		id="reading-input" 
@@ -27,7 +27,7 @@
 	<div class="band"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
 	<% } %>
 	<div class="error"></div>
-	<% if(typeof onlyKanji != 'undefined' && onlyKanji){ %>
+	<% if(options.onlyKanji){ %>
 	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Do you know the meaning of this Kanji? <button id="meaning-0">No</button><button id="meaning-1">Yes</button></div>
 	<% } else { %>
 	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>

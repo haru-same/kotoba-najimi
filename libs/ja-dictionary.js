@@ -815,6 +815,11 @@ rcxDict.prototype = {
 			}
 		}
 		return b.join('');
+	},
+
+	getPartsOfSpeech: function(word) {
+		const entry = this.wordSearch(word, false).data[0][0];
+		return entry.split('(')[1].split(')')[0].split(',');
 	}
 };
 
