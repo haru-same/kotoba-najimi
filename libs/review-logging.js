@@ -30,6 +30,11 @@ module.exports.getLog = () => {
 };
 
 module.exports.log = (message) => {
+	for(const key in message){
+		if(typeof message[key] == 'string'){
+			message[key] = message[key].replace(/(?:\r\n|\r|\n)/g, '');
+		}
+	}
 	message.time = new Date().getTime();
 	logger.log({ level: 'info', message: message });
 };

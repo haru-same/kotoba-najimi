@@ -16,14 +16,17 @@
 	};
 
 	$(document).ready(() => {
-		$("#post-play-button").click(() => {
-			const audio = new Audio('/audio/<%- fact.audio %>');
+		const playAudio = () => {
+			const audio = new Audio(`/audio/${fact.audio}`);
 			audio.play();
+		};
+
+		$("#post-play-button").click(() => {
+			playAudio();
 		});
 
 		$(".post-play-button").click(() => {
-			const audio = new Audio('/audio/<%- fact.audio %>');
-			audio.play();
+			playAudio();
 		});
 	});
 </script>

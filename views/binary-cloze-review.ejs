@@ -1,0 +1,166 @@
+<% 
+options.logType = options.logType || 'binary-cloze';
+const reviewProgress = {}; 
+
+const choiceIds = [];
+for(const choice of options.clozeChoices){
+	choiceIds.push(choice.id);
+}
+%>
+<% include partial/review-progress %>
+<html>
+<head>
+	<title>(まだ<%= reviewProgress.nowReviews %>枚) 繰り返すの復習</title>
+	<%- include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+
+	<link rel="apple-touch-icon" sizes="120x120" href="/icons/joshua-dot/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icons/joshua-dot/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icons/joshua-dot/favicon-16x16.png">
+	<link rel="manifest" href="/icons/joshua-dot/site.webmanifest">
+	<link rel="mask-icon" href="/icons/joshua-dot/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/icons/joshua-dot/favicon.ico">
+	<meta name="msapplication-TileColor" content="#00a300">
+	<meta name="msapplication-config" content="/icons/joshua-dot/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<%- include('partial/review-base') %>
+
+	<script type="text/javascript" src="js/speech-player.js"></script>
+
+	<script type="text/javascript">
+		let leadDuration = 0;
+
+		$(document).ready(() => {
+			let state = 0;
+
+			const postAnswer = (wordFits) => {
+				if(state != 1) return;
+				state = 2;
+
+				const isCorrect = wordFits == <%= options.clozeChoices[0].id == fact.id %>;
+				if(isCorrect) setCorrectColor();
+				else setWrongColor();
+
+				const result = isCorrect ? 1 : 0;
+				const reviewData =  { 
+        			id: fact.id, 
+        			input: wordFits,
+        			duration: new Date().getTime() - start, 
+        			debug: <%= debug %>, 
+        			type: '<%= options.logType %>',
+        			clozeSentence: '<%= options.clozeChoices[0].sentence || options.clozeChoices[0].context %>',
+        			clozeWord: '<%= options.clozeChoices[0].word || options.clozeChoices[0].target %>',
+        			promptType: '<%= options.promptType %>',
+        			source: 'binary-cloze',
+        			word: fact.word || fact.target,
+        			result: result,
+					choices: '<%- JSON.stringify(choiceIds) %>',
+					leadDuration: leadDuration
+        		};
+
+				$.post('/log-cloze', reviewData, (res) => {
+					console.log('done');
+					state = 3;
+				});
+
+				return isCorrect;
+			};
+
+			$("#begin-input").click((e) => {
+				state = 1;
+				leadDuration = new Date().getTime() - start;
+				start = new Date().getTime();
+
+				$("#false-button").prop('disabled', false);
+				$("#true-button").prop('disabled', false);
+
+				<% if(options.promptType == 'text') { %>
+				$("#target-text").text(fact.word || fact.target);
+				<% } else { %> 
+				const audio = new Audio(`/dictionary-word-audio?word=${fact.word || fact.target}`);
+				audio.addEventListener("error", function(e) { 
+					console.log('trying to play');
+					speechPlayer.play(fact.reading);
+				});
+				audio.play();
+				$("#begin-input").prop("disabled", true);
+				<% } %>
+			});
+
+			const disableAnswers = (e, isCorrect) => {
+				$("#false-button").prop('disabled', true);
+				$("#true-button").prop('disabled', true);
+				if(isCorrect) $(e.target).closest('button').css('background-color', 'lightgreen');
+				else $(e.target).closest('button').css('background-color', 'pink');
+			};
+
+			$("#false-button").click((e) => {
+				const isCorrect = postAnswer(false);
+				disableAnswers(e, isCorrect);
+			});
+
+			$("#true-button").click((e) => {
+				const isCorrect = postAnswer(true);
+				disableAnswers(e, isCorrect);
+			});
+
+			$(document).keypress((e) => {
+	        	switch(e.which){
+	        	// enter key
+	        	case 13:
+	        		switch(state){
+	        		case 0:
+	        			$("#begin-input").click();
+	        			break;
+	        		case 3:
+	        			location.reload();
+	        			break;
+	        		}
+	        		break;
+        		// x key
+        		case 120:
+        			$("#false-button").click();
+        			break;
+        		// v key
+        		case 118:
+        			$("#true-button").click();
+					break;
+	        	}
+			});
+		});
+	</script>
+
+	<style type="text/css">
+		.answer-button {
+			width: 800px;
+			text-align: left;
+			padding: 8px 32px;
+		}
+	</style>
+</head>
+<body>
+	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem;">
+		<div><%- options.clozeChoices[0].clozeSentenceHtml %></div>
+	</div>
+
+	<div id="target-text" class="band" style="text-align:center; font-size: 2rem;">
+		<% if(options.promptType == 'text'){ %>
+		<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-eye"></i></button>
+		<% } else { %>
+		<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-volume-up"></i></button>
+		<% } %>
+	</div>
+
+	<div id="answers" class="band" style="text-align:center; font-size: 2rem;">
+		<button id="false-button" disabled>[x] <i class="fas fa-times"></i></button>
+		<button id="true-button" disabled>[v] <i class="fas fa-check"></i></button>
+	</div>
+
+	<div class="error"></div>
+	<div style="height: 100px;"></div>
+	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">
+		<button class="post-play-button"><i class="fas fa-volume-up"></i></button>
+	</div>
+</body>
+</html>

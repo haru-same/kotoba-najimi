@@ -25,10 +25,9 @@ for(const choice of options.clozeChoices){
 
 	<%- include('partial/review-base') %>
 
-	<script type="text/javascript">
-		let voices = window.speechSynthesis.getVoices();
-		let voice = null;
+	<script type="text/javascript" src="js/speech-player.js"></script>
 
+	<script type="text/javascript">
 		$(document).ready(() => {
 			let canRespond = true;
 			$(".answer-button").click((e) => {
@@ -67,17 +66,7 @@ for(const choice of options.clozeChoices){
 				const audio = new Audio(`/dictionary-word-audio?word=${fact.word || fact.target}`);
 				audio.addEventListener("error", function(e) { 
 					console.log('trying to play');
-					voices = window.speechSynthesis.getVoices();
-					let voice = null;
-					for(const v of voices){
-						if(v.lang == 'ja-JP') {
-							voice = v;
-						}
-					}
-					const msg = new SpeechSynthesisUtterance();
-					msg.voice = voice;
-					msg.text = fact.reading;
-					speechSynthesis.speak(msg);
+					speechPlayer.play(fact.reading);
 				});
 				audio.play();
 				$("#begin-input").prop("disabled", true);

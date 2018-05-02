@@ -27,7 +27,7 @@ TYPE_TO_TEMPLATE[AUDIO_WORD_TYPE] = {
 const decks = {};
 module.exports.getDeck = (deckName) => {
 	if(!decks[deckName]){
-		decks[deckName] = new ReviewTable(deckName + '-facts', deckName + '-review-states');
+		decks[deckName] = new ReviewTable(deckName, deckName + '-facts', deckName + '-review-states');
 	}
 	return decks[deckName];
 };

@@ -44,7 +44,7 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
         			input: answer,
         			duration: new Date().getTime() - start, 
         			debug: <%= debug %>, 
-        			type: 'fresh-cloze',
+        			type: 'external-cloze',
         			source: 'cloze',
         			word: '<%= fact.word %>',
         			result: result,

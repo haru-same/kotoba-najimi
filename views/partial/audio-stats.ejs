@@ -1,8 +1,44 @@
 <%
-function precisionRound(number, precision) {
+const twoProportionZTest = (counts1, counts2) => {
+	const p1 = counts1.correct / counts1.total;
+	const p2 = counts2.correct / counts2.total;
+	const ph = (counts1.correct + counts2.correct) / (counts1.total + counts2.total);
+	const oneOverN1 = 1 / counts1.total;
+	const oneOverN2 = 1 / counts2.total;
+	const value = (p2 - p1) / Math.sqrt(ph * (1 - ph) * (oneOverN1 + oneOverN2));
+	console.log(counts1, counts2, value);
+	return value;
+};
+
+const getSignificanceStars = (zValue) => {
+	zValue = Math.abs(zValue);
+	console.log(zValue);
+	if(zValue > 3.2905267283){
+		return '***';
+	} else if(zValue > 2.5758293064) {
+		return '**';
+	} else if(zValue > 1.9599639861) {
+		return '*';
+	} else {
+		return '';
+	}
+};
+
+const getSignificanceString = (measure, slice1, slice2) => {
+	return getSignificanceStars(twoProportionZTest(getProportionSet(measure, slice1), getProportionSet(measure, slice2)));
+};
+
+const getProportionSet = (measure, slice) => {
+	return {
+		correct: counts[measure].correct[slice],
+		total: counts[measure].total[slice],
+	};
+};
+
+const  precisionRound = (number, precision) => {
 	var factor = Math.pow(10, precision);
 	return Math.round(number * factor) / factor;
-}
+};
 
 const average = (arr) => {
 	let sum = 0;
@@ -42,6 +78,8 @@ const audioCards = {
 
 for(const id in facts){
 	const state = { knowReading: false, knowMeaning: false };
+
+	// console.log(facts[id]);
 
 	if(facts[id].type && facts[id].type == 1 && reviewStates[id]){
 		if(reviewStates[id].condition != null) {
@@ -84,6 +122,8 @@ for(const id in facts){
 	}
 }
 
+// console.log(audioCards);
+
 const learnedReading = {};
 const forgotReading = {};
 const learnedMeaning = {};
@@ -96,7 +136,7 @@ const slices = [ 'speaking0', 'typing0', 'listening', 'speaking', 'clozeExpListe
 
 const streakToDescription = { "-1": "Just got it wrong", 0: "New or just fixed" };
 for(let i = 1; i < 10; i++){
-	streakToDescription[i] = Math.pow(2, i - 1) + " days old";
+	streakToDescription[i] = Math.pow(2, i - 1) + " day gap";
 }
 
 const streakCounts = {};
@@ -111,7 +151,8 @@ for(const streak in streakToDescription){
 }
 
 const counts = {};
-for(const countType of [ 'text-inverted-cloze', 'audio-inverted-cloze', 'meaning', 'reading', 'listen-meaning-0', 'listen-meaning-1', 'newcloze' ]){
+for(const countType of [ 'accuracy', 'meaning', 'reading', 'listen-meaning-0', 'listen-meaning-1', 
+	'text-inverted-internal-cloze', 'audio-inverted-internal-cloze', 'external-cloze', 'text-binary-internal-cloze', 'audio-binary-internal-cloze', 'text-binary-external-cloze', 'audio-binary-external-cloze',  ]){
 	counts[countType] = { count: 0 };
 	for(const totalCorrect of ['total', 'correct']){
 		counts[countType][totalCorrect] = {};
@@ -122,7 +163,8 @@ for(const countType of [ 'text-inverted-cloze', 'audio-inverted-cloze', 'meaning
 }
 
 const timeCounts = {};
-for(const countType of ['reviewDuration', 'listen-meaning-0', 'listen-meaning-1', 'text-inverted-cloze', 'audio-inverted-cloze' ]){
+for(const countType of ['reviewDuration', 'listen-meaning-0', 'listen-meaning-1', 'text-inverted-internal-cloze', 'audio-inverted-internal-cloze',
+	'text-binary-internal-cloze', 'audio-binary-internal-cloze', 'text-binary-external-cloze', 'audio-binary-external-cloze' ]){
 	timeCounts[countType] = { };
 	for(const countTime of ['count', 'time']){
 		timeCounts[countType][countTime] = {};
@@ -139,12 +181,6 @@ for(const countType of ['meaningKnown', 'readingKnown', 'forgotMeaning', 'forgot
 		staticCounts[countType][slice] = 0;
 	}
 }
-console.log(staticCounts);
-
-// const getReviewType = (logEntry) => {
-// 	const reviewType = { base: "", sub: "" };
-// 	const 
-// };
 
 const addToCount = (logType, id, result, countSet) => {
 	countSet = countSet || counts;
@@ -208,92 +244,110 @@ for(const id in reviewStates){
 	addToCount(reviewStates[id].streak, id, 0, streakCounts);
 }
 
+console.log('logcount:', reviewLogs.length);
+
 for(const logEntry of reviewLogs){
 	if(!logEntry.message.id) continue;
 
 	const id = logEntry.message.id;
-	let result = 0;
-	if(logEntry.message.result == 1 || logEntry.message.score == 1){
-		result = 1;
-	} 
+	const isTraining = logEntry.message.type == 'kanji' || logEntry.message.type == 'recall';
+	const result = logEntry.message.result == 1 || logEntry.message.score == 1 ? 1 : 0;
 
-	if(logEntry.message.duration){
-		const duration = parseInt(logEntry.message.duration);
-		let type = "reviewDuration";
+	if(isTraining){
+		if(logEntry.message.duration){
+			const duration = parseInt(logEntry.message.duration);
+			if(logEntry.message.type == 'kanji' 
+				|| (logEntry.message.type == 'recall' && logEntry.message.source != 'daily-recall')){
+				addToTimeCount("reviewDuration", id, duration);
+			}
+		}
+
+		if(logEntry.message.tries == "1" && logEntry.message.result == 0) continue;
+		addToCount('accuracy', id, result);
+
+		if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id])){
+			addToCount('reading', id, result);
+
+			if(result == 1){
+				learnedReading[id] = true;
+				readingKnown[id] = true;
+			}
+		}
+		
+		if(result == 0 && learnedReading[id]){
+			readingKnown[id] = false;
+			forgotReading[id] = true;
+		}
+	} else {
+		let statType = null;
+		let doDuration = false;
 		switch(logEntry.message.type){
-		case "listening-meaning":
-			if(logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3)
-				type = 'listen-meaning-1';
-			else 
-				type = 'listen-meaning-0';
+		case 'meaning':
+			statType = 'meaning';
+
+			if(result == 1){
+				learnedMeaning[id] = true;
+				meaningKnown[id] = true;
+			}
+
+			if(result == 0 && learnedMeaning[id]){
+				meaningKnown[id] = false;
+				forgotMeaning[id] = true;
+			}
 			break;
-		case "inverted-cloze":
+		case 'external-cloze':
+			statType ='external-cloze';
+			break;
+		case 'listening-meaning':
+			if(logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3)
+				statType = 'listen-meaning-1';
+			else 
+				statType = 'listen-meaning-0';
+			doDuration = true;
+			break;
+		case 'inverted-cloze':
 			switch(logEntry.message.promptType){
 			case 'text':
-				type = 'text-inverted-cloze';
+				statType = 'text-inverted-internal-cloze';
 				break;
 			case 'audio':
-				type = 'audio-inverted-cloze';
+				statType = 'audio-inverted-internal-cloze';
+				break;
+			}
+			doDuration = true;
+			break;
+		case 'binary-internal-cloze':
+			switch(logEntry.message.promptType){
+			case 'text':
+				statType = 'text-binary-internal-cloze';
+				break;
+			case 'audio':
+				statType = 'audio-binary-internal-cloze';
 				break;
 			} 
+			doDuration = true;
 			break;
-		}
-		addToTimeCount(type, id, duration);
-	}
-
-	if(logEntry.message.tries == "1" && logEntry.message.result == 0) continue;
-
-	if(logEntry.message.type == 'meaning'){
-		addToCount('meaning', id, result);
-
-		if(result == 1){
-			learnedMeaning[id] = true;
-			meaningKnown[id] = true;
-		}
-
-		if(result == 0 && learnedMeaning[id]){
-			meaningKnown[id] = false;
-			forgotMeaning[id] = true;
-			console.log(id);
-		}
-	}
-
-	if(logEntry.message.type == 'listening-meaning'){
-		console.log('streak: ' + logEntry.message.streak, (logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3) == true);
-		if(logEntry.message.streak == null || parseInt(logEntry.message.streak) >= 3)
-			addToCount('listen-meaning-1', id, result);
-		else 
-			addToCount('listen-meaning-0', id, result);
-	} 
-
-	if(logEntry.message.type == 'fresh-cloze'){
-		addToCount('newcloze', id, result);
-	} 
-
-	if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id])){
-		addToCount('reading', id, result);
-
-		if(result == 1){
-			learnedReading[id] = true;
-			readingKnown[id] = true;
-		}
-	}
-
-	const isReadingEntry = logEntry.message.type == 'kanji' || logEntry.message.type == 'recall';
-	if(result == 0 && learnedReading[id] && isReadingEntry){
-		readingKnown[id] = false;
-		forgotReading[id] = true;
-	}
-
-	if(logEntry.message.type == 'inverted-cloze'){
-		switch(logEntry.message.promptType){
-		case 'text':
-			addToCount('text-inverted-cloze', id, result);
+		case 'binary-external-cloze':
+			switch(logEntry.message.promptType){
+			case 'text':
+				statType = 'text-binary-external-cloze';
+				break;
+			case 'audio':
+				statType = 'audio-binary-external-cloze';
+				break;
+			} 
+			doDuration = true;
 			break;
-		case 'audio':
-			addToCount('audio-inverted-cloze', id, result);
-			break;
-		} 
+		}	
+
+		// if(!Array.isArray())
+		if(statType){
+			addToCount(statType, id, result);
+			if(doDuration && logEntry.message.duration){
+				const duration = parseInt(logEntry.message.duration);
+				addToTimeCount(statType, id, duration);
+			}
+		}
 	}
 }
 
@@ -319,7 +373,32 @@ for(const key1 in counts) {
 	for(const slice of slices){
 		const percent = toPercent(counts[key1].correct[slice]/counts[key1].total[slice]);
 		if(percent){
-			row.push(`${percent} (${counts[key1].correct[slice]}/${counts[key1].total[slice]})`);
+			let significanceString = "";
+
+			if(slice == "speaking0"){
+				significanceString = getSignificanceString(key1, "typing0", "speaking0");
+			}
+			if(slice == "typing0") {
+				significanceString = getSignificanceString(key1, "typing0", "speaking0");
+			}
+
+			if(slice == "listening"){
+				significanceString = getSignificanceString(key1, "listening", "speaking");
+			}
+			if(slice == "speaking") {
+				significanceString = getSignificanceString(key1, "listening", "speaking");
+			}
+
+			if(slice == "withImage"){
+				significanceString = getSignificanceString(key1, "withImage", "withoutImage");
+			}
+			if(slice == "withoutImage") {
+				significanceString = getSignificanceString(key1, "withImage", "withoutImage");
+			}
+
+			let output = `${percent}${significanceString} (${counts[key1].correct[slice]}/${counts[key1].total[slice]})`;
+			if(significanceString) output = `<b>${output}</b>`;
+			row.push(output);
 		} else {
 			row.push(`-`);
 		}
@@ -372,7 +451,7 @@ for(const key in staticCounts) {
 	<% for(const row of countsTable){%>
 	<tr>
 		<% for(const item of row){%>
-		<td><%= item %></td>
+		<td><%- item %></td>
 		<%}%>
 	</tr>
 	<% } %>
@@ -398,3 +477,6 @@ for(const key in staticCounts) {
 	</tr>
 	<% } %>
 </table>
+<br>
+listening-meaning0, speech/listening: <%= getSignificanceString('listen-meaning-0', 'listening', 'speaking') %><br>
+listening-meaning1, speech/listening: <%= getSignificanceString('listen-meaning-1', 'listening', 'speaking') %><br>

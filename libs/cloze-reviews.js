@@ -42,7 +42,7 @@ if(fs.existsSync('cache/cloze-sentences.json')){
 	fs.writeFileSync('cache/cloze-sentences.json', JSON.stringify(wordClozes, null, '\t'));
 }
 
-module.exports.getClozeSentence = (id) => {
+module.exports.getRandomClozeSentence = (id) => {
 	const list = wordClozes[id];
 	if(!list) return null;
 	return list[Math.floor(Math.random() * list.length)];

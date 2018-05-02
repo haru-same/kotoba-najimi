@@ -29,4 +29,4 @@ class RecallReviewTable extends ReviewTable {
 	}
 }
 
-module.exports = new RecallReviewTable(factTableName, stateTableName);
+module.exports = new RecallReviewTable('recall', factTableName, stateTableName);

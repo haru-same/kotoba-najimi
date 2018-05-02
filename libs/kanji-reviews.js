@@ -7,4 +7,4 @@ class KanjiReviewTable extends ReviewTable {
 
 }
 
-module.exports = new KanjiReviewTable(factTableName, stateTableName);
+module.exports = new KanjiReviewTable('kanji', factTableName, stateTableName);

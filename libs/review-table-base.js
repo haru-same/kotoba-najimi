@@ -5,7 +5,8 @@ const experiments = require('./experiments');
 const util = require('./util');
 
 class ReviewTable {
-	constructor(factTableName, stateTableName){
+	constructor(name, factTableName, stateTableName){
+		this.name = name;
 		this.factTableName = factTableName;
 		this.stateTableName = stateTableName;
 	}
