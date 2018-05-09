@@ -572,7 +572,7 @@ const handleRecallReviewResponse = (req, res) => {
 	const preStreak = state.streak;
 	const scoreInfo = reviewTools.scoreReview(original, input);
 	
-	if(!req.body.skipStreakUpdate || req.body.skipStreakUpdate == 'false'){
+	if((!req.body.skipStreakUpdate || req.body.skipStreakUpdate == 'false') || req.body.tries == '0'){
 		if(req.body.type == 'rw'){
 			result = 0;
 			if(scoreInfo.score > 0.95) {
@@ -601,7 +601,8 @@ const handleRecallReviewResponse = (req, res) => {
 			score: scoreInfo.score, 
 			duration: parseInt(req.body.duration),
 			streak: preStreak,
-			source: source
+			source: source, 
+			tries: req.body.tries
 		});
 	}
 

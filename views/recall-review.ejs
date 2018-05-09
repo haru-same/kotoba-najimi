@@ -3,6 +3,9 @@ const reviewProgress = {};
 
 options.hasSentenceReading = fact.type == 2 || (fact.type == 3 && fact['sentence-reading']);
 options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloze';
+
+let tries = 0;
+if(options.promptType == 'audio-cloze') tries = 1;
 %>
 <% include partial/review-progress %>
 <html>
@@ -26,6 +29,8 @@ options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloz
 		const originalText = '<%= fact.sentence %>';
 		let start = new Date().getTime();
 		let results = {};
+
+		let tries = <%= tries %>;
 
 		// 0: input hidden, text visible
 		// 1: input visible, text hidden
@@ -140,8 +145,10 @@ options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloz
 	        			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
 	        			promptType: '<%= options.promptType %>',
 	        			source: '<%= options.source || 'normal' %>',
-	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>
+	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
+	        			tries: tries
 	        		};
+	        		tries--;
 
 	        		const renderFurigana = () => {
 	        			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
@@ -155,7 +162,7 @@ options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloz
 	        		const postReview = () => {
 	        			$.post('/review', reviewData, (res) => {
 							<% if(options.promptType == 'audio-cloze') { %>
-							renderFurigana();
+							if(tries == 0) renderFurigana();
 							<% } else { %>
 							showCorrectedText(res);
 							<% } %>
