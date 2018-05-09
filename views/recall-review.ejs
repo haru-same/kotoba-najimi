@@ -1,8 +1,8 @@
 <% 
 const reviewProgress = {}; 
-let mode = state.condition;
-if(fact.type == 3) mode = 2;
-if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.overrideMode;
+
+options.hasSentenceReading = fact.type == 2 || (fact.type == 3 && fact['sentence-reading']);
+options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloze';
 %>
 <% include partial/review-progress %>
 <html>
@@ -99,7 +99,7 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 
 		const stateEnterHandlers = [
 			() => { // beginInput
-				<% if(mode == 1 || mode == 2) {%>
+				<% if(options.promptType != 'text') {%>
 				state = AwaitingAudioState;
 				var audio = new Audio('/audio/<%- fact.audio %>');
 				$("#begin-band").hide();
@@ -131,14 +131,16 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 	        		state = SubmitInput;
 
 	        		const reviewData =  { 
-	        			deck: "<%= deck %>", 
+	        			deck: '<%= deck %>', 
 	        			id: targetId, 
 	        			input: input, 
 	        			original: originalText, 
 	        			duration: new Date().getTime() - start, 
 	        			debug: <%= debug %>, 
-	        			type: '<%= mode == 2 ? 'rw' : 'rs' %>',
-	        			source: '<%= options.source || 'normal' %>'
+	        			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
+	        			promptType: '<%= options.promptType %>',
+	        			source: '<%= options.source || 'normal' %>',
+	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>
 	        		};
 
 	        		const renderFurigana = () => {
@@ -152,14 +154,14 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 
 	        		const postReview = () => {
 	        			$.post('/review', reviewData, (res) => {
-							<% if(mode == 2) { %>
+							<% if(options.promptType == 'audio-cloze') { %>
 							renderFurigana();
 							<% } else { %>
 							showCorrectedText(res);
 							<% } %>
 
-							<% if(mode == 2) { %>
-							if(res.score >= 0.95) setCorrectColor();
+							<% if(options.giveFeedback){ %>
+							if(res.score >= 0.99) setCorrectColor();
 							else setWrongColor();
 							<% } else { %>
 							$("body").css('background-color', 'lightblue');
@@ -167,7 +169,7 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 						});
 	        		};
 
-	        		<% if(options.source == 'daily-recall' && !fact['sentence-reading']) { %>
+	        		<% if(!options.hasSentenceReading && options.promptType != 'audio-cloze') { %>
 	        		$("#answer-text-container").show();
 	        		getVerifiedPronunciation('<%= fact.sentence %>', 'Enter the reading for this sentence:', (reading) => {
 	        			$.post('/sentence-reading', { id: targetId, sentenceReading: reading }, () => {
@@ -207,17 +209,11 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 				stateEnterHandlers[state]();
 			});
 
-			// $("#continue").click(() => {
-			// 	if(state == SubmitInput){
-	  //       		location.reload();
-	  //       	}
-			// });
-
 			$("#delete-review").click(() => {
 				if(confirm("Are you sure you want to delete this?")){
-					//$.post('/delete-review', { id: targetId }, () => {
+					$.post('/delete-review', { deck: '<%= deck %>', id: targetId }, () => {
 						location.reload();
-					//});
+					});
 				}
 			});
 
@@ -234,10 +230,10 @@ if(typeof options != 'undefined' && 'overrideMode' in options) mode = options.ov
 	</script>
 </head>
 <body>
-	<% if(fact.image && state['image-condition'] == 1 && options.source != 'daily-recall') { %>
-	<%- include('partial/recall-review-image-content', { reviewProgress: reviewProgress, mode: mode }) %>
+	<% if(!options.hideImage && fact.image && state['image-condition'] == 1) { %>
+	<%- include('partial/recall-review-image-content', { reviewProgress: reviewProgress }) %>
 	<% } else { %>
-	<%- include('partial/recall-review-band-content', { reviewProgress: reviewProgress, mode: mode }) %>
+	<%- include('partial/recall-review-band-content', { reviewProgress: reviewProgress }) %>
 	<% } %>
 </body>
 </html>

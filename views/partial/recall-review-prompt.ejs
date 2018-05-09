@@ -1,0 +1,16 @@
+<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
+	<% if(options.promptType == 'audio') {%>
+	<i class="fas fa-volume-up"></i>
+	<% } else if(options.promptType == 'audio-cloze') { %>
+	__<span style="text-decoration: underline;"><i class="fas fa-volume-up"></i></span>__
+	<% } else if(options.promptType == 'text') { %>
+	<span id="original-text-container"><%- furiganaHtml %></span>
+	<% } else { %>
+	UNKNOWN PROMPTTYPE: <%= options.promptType %>
+	<% } %>
+</div>
+<% if(options.promptType == 'audio-cloze') { %>
+<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
+	<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
+</div>
+<% } %>

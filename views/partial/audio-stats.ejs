@@ -6,8 +6,34 @@ const twoProportionZTest = (counts1, counts2) => {
 	const oneOverN1 = 1 / counts1.total;
 	const oneOverN2 = 1 / counts2.total;
 	const value = (p2 - p1) / Math.sqrt(ph * (1 - ph) * (oneOverN1 + oneOverN2));
-	console.log(counts1, counts2, value);
+	// console.log(counts1, counts2, value);
 	return value;
+};
+
+const chiSquaredTest = (counts) => {
+	let correct = 0;
+	let total = 0;
+	for(let i = 0; i < counts.length; i++){
+		correct += counts[i].correct;
+		total += counts[i].total;
+	}
+	const pCorrect = correct / total;
+
+	let chiSqauredTotal = 0;
+	for(let i = 0; i < counts.length; i++){
+		const expectedCorrect = counts[i].total * pCorrect;
+		chiSqauredTotal += Math.pow(counts[i].correct - expectedCorrect, 2) / expectedCorrect;
+		console.log(correct[i], expectedCorrect, chiSqauredTotal);
+	}
+
+	for(let i = 0; i < counts.length; i++){
+		const actualWrong = counts[i].total - counts[i].correct;
+		const expectedWrong = counts[i].total * (1 - pCorrect);
+		chiSqauredTotal += Math.pow(actualWrong - expectedWrong, 2) / expectedWrong;
+		console.log(actualWrong, expectedWrong, chiSqauredTotal);
+	}
+	
+	return chiSqauredTotal;
 };
 
 const getSignificanceStars = (zValue) => {
@@ -24,8 +50,38 @@ const getSignificanceStars = (zValue) => {
 	}
 };
 
-const getSignificanceString = (measure, slice1, slice2) => {
-	return getSignificanceStars(twoProportionZTest(getProportionSet(measure, slice1), getProportionSet(measure, slice2)));
+const getChiSquaredSignificanceStars = (chiSquared, df) => {
+	if(df = 1){
+		if(chiSquared > 10.828){
+			return '***';
+		} else if(chiSquared > 6.635) {
+			return '**';
+		} else if(chiSquared > 3.841) {
+			return '*';
+		} else {
+			return '';
+		}
+	} else if(df = 2) {
+		if(chiSquared > 13.8){
+			return '***';
+		} else if(chiSquared > 9.21) {
+			return '**';
+		} else if(chiSquared > 5.99) {
+			return '*';
+		} else {
+			return '';
+		}
+	}
+	return 0;
+};
+
+const getSignificanceString = (measure, slice1, slice2, slice3) => {
+	if(!slice3) {
+		return getChiSquaredSignificanceStars(chiSquaredTest([ getProportionSet(measure, slice1), getProportionSet(measure, slice2) ]), 1);
+	} else {
+		return getChiSquaredSignificanceStars(chiSquaredTest([ getProportionSet(measure, slice1), getProportionSet(measure, slice2), getProportionSet(measure, slice3) ]), 2);
+	}
+	// return "";
 };
 
 const getProportionSet = (measure, slice) => {
@@ -152,7 +208,8 @@ for(const streak in streakToDescription){
 
 const counts = {};
 for(const countType of [ 'accuracy', 'meaning', 'reading', 'listen-meaning-0', 'listen-meaning-1', 
-	'text-inverted-internal-cloze', 'audio-inverted-internal-cloze', 'external-cloze', 'text-binary-internal-cloze', 'audio-binary-internal-cloze', 'text-binary-external-cloze', 'audio-binary-external-cloze',  ]){
+	'text-inverted-internal-cloze', 'audio-inverted-internal-cloze', 'external-cloze', 'text-binary-internal-cloze', 'audio-binary-internal-cloze', 
+	'text-binary-external-cloze', 'audio-binary-external-cloze', 'all-cloze' ]){
 	counts[countType] = { count: 0 };
 	for(const totalCorrect of ['total', 'correct']){
 		counts[countType][totalCorrect] = {};
@@ -240,9 +297,11 @@ const addToStaticCount = (logType, id) => {
 	}
 };
 
+console.log('TEST3');
 for(const id in reviewStates){
 	addToCount(reviewStates[id].streak, id, 0, streakCounts);
 }
+console.log('TEST4');
 
 console.log('logcount:', reviewLogs.length);
 
@@ -250,22 +309,22 @@ for(const logEntry of reviewLogs){
 	if(!logEntry.message.id) continue;
 
 	const id = logEntry.message.id;
-	const isTraining = logEntry.message.type == 'kanji' || logEntry.message.type == 'recall';
+	const isClozeRecall = logEntry.message.type == 'recall' && (logEntry.message.source == 'normal' || !logEntry.message.source);
+	const isTraining = logEntry.message.type == 'kanji' || isClozeRecall;
 	const result = logEntry.message.result == 1 || logEntry.message.score == 1 ? 1 : 0;
+
+	// if(logEntry.message.source == 'full-recall') continue;
 
 	if(isTraining){
 		if(logEntry.message.duration){
 			const duration = parseInt(logEntry.message.duration);
-			if(logEntry.message.type == 'kanji' 
-				|| (logEntry.message.type == 'recall' && logEntry.message.source != 'daily-recall')){
-				addToTimeCount("reviewDuration", id, duration);
-			}
+			addToTimeCount("reviewDuration", id, duration);
 		}
 
 		if(logEntry.message.tries == "1" && logEntry.message.result == 0) continue;
 		addToCount('accuracy', id, result);
 
-		if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id])){
+		if(logEntry.message.streak == 3 && logEntry.message.type == 'kanji' && (audioCards.listening[id] || audioCards.speaking[id] || audioCards.cloze[id])){
 			addToCount('reading', id, result);
 
 			if(result == 1){
@@ -315,6 +374,7 @@ for(const logEntry of reviewLogs){
 				break;
 			}
 			doDuration = true;
+			// addToCount('all-cloze', id, result);
 			break;
 		case 'binary-internal-cloze':
 			switch(logEntry.message.promptType){
@@ -326,6 +386,7 @@ for(const logEntry of reviewLogs){
 				break;
 			} 
 			doDuration = true;
+			// addToCount('all-cloze', id, result);
 			break;
 		case 'binary-external-cloze':
 			switch(logEntry.message.promptType){
@@ -337,6 +398,7 @@ for(const logEntry of reviewLogs){
 				break;
 			} 
 			doDuration = true;
+			// addToCount('all-cloze', id, result);
 			break;
 		}	
 
@@ -375,24 +437,19 @@ for(const key1 in counts) {
 		if(percent){
 			let significanceString = "";
 
-			if(slice == "speaking0"){
-				significanceString = getSignificanceString(key1, "typing0", "speaking0");
-			}
-			if(slice == "typing0") {
+			if(slice == "speaking0" || slice == "typing0"){
 				significanceString = getSignificanceString(key1, "typing0", "speaking0");
 			}
 
-			if(slice == "listening"){
-				significanceString = getSignificanceString(key1, "listening", "speaking");
-			}
-			if(slice == "speaking") {
+			if(slice == "listening" || slice == "speaking"){
 				significanceString = getSignificanceString(key1, "listening", "speaking");
 			}
 
-			if(slice == "withImage"){
-				significanceString = getSignificanceString(key1, "withImage", "withoutImage");
+			if(slice == "clozeExpListening" || slice == "clozeExpSpeaking" || slice == "cloze"){
+				significanceString = getSignificanceString(key1, "clozeExpListening", "clozeExpSpeaking", "cloze");
 			}
-			if(slice == "withoutImage") {
+
+			if(slice == "withImage" || slice == "withoutImage"){
 				significanceString = getSignificanceString(key1, "withImage", "withoutImage");
 			}
 

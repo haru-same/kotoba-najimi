@@ -1,83 +1,11 @@
 <div style="max-width: 900px; margin:auto; overflow: hidden">
 	<div style="height: calc(100% - 200px)"></div>
 
-	<div id="original-text" class="band" style="text-align:center; font-size: 2rem">
-	<% if(mode == 1) {%>
-	<i class="fas fa-volume-up"></i>
-	<% } else if(mode == 2) { %>
-	__<span style="text-decoration: underline;"><i class="fas fa-volume-up"></i></span>__
-	<% } else { %>
-	<span id="original-text-container"><%- furiganaHtml %></span>
-	<% } %>
-	</div>
-	<% if(mode == 2) { %>
-	<div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
-		<span id="original-text-container"><%- fact.sentence.replace(fact.word, "____") %></span>
-	</div>
-	<% } %>
-	<!-- <input class="band" id="reading-input" type="text" name="" style="text-align:center; font-size: 2rem"> -->
-	<!-- れいのきゅうしのひと、つれてきてくれたかい？ -->
+	<%- include('recall-review-prompt') %>
 	<br>
-	<div id="begin-band" class="band" style="text-align:center; font-size: 2rem">
-		<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-play"></i></button>
-	</div>
-	<input
-		class="band" 
-		id="reading-input-<%= Math.round(1000000*Math.random()) %>" 
-		name="" 
-		style="text-align:center; font-size: 2rem"
-		type="text"
-		autocapitalize="none"
-		autocorrect="off"
-		autocomplete="false"
-		spellcheck="false"
-	/>
-	<div id="output-text" class="band" style="text-align:center; font-size: 2rem"></div>
-	<div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %><br><button id="post-play-button"><i class="fas fa-volume-up"></i></button></div>
-	<div class="error"></div>
+	<%- include('recall-review-response') %>
+
 	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 </div>
 
-<div class="background-image">
-</div>
-
-<style type="text/css">
-	body {
-		background: black;
-		overflow: hidden;
-	}
-
-	.band {
-		background-color: rgba(255, 255, 255, 0.8);
-		border-radius: 8px;
-	}
-
-	.background-image {
-		background: url('<%= fact.image %>');
-		position: absolute;
-		z-index: -1;
-		top:0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-size: cover;
-		background-position: center;
-		-webkit-filter: blur(2px);
-		-moz-filter: blur(2px);
-		-o-filter: blur(2px);
-		-ms-filter: blur(2px);
-		filter: blur(2px);
-		opacity: 0.8;
-		overflow: hidden;
-	}
-</style>
-
-<script type="text/javascript">
-	setCorrectColor = () => {
-		$(".band").css('background-color', 'rgba(144, 238, 144, 0.8)');
-	};
-
-	setWrongColor = () => {
-		$(".band").css('background-color', 'rgba(255, 192, 203, 0.8)');
-	};
-</script>
+<%- include('review-image') %>

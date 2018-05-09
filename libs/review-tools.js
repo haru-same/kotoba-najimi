@@ -36,11 +36,13 @@ module.exports.streakToInterval = (streak) => {
 	const hour = minute * 60;
 	const day = hour * 24;
 	switch(streak){
+		case -2:
+			return 0;
 		case -1:
 			return 0;
 		case 0:
 			return 5 * minute;
 		default:
-			return day * Math.pow(2, streak - 1) - 12 * hour;
+			return day * Math.pow(2, streak - 1) - 6 * hour;
 	}
 };

@@ -1,8 +1,8 @@
-window.speechPlayer = (text) => {
+function SpeechPlayer(){
 	this.voices = window.speechSynthesis.getVoices();
 	this.voice = null;
 
-	this.play = () => {
+	this.play = (text) => {
 		voices = window.speechSynthesis.getVoices();
 		let voice = null;
 		for(const v of voices){
@@ -16,3 +16,5 @@ window.speechPlayer = (text) => {
 		speechSynthesis.speak(msg);
 	};
 }
+
+window.speechPlayer = new SpeechPlayer();

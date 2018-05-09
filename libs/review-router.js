@@ -6,6 +6,7 @@ const reviewTools = require('./review-tools');
 const decks = require('./review-data');
 const wanakana = require('./wanakana');
 const furigana = require('./furigana');
+const renderFurigana = require('./render-furigana');
 const experiments = require('./experiments');
 const kanjiReviews = require('./kanji-reviews');
 const clozeReviews = require('./cloze-reviews');
@@ -23,7 +24,7 @@ const WordRecallType = 3;
 
 const DailyRecallCount = 4;
 const DailyDictionaryListeningCount = 25;
-const DailyClozeCount = 20;
+const DailyClozeCount = 10;
 const DailyRecallMinLength = 18;
 
 const DECK_TO_ICON = {
@@ -63,7 +64,7 @@ const renderNoReviews = (res, deckName) => {
 		icon: DECK_TO_ICON[deckName] || 'estelle'
 	};
 	res.render('no-reviews', reviewData);
-}
+};
 
 const getDailyReviewInfo = (logTypeKey, logType) => {
 	let beginningOfToday = new Date();
@@ -119,7 +120,73 @@ const getRecallReview = () => {
 	if(reviewInfo.todaysCount >= DailyRecallCount) return null;
 
 	return available[util.randomInt(available.length)];
-}
+};
+
+const getFullRecallReview = () => {
+	const now = new Date().getTime();
+	let beginningOfToday = new Date();
+	beginningOfToday.setHours(0,0,0,0);
+	beginningOfToday = beginningOfToday.getTime();
+	const reviewHistory = reviewLogging.getLog();
+	const fourDaysAgo = new Date().getTime() - 4 * 24 * 60 * 60 * 1000;
+
+	let todaysCount = 0;
+	const newToday = {};
+	const idToTypeLastReview = {};
+	const dailyRecall = [];
+	const streaks = {};
+	for(const item of reviewHistory){
+		if(item.message.source == 'daily-recall'){
+			dailyRecall.push(item.message.id);
+		}
+
+		if(item.message.source == 'full-recall'){
+			if(item.message.time > beginningOfToday && !idToTypeLastReview[item.message.id]) {
+				todaysCount++;
+			}
+
+			idToTypeLastReview[item.message.id] = parseInt(item.message.time);
+
+			if(!(item.message.id in streaks)){
+				streaks[item.message.id] = -2;
+			}
+
+			if(streaks[item.message.id] == -2 && item.message.score > 0.99){
+				streaks[item.message.id] = -1;
+			}
+
+			if(streaks[item.message.id] >= -1){
+				streaks[item.message.id]++;
+			}
+		}
+	}
+
+	console.log(todaysCount, streaks);
+
+	const available = [];
+
+	let count = 0;
+	while(count < 2 - todaysCount){
+		const id = util.randomFromArray(dailyRecall);
+		if(!(id in streaks)){
+			console.log(count, DailyRecallCount - todaysCount);
+			available.push(id);
+			count++;
+		}
+	}
+
+	for(const id in streaks){
+		const expiration = idToTypeLastReview[id] + reviewTools.streakToInterval(streaks[id]);
+		if(expiration < now){
+			available.push(id);
+		}
+	}
+
+	if(available.length == 0) return null;
+
+	console.log(available);
+	return util.randomFromArray(available);
+};
 
 const getListenMeaningReview = () => {
 	const reviewInfo = getDailyReviewInfo('type', 'listening-meaning');
@@ -162,10 +229,13 @@ const getClozeChoices = (reviewInfo, factType, count, external) => {
 	let allChoiceIds = [];
 	const posToChoiceIds = {};
 	for(const id in facts){
+		console.log(facts[id].type, factType, facts[id].type == factType, !clozeReviews.getRandomClozeSentence(id));
 		if(external && !clozeReviews.getRandomClozeSentence(id)) continue;
 
-		// console.log(id, reviewInfo.idToAnyLastReview[id], fourDaysAgo, reviewInfo.idToAnyLastReview[id] < reviewInfo.fourDaysAgo);
+		// console.log(id, reviewInfo.idToAnyLastReview[id], reviewInfo.fourDaysAgo, reviewInfo.idToAnyLastReview[id] < reviewInfo.fourDaysAgo);
+		console.log(facts[id].type, factType, facts[id].type == factType);
 		if(facts[id].type == factType && reviewInfo.idToAnyLastReview[id] < reviewInfo.fourDaysAgo) {
+			console.log(id, reviewInfo.idToTypeLastReview[id]);
 			if(!reviewInfo.idToTypeLastReview[id]) available.push(id);
 
 			allChoiceIds.push(id);
@@ -178,7 +248,7 @@ const getClozeChoices = (reviewInfo, factType, count, external) => {
 		}
 	}
 
-	console.log('inverted cloze count:', available.length);
+	console.log(factType, 'inverted cloze count:', available.length);
 
 	const targetId = util.randomFromArray(available);
 
@@ -231,14 +301,16 @@ const getExternalClozeReview = (req, options) => {
 	options = options || {};
 	options.count = options.count || 3;
 	options.logType = options.logType || 'external-cloze';
+	options.dailyCount = options.dailyCount || DailyClozeCount;
+	options.factType = options.factType || 3;
 
 	const reviewInfo = getDailyReviewInfo('type', options.logType);
 
 	console.log(options.logType, "today's count:", reviewInfo.todaysCount);
 
-	if(reviewInfo.todaysCount >= DailyClozeCount && !req.query.dbg) return null;
+	if(reviewInfo.todaysCount >= options.dailyCount && !req.query.dbg) return null;
 
-	return getClozeChoices(reviewInfo, 3, options.count, true);
+	return getClozeChoices(reviewInfo, options.factType, options.count, true);
 }
 
 const getInternalClozeReview = (req, options) => {
@@ -305,7 +377,8 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.facts = deck.getAllFacts();
 	reviewData.states = deck.getAllStates();
 
-	reviewData.options = options || {};
+	options = options || {};
+	reviewData.options = options;
 
 	let type = reviewData.fact.type;
 
@@ -320,7 +393,12 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
 	const sentence = reviewData.fact.sentence || reviewData.fact.context;
-	const furiganaHtml = ejs.render(template, { elements: furigana(sentence) });
+	let furiganaHtml = "";
+	if(reviewData.fact['sentence-reading']){
+		furiganaHtml = ejs.render(template, { elements: renderFurigana(sentence, reviewData.fact['sentence-reading']) });
+	} else {
+		furiganaHtml = ejs.render(template, { elements: furigana(sentence) });
+	}
 	reviewData.furiganaHtml = furiganaHtml;
 
 	switch(type){
@@ -328,6 +406,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		res.render('kanji-review', reviewData);
 		break;
 	case 2:
+		if(!reviewData.options.promptType){
+			reviewData.options.promptType = reviewData.state.condition == 0 ? 'text' : 'audio';
+		}
 		res.render('recall-review', reviewData);
 		break;
 	case 3:
@@ -336,6 +417,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
 		switch (condition){
 			case 0:
+				reviewData.options.promptType = 'audio-cloze';
 				res.render('recall-review', reviewData);
 				break;
 			case 1:
@@ -484,21 +566,23 @@ const handleRecallReviewResponse = (req, res) => {
 	if(req.body.source) source = req.body.source;
 
 	let originalText = originalFact.reading;
-	if(source == 'daily-recall') originalText = originalFact['sentence-reading']
+	if(source != 'normal') originalText = originalFact['sentence-reading']
 	const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
 	const preStreak = state.streak;
 	const scoreInfo = reviewTools.scoreReview(original, input);
 	
-	if(req.body.type == 'rw'){
-		result = 0;
-		if(scoreInfo.score > 0.95) {
-			setUpdatedDue(state, 1);
+	if(!req.body.skipStreakUpdate || req.body.skipStreakUpdate == 'false'){
+		if(req.body.type == 'rw'){
+			result = 0;
+			if(scoreInfo.score > 0.95) {
+				setUpdatedDue(state, 1);
+			} else {
+				setUpdatedDue(state, -1);
+			}
 		} else {
-			setUpdatedDue(state, -1);
+			setUpdatedDue(state, 1);
 		}
-	} else {
-		setUpdatedDue(state, 1);
 	}
 
 	
@@ -512,6 +596,7 @@ const handleRecallReviewResponse = (req, res) => {
 			id: req.body.id, 
 			type: "recall", 
 			condition: state.condition,
+			promptType: req.body.promptType,
 			input: req.body.input, 
 			score: scoreInfo.score, 
 			duration: parseInt(req.body.duration),
@@ -571,7 +656,7 @@ module.exports.init = (app) => {
 			const recallReview = getRecallReview();
 			if(deck.name == 'kanji' && recallReview) {
 				// console.log(recallReview);
-				renderReview(res, 'kanji', recallReview, { type: 2, overrideMode: 1, source: 'daily-recall' });
+				renderReview(res, 'kanji', recallReview, { type: 2, promptType: 'audio', hideImage: true, source: 'daily-recall' });
 			} else {
 				renderNoReviews(res, deck.name);
 			}
@@ -623,10 +708,25 @@ module.exports.init = (app) => {
 
 	app.get('/binary-external-cloze-review', (req, res) => {
 		handleRenderReviewRequest(req, res, () => {
-			const clozeReview = getExternalClozeReview(req, { factType: 3, count: 1, logType: 'binary-external-cloze' }) || {};
+			let factType = req.query.factType || 3;
+			factType = parseInt(factType);
+			let dailyCount = req.query.dailyCount || DailyClozeCount;
+			dailyCount = parseInt(dailyCount);
+			const clozeReview = getExternalClozeReview(req, { factType: factType, count: 1, dailyCount: dailyCount, logType: 'binary-external-cloze' }) || {};
 			return {
 				id: clozeReview.targetId,
 				options: { type: 6, clozeChoices: clozeReview.choices, binary: true, logType: 'binary-external-cloze' }
+			};
+		});
+	});
+
+	app.get('/full-recall-review', (req, res) => {
+		handleRenderReviewRequest(req, res, () => {
+			const review = getFullRecallReview();
+			console.log(review);
+			return {
+				id: review,
+				options: { type: 2, promptType: 'audio', source: 'full-recall', hideImage: true, skipStreakUpdate: true }
 			};
 		});
 	});
@@ -663,11 +763,14 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/delete-review', (req, res) => {
-		const id = req.body.id;
-		if(id){
-			kanjiReviews.delete(id);
+		const deck = getDeckFromRequest(req, res);
+		if(deck){
+			const id = req.body.id;
+			if(id){
+				deck.delete(id);
+			}
+			res.send('done');	
 		}
-		res.send('done');
 	});
 
 	app.get('/review-stats', (req, res) => {

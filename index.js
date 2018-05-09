@@ -5,7 +5,6 @@ const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const opener = require('opener');
-const uuidv4 = require('uuid/v4');
 
 const exec = require('child_process').execFile;
 

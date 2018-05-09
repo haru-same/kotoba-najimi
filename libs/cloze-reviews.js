@@ -24,7 +24,7 @@ const init = () => {
 		const lines = fs.readFileSync(source, 'utf8').split('\n');
 
 		for(const id in facts){
-			const word = facts[id].word;
+			const word = facts[id].word || facts[id].target;
 			for(const sentence of lines){
 				if(sentence.includes(word) && sentence.length > 8) {
 					if(!wordClozes[id]) wordClozes[id] = [];

@@ -13,3 +13,10 @@ module.exports.shuffle = (a) => {
     }
     return a;
 }
+
+module.exports.objectMatchesQuery = (obj, query) => {
+	for(const key in query){
+		if(obj[key] != query[key]) return false;
+	}
+	return true;
+};

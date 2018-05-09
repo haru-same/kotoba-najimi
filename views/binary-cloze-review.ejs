@@ -68,6 +68,7 @@ for(const choice of options.clozeChoices){
 			};
 
 			$("#begin-input").click((e) => {
+				$("#blanked-text").hide();
 				state = 1;
 				leadDuration = new Date().getTime() - start;
 				start = new Date().getTime();
