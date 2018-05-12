@@ -130,7 +130,6 @@ if(options.promptType == 'audio-cloze') tries = 1;
 				if($("input").length > 0){
 					const input = $('input').val();
 
-					$("#continue").show();
 	        		$('input').attr('disabled', true);
 
 	        		state = SubmitInput;
@@ -148,7 +147,6 @@ if(options.promptType == 'audio-cloze') tries = 1;
 	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
 	        			tries: tries
 	        		};
-	        		tries--;
 
 	        		const renderFurigana = () => {
 	        			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
@@ -162,7 +160,7 @@ if(options.promptType == 'audio-cloze') tries = 1;
 	        		const postReview = () => {
 	        			$.post('/review', reviewData, (res) => {
 							<% if(options.promptType == 'audio-cloze') { %>
-							if(tries == 0) renderFurigana();
+							if(!res.hasTries) renderFurigana();
 							<% } else { %>
 							showCorrectedText(res);
 							<% } %>
@@ -173,6 +171,16 @@ if(options.promptType == 'audio-cloze') tries = 1;
 							<% } else { %>
 							$("body").css('background-color', 'lightblue');
 							<% } %>
+
+							if(res.hasTries){
+								$('input').attr('disabled', false);
+								$('input').focus();
+								$('input').select();
+								state = BeginInput;
+							} else {
+								$("#continue").show();
+							}
+							tries--;
 						});
 	        		};
 
