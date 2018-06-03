@@ -144,6 +144,7 @@ if(options.promptType == 'audio-cloze') tries = 1;
 	        			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
 	        			promptType: '<%= options.promptType %>',
 	        			source: '<%= options.source || 'normal' %>',
+	        			clozeWord: '<%= options.clozeWord %>',
 	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
 	        			tries: tries
 	        		};
@@ -208,6 +209,20 @@ if(options.promptType == 'audio-cloze') tries = 1;
 		];
 
 		$(document).ready(() => {
+			<% if(options.randomWord && !fact['sentence-chunks']) { %>
+			$.get('/sentence-chunks', { text: '<%= fact['sentence-reading'] %>' }, (res) => {
+				let chunks = prompt('<%= fact.sentence %>\nEnter the chunks for this sentence:', res);
+				if (chunks == null || chunks == "") {
+					console.log("canceled reading input");
+					location.reload();
+				} else {
+					$.post('/sentence-chunks', { id: targetId, sentenceChunks: chunks }, () => {
+	    				location.reload();
+	    			});
+				}
+			});
+			<% } %>
+
 			const textInput = document.querySelector('input');
 			wanakana.bind(textInput);
 			$('input').hide();

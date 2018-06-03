@@ -198,12 +198,29 @@
 	        });
 
 	        $(document).keypress((e) => {
+	        	let textData = null;
+	        	let text = null;
 	        	console.log(e.which);
 	        	switch(e.which){
         		// 1 key
         		case 49:
         			socket.emit('test-text');
         			break;
+        		// c key
+        		case 99:
+        			console.log('did is: ', currentDid);
+        			if(!currentDid) break;
+        			if(!currentWord) break;
+					textData = idToData[currentDid];
+					console.log('word found', currentWord);
+					text = textData.text.replace(/\n/g, '');
+
+					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata ? textData.metadata.voice : 'NULL'})`, (reading) => {
+						$.post('/create-cloze-fact', { text: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+							console.log(res);
+						});
+					});
+        			break; 
         		// f key
         		case 102:
         			if(!currentWord) break;
@@ -219,16 +236,14 @@
         			console.log('did is: ', currentDid);
         			if(!currentDid) break;
         			if(!currentWord) break;
-					const did = currentDid;
-					const word = currentWord;
-					const textData = idToData[did];
-					console.log('word found', word);
+					textData = idToData[currentDid];
+					console.log('word found', currentWord);
 					if(!textData || !textData.metadata.voice) break;
-					const text = textData.text.replace(/\n/g, '');
-					console.log('text data with voice found');
+					text = textData.text.replace(/\n/g, '');
+					console.log('text data with voice found', textData);
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
-						$.post('/create-audio-word-fact', { text: text, metadata: textData.metadata, reading: reading, word: word }, (res) => {
+						$.post('/create-audio-word-fact', { text: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
 							console.log(res);
 						});
 					});

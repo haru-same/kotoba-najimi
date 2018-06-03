@@ -1,6 +1,6 @@
-var punctuation = '.,\'!?。…、！？';
+const punctuation = '.,\'!?。…、！？。、';
 
-var punctuationTable = {};
+const punctuationTable = {};
 for(var i in punctuation){
 	punctuationTable[punctuation[i]] = true;
 }
@@ -27,3 +27,12 @@ module.exports.cleanPunctuation = function(text){
 	}
 	return punctuationFreeText.join('');
 }
+
+module.exports.containsPunctuation = (text) => {
+	for(var i in text){
+		if(text[i] in punctuationTable){
+			return true;
+		} 
+	}
+	return false;
+};

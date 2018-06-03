@@ -60,6 +60,7 @@ class ReviewTable {
 		newFact.created = new Date().getTime();
 		factsTable.data[guid] = newFact;
 		userdata.saveTable(factsTable);
+		return newFact;
 	}
 
 	updateFact(item){
@@ -78,6 +79,17 @@ class ReviewTable {
 		if(counts[fact.type][0] < counts[fact.type][1]) return 0;
 		if(counts[fact.type][1] < counts[fact.type][0]) return 1;
 		return Math.floor(Math.random() * 2);
+	}
+
+	assignState(id, state){
+		const statesTable = userdata.getTable(this.stateTableName);
+		state = state || { };
+		state.id = id;
+		state.streak = 0;
+		state.due = new Date().getTime();
+		state['ignore-experiment'] = true;
+		statesTable.data[id] = state;
+		userdata.saveTable(statesTable);
 	}
 
 	syncStates(){

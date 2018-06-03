@@ -51,7 +51,7 @@ const assignExperimentConditions = (type, states, state) => {
 		for(let i = 0; i < exp.conditions.length; i++) counts.push(0);
 
 		for(const id in states){
-			if(states[id].experiments && states[id].experiments[exp.name] != null) {
+			if(states[id].experiments && !states[id]['ignore-experiment'] && states[id].experiments[exp.name] != null) {
 				counts[states[id].experiments[exp.name]]++;
 			}
 		}

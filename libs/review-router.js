@@ -14,6 +14,7 @@ const reviewLogging = require('./review-logging');
 const clean = require('./clean');
 const gameTools = require('./game-tools/game-tools');
 const util = require('./util');
+const jaTools = require('./ja-tools');
 const jaDictionary = require('./ja-dictionary');
 
 const dictionaryAudio = require('./dictionary-audio');
@@ -409,6 +410,17 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		if(!reviewData.options.promptType){
 			reviewData.options.promptType = reviewData.state.condition == 0 ? 'text' : 'audio';
 		}
+
+		if(reviewData.options.randomWord && reviewData.fact['sentence-chunks']){
+			const available = reviewData.fact['sentence-chunks'].split(' ');
+			const randomWord = util.randomFromArray(available);
+			reviewData.options.clozeWord = randomWord;
+			reviewData.fact.word = randomWord;
+			reviewData.fact.reading = randomWord;
+			reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
+			console.log(available, reviewData.options.randomWord);
+		}
+
 		res.render('recall-review', reviewData);
 		break;
 	case 3:
@@ -566,7 +578,8 @@ const handleRecallReviewResponse = (req, res) => {
 	if(req.body.source) source = req.body.source;
 
 	let originalText = originalFact.reading;
-	if(source != 'normal') originalText = originalFact['sentence-reading']
+	if(source != 'normal') originalText = originalFact['sentence-reading'];
+	if(source == 'full-recall' && req.body.promptType == 'audio-cloze') originalText = req.body.clozeWord;
 	const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
 	const preStreak = state.streak;
@@ -612,7 +625,8 @@ const handleRecallReviewResponse = (req, res) => {
 			duration: parseInt(req.body.duration),
 			streak: preStreak,
 			source: source, 
-			tries: req.body.tries
+			tries: req.body.tries,
+			clozeWord: req.body.clozeWord
 		});
 	}
 
@@ -737,7 +751,8 @@ module.exports.init = (app) => {
 			console.log(review);
 			return {
 				id: review,
-				options: { type: 2, promptType: 'audio', source: 'full-recall', hideImage: true, skipStreakUpdate: true }
+				options: { type: 2, promptType: 'audio-cloze', source: 'full-recall', hideImage: true, skipStreakUpdate: true, randomWord: true }
+				// options: { type: 2, promptType: 'audio', source: 'full-recall', hideImage: true, skipStreakUpdate: true, randomWord: true }
 			};
 		});
 	});
@@ -823,8 +838,23 @@ module.exports.init = (app) => {
 			createAudioWordFact({ sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, audio: voice, image: img });
 			res.json({ success: true });
 		} else {
+			console.log('Audio file could not be found.');
 			res.json({ success: false, error: 'Audio file could not be found. See server log.' });
 		}
+	});
+
+	app.post('/create-cloze-fact', (req, res) => {
+		console.log("creating fact", req.body);
+		let fact = { sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, type: 3 };
+		if(req.body.metadata){
+			fact.audio = gameTools.tryStoreVoiceFile(req.body.metadata);
+			fact.image = gameTools.tryStoreImageFile(req.body.metadata);
+		}
+
+		const deck = decks.getDeck('kanji');
+		fact = deck.add(fact);
+		deck.assignState(fact.id, { "experiments": { "listen-speak-cloze": 2 } });
+		res.json({ success: true });
 	});
 
 	app.get('/test-media', (req, res) => {
@@ -888,6 +918,25 @@ module.exports.init = (app) => {
 		const deck = decks.getDeck("kanji");
 		const fact = deck.find(req.body.id);
 		fact['sentence-reading'] = req.body.sentenceReading;
+		deck.updateFact(fact);
+		res.send('done');
+	});
+
+	app.get('/sentence-chunks', (req, res) => {
+		const tokens = jaTools.getTokensSync(req.query.text);
+		const available = [];
+		for(const t of tokens){
+			if(!clean.containsPunctuation(t.s)){
+				available.push(t.s);
+			}
+		}
+		res.send(available.join(' ').replace( /\s\s+/g, ' '));
+	});
+
+	app.post('/sentence-chunks', (req, res) => {
+		const deck = decks.getDeck("kanji");
+		const fact = deck.find(req.body.id);
+		fact['sentence-chunks'] = req.body.sentenceChunks;
 		deck.updateFact(fact);
 		res.send('done');
 	});

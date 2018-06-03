@@ -31,7 +31,7 @@ module.exports.storeVoiceFile = (edSettings, key) => {
 		}
 		return `${edSettings.gameKey}/${filename}`;
 	} else {
-		console.log("source file does not exist");
+		console.log("source file does not exist: ", sourceFilename);
 		return null;
 	}
 };

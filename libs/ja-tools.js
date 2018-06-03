@@ -101,14 +101,21 @@ module.exports.getTokens = function(text, callback){
 }
 
 module.exports.getTokensSync = function(text){
-	var tokens = tokenizer.tokenize(text);
-	var arr = [];
+	const tokens = tokenizer.tokenize(text);
+	console.log(tokens);
+	const arr = [];
 	for(var i in tokens){
-		var token = { s: tokens[i].surface_form };
-		if(tokens[i].reading && getKatakana(tokens[i].surface_form) != tokens[i].reading){
-			token.r = getHiragana(tokens[i].reading);
-		}
-		arr.push(token);
+		// if(tokens[i].pos_detail_1 == '接尾' || tokens[i].pos == '助動詞'){
+		// 	const lastToken = arr[arr.length - 1];
+		// 	lastToken.s += tokens[i].surface_form;
+		// 	if(lastToken.r) lastToken.r += getHiragana(tokens[i].reading);
+		// } else {
+			const token = { s: tokens[i].surface_form };
+			if(tokens[i].reading && getKatakana(tokens[i].surface_form) != tokens[i].reading){
+				token.r = getHiragana(tokens[i].reading);
+			}
+			arr.push(token);
+		// }
 	}
 	return arr;
 }

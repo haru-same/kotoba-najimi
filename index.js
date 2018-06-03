@@ -92,9 +92,9 @@ app.get('/new-text', function(req, res){
 	const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 	const furiOutput = furigana(req.query.text);
 
- 	if(metadata.game == 'ed6t3'){
+ 	if(metadata.game == 'ed6t3' || metadata.game == 'ed7z'){
 		setTimeout(() => {
-			exec('ScreenCapture.exe', (err, data) => {
+			exec('ScreenCapture.exe', [ metadata.game ], (err, data) => {
 				let id = "";
 			    const lines = data.split('\r\n');
 			    for(const line of lines){
