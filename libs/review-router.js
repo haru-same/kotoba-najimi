@@ -845,7 +845,7 @@ module.exports.init = (app) => {
 
 	app.post('/create-cloze-fact', (req, res) => {
 		console.log("creating fact", req.body);
-		let fact = { sentence: req.body.text.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, type: 3 };
+		let fact = { sentence: req.body.sentence.replace(/\n/g, ''), word: req.body.word, reading: req.body.reading, type: 3 };
 		if(req.body.metadata){
 			fact.audio = gameTools.tryStoreVoiceFile(req.body.metadata);
 			fact.image = gameTools.tryStoreImageFile(req.body.metadata);

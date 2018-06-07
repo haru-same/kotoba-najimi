@@ -216,7 +216,7 @@
 					text = textData.text.replace(/\n/g, '');
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata ? textData.metadata.voice : 'NULL'})`, (reading) => {
-						$.post('/create-cloze-fact', { text: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+						$.post('/create-cloze-fact', { sentence: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
 							console.log(res);
 						});
 					});

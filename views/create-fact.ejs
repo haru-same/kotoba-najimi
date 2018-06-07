@@ -23,14 +23,14 @@
 
 			let readingChanged = false;
 			const getReading = () => {
-				const input = $("#sentence-input").val();
+				const input = $("#word-input").val();
 				$.get('/furigana', { text: input }, (res) => {
 					$("#reading-input").val(res);
 					readingChanged = false;
 				});
 			};
 
-			$("#sentence-input").on('change keydown paste input', function(){
+			$("#word-input").on('change keydown paste input', function(){
 				if(!readingChanged){
 					getReading();
 				}
@@ -47,7 +47,7 @@
 			$("#submit").click(() => {
 				if(confirm("Submit this?\n\n" + $("#sentence-input").val() + "\n\n" + $("#reading-input").val() + "\n\n" + $("#audio-input").val())){
 					$("#submit-band").text("Submitting...");
-					$.post('/create-recall-fact', { sentence: $("#sentence-input").val(), reading: $("#reading-input").val(), audio: $("#audio-input").val() }, (res) => {
+					$.post('/create-cloze-fact', { sentence: $("#sentence-input").val(), reading: $("#reading-input").val(), word: $("#word-input").val() }, (res) => {
 						console.log(res);
 						$("#submit-band").text("done");
 					});
@@ -72,6 +72,19 @@
 	<br><br>
 	<input
 		class="band kana" 
+		id="word-input" 
+		name="" 
+		style="text-align:center; font-size: 2rem"
+		type="text"
+		autocapitalize="none"
+		autocorrect="off"
+		autocomplete="false"
+		spellcheck="false"
+		placeholder="word"
+	/>
+	<br><br>
+	<input
+		class="band kana" 
 		id="reading-input" 
 		name="" 
 		style="text-align:center; font-size: 2rem"
@@ -83,7 +96,7 @@
 		placeholder="reading"
 	/>
 	<br><br>
-	<input
+	<!-- <input
 		class="band" 
 		id="audio-input" 
 		name="" 
@@ -95,7 +108,7 @@
 		spellcheck="false"
 		placeholder="audio name"
 	/>
-	<br><br>
+	<br><br> -->
 	<div id="submit-band" class="band" style="text-align:center; font-size: 2rem"><button id="submit" style="text-align:center; font-size: 2rem">submit new fact</button></div>
 </body>
 </html>
