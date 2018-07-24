@@ -1,9 +1,9 @@
 <% 
 const reviewProgress = {}; 
-const hideImage = options.onlyKanji;
 let condition = 0;
 if(state.condition) condition = state.condition;
-if(hideImage) condition = 0;
+if(options.condition) condition = options.condition;
+if(options.onlyKanji) condition = 0;
 
 if(options.useTextInput == null){
 	options.useTextInput = false;
@@ -18,6 +18,10 @@ if(options.replacement == null){
 	const word = fact.target || fact.word;
 	options.replacement = ` <b>${word}</b> `;
 	if(options.useCloze) options.replacement = '____';
+}
+
+if(options.noImage == null){
+	options.noImage = state['image-condition'] == 1 && !options.onlyKanji;
 }
 %>
 <% include partial/review-progress %>
@@ -50,7 +54,7 @@ if(options.replacement == null){
 		let tries = <%= initialTryCount %>;
 
 		const renderFurigana = () => {
-			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
+			$.get('/render-furigana', { text: '<%= fact.word || fact.target %>', reading: '<%= fact.reading %>' }, (res) => {
 				$('#prompt').html($('#prompt').html().replace('____', ` <b>${res}</b> `));
 			});
 		};
@@ -181,7 +185,7 @@ if(options.replacement == null){
 	        	// enter pressed
 	        	if(e.which == 13) {
 	        		if(complete){
-	        			<% if(hideImage){ %>
+	        			<% if(options.onlyKanji){ %>
 		        		showError("Answer the question below.");
 		        		<% } else { %>
 		        		location.reload();
@@ -216,14 +220,6 @@ if(options.replacement == null){
 				}
 			});
 
-			<% if(!hideImage){ %>
-			// $("#continue").click(() => {
-			// 	if(complete){
-	  //       		location.reload();
-	  //       	}
-			// });
-			<% } %>
-
 			$('#reading-input').focus();
 
 			$("#delete-review").click(() => {
@@ -256,7 +252,7 @@ if(options.replacement == null){
 	</script>
 </head>
 <body>
-	<% if(fact.image && !hideImage && state['image-condition'] == 1) { %>
+	<% if(fact.image && !options.noImage) { %>
 	<%- include('partial/kanji-review-image-content', { reviewProgress: reviewProgress, parentOptions: options }) %>
 	<% } else { %>
 	<%- include('partial/kanji-review-band-content', { reviewProgress: reviewProgress, parentOptions: options }) %>

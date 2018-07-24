@@ -6,6 +6,8 @@ options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloz
 
 let tries = 0;
 if(options.promptType == 'audio-cloze') tries = 1;
+
+if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 %>
 <% include partial/review-progress %>
 <html>
@@ -260,7 +262,7 @@ if(options.promptType == 'audio-cloze') tries = 1;
 	</script>
 </head>
 <body>
-	<% if(!options.hideImage && fact.image && state['image-condition'] == 1) { %>
+	<% if(!options.noImage && fact.image) { %>
 	<%- include('partial/recall-review-image-content', { reviewProgress: reviewProgress }) %>
 	<% } else { %>
 	<%- include('partial/recall-review-band-content', { reviewProgress: reviewProgress }) %>

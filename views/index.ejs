@@ -45,6 +45,8 @@
   			e.stopPropagation();
 		}
 
+		let frequencyTimeout = null;
+
 		const showDictionary = (def, xPosition, yPosition, node) => {
 			$node = $(node);
         	$defContainer = $(".top-box");
@@ -65,7 +67,7 @@
 
     		$defContainer.css("top", 0);
     		$defContainer.css("left", 0);
-      		$defContainer.html(def);
+      		$defContainer.html('<div id="frequency-display">getting frequency...</div> ' + def);
       		let width = $defContainer.width();
       		let height = $defContainer.height();
       		$defContainer.css("top", yPosition - height - 20 + scrollY);//$node.position().top - height);
@@ -159,11 +161,19 @@
 		    let lastWord = null;
 	        $(document).on("definition-changed", (e, def, xPosition, yPosition, node, word, length) => {
 	        	showDictionary(def, xPosition, yPosition, node);
+
+	        	if(frequencyTimeout) clearTimeout(frequencyTimeout);
 	        	if(word){
 	        		currentWord = word;
 	        		currentPhrase = $(node).closest('.text-chunk').attr('original');
 	        		currentDid = $(node).closest('.text-chunk').attr('did');
 	        		console.log(currentWord, ", ", currentPhrase);
+
+	        		frequencyTimeout = setTimeout(() => { 
+	        			$.get('/frequency', { text: currentWord }, (res) => {
+	        				$('#frequency-display').text(res);
+	        			});
+	        		}, 0.5);
 		        }
 	        });
 

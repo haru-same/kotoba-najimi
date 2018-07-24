@@ -3,4 +3,4 @@
 <%- include('recall-review-response') %>
 
 <div style="height: 100px;"></div>
-<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
+<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= options.remainingToday || reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>

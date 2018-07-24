@@ -11,6 +11,6 @@
 </div>
 <% if(options.promptType == 'audio-cloze') { %>
 <div id="blanked-text" class="band" style="text-align:center; font-size: 2rem; display: none">
-	<span id="original-text-container"><%- (fact.clozeSentence || fact.sentence).replace(fact.word, "____") %></span>
+	<span id="original-text-container"><%- options.reviewPrompt || ((fact.clozeSentence || fact.sentence).replace(fact.word, "____")) %></span>
 </div>
 <% } %>

@@ -24,7 +24,11 @@ module.exports.getLog = () => {
 	const logStrings = fs.readFileSync(logPath, 'utf8').split('\n');
 	for(const logString of logStrings){
 		if(logString != "")
-			reviewHistory.push(JSON.parse(logString));
+			try {
+				reviewHistory.push(JSON.parse(logString));
+			} catch(e){
+				console.log('Unable to parse: ', logString);
+			}
 	}
 	return reviewHistory;
 };

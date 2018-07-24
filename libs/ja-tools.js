@@ -73,7 +73,7 @@ function getPronunciationSync (text, options){
 
 
 	var tokens = tokenizer.tokenize(text);
-	console.log(tokens);
+	// console.log(tokens);
 	var outStr = [];
 	for (var i in tokens) {
 		if(tokens[i].reading){
@@ -102,7 +102,7 @@ module.exports.getTokens = function(text, callback){
 
 module.exports.getTokensSync = function(text){
 	const tokens = tokenizer.tokenize(text);
-	console.log(tokens);
+	// console.log(tokens);
 	const arr = [];
 	for(var i in tokens){
 		// if(tokens[i].pos_detail_1 == '接尾' || tokens[i].pos == '助動詞'){

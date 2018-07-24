@@ -189,6 +189,77 @@ const getFullRecallReview = () => {
 	return util.randomFromArray(available);
 };
 
+const getTieredFullRecallReview = (options) => {
+	options = options || {};
+	options.count = options.count || 2;
+
+	const now = new Date().getTime();
+	let beginningOfToday = new Date();
+	beginningOfToday.setHours(0,0,0,0);
+	beginningOfToday = beginningOfToday.getTime();
+	const reviewHistory = reviewLogging.getLog();
+	const fourDaysAgo = new Date().getTime() - 4 * 24 * 60 * 60 * 1000;
+
+	let todaysCount = 0;
+	const newToday = {};
+	const idToTypeLastReview = {};
+	const dailyRecall = [];
+	const streaks = {};
+	const facts = kanjiReviews.getAllFacts();
+	for(const item of reviewHistory){
+		if(item.message.source == 'daily-recall'){
+			dailyRecall.push(item.message.id);
+		}
+
+		if(item.message.source == 'tiered-full-recall'){
+			if(item.message.time > beginningOfToday && !idToTypeLastReview[item.message.id]) {
+				todaysCount++;
+			}
+
+			idToTypeLastReview[item.message.id] = parseInt(item.message.time);
+
+			if(!(item.message.id in streaks)){
+				streaks[item.message.id] = -2;
+			} else if(item.message.score > 0.99){
+				streaks[item.message.id]++;
+			} else {
+				streaks[item.message.id] = -1;
+			}
+		}
+	}
+
+	console.log(todaysCount, streaks);
+
+	const available = [];
+
+	let count = 0;
+	while(count < options.count - todaysCount){
+		const id = util.randomFromArray(dailyRecall);
+		if(!(id in streaks) && id in facts){
+			console.log(count, DailyRecallCount - todaysCount);
+			available.push(id);
+			count++;
+		}
+	}
+
+	for(const id in streaks){
+		const expiration = idToTypeLastReview[id] + reviewTools.streakToInterval(streaks[id]);
+		if(expiration < now && id in facts){
+			available.push(id);
+		}
+	}
+
+	if(available.length == 0) return null;
+
+	console.log(available);
+	const review = { id: util.randomFromArray(available) };
+	review.streak = streaks[review.id] || 0;
+	review.maxWords = 1;
+	review.remainingToday = available.length;
+	if(review.streak >= 1) review.maxWords = review.streak + 1;
+	return review;
+};
+
 const getListenMeaningReview = () => {
 	const reviewInfo = getDailyReviewInfo('type', 'listening-meaning');
 
@@ -383,13 +454,15 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 	let type = reviewData.fact.type;
 
-	if(reviewData.fact.type == 3 && reviewData.state.streak == 3){
+	if((reviewData.fact.type == 1 || reviewData.fact.type == 3) && reviewData.state.streak > 2 && util.mod(reviewData.state.streak - 1, 4) == 0){
 		reviewData.options.onlyKanji = true;
+		reviewData.options.noImage = true;
 		type = 1;
 	}
 
-	if(options && options.type) type = options.type;
+	if(options.type) type = options.type;
 	console.log("type:" + type);
+
 	// console.log(reviewData.fact);
 
 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
@@ -402,8 +475,34 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	}
 	reviewData.furiganaHtml = furiganaHtml;
 
+	let condition = 0;
 	switch(type){
 	case 1:
+		condition = reviewData.state.condition;
+
+		if(options.cyclePromptTypes){
+			condition = util.mod(reviewData.fact.id.hashCode() + reviewData.state.streak, 3);
+			console.log('cycled silent condition: ', condition, ';', reviewData.fact.id.hashCode(), ',', reviewData.state.streak);
+		}
+
+		if(options.noSpeech && condition == 1) {
+			condition = 0;
+			console.log('overwriting condition');
+		}
+
+		switch (condition){
+			case 0:
+				reviewData.options.useTextInput = true;
+				break;
+			case 1:
+				reviewData.options.useTextInput = false;
+				break;
+			case 2:
+				reviewData.options.useTextInput = true;
+				reviewData.options.useCloze = true;
+				break;
+		}
+
 		res.render('kanji-review', reviewData);
 		break;
 	case 2:
@@ -412,21 +511,58 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		}
 
 		if(reviewData.options.randomWord && reviewData.fact['sentence-chunks']){
-			const available = reviewData.fact['sentence-chunks'].split(' ');
-			const randomWord = util.randomFromArray(available);
-			reviewData.options.clozeWord = randomWord;
-			reviewData.fact.word = randomWord;
-			reviewData.fact.reading = randomWord;
-			reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
-			console.log(available, reviewData.options.randomWord);
+			if(reviewData.options.maxRandomWords){
+				const available = reviewData.fact['sentence-chunks'].split(' ');
+				let index = util.randomInt(available.length);
+				index = Math.max(0, Math.min(available.length - reviewData.options.maxRandomWords, index));
+				const length = Math.min(available.length, reviewData.options.maxRandomWords);
+				const words = [];
+
+				reviewData.options.reviewPrompt = "";
+				for(let i = 0; i < index; i++){
+					reviewData.options.reviewPrompt += available[i] + " ";
+				}
+
+				for(let i = index; i < index + length; i++) {
+					words.push(available[i]);
+					reviewData.options.reviewPrompt += "____ ";
+				}
+
+				for(let i = index + length; i < available.length; i++){
+					reviewData.options.reviewPrompt += available[i] + " ";
+				}
+
+				const randomWord = words.join(' ');
+				reviewData.options.clozeWord = randomWord;
+				reviewData.fact.word = randomWord;
+				reviewData.fact.reading = randomWord;
+				reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
+				console.log('random words:', reviewData.options.maxRandomWords, available, randomWord, reviewData.options.randomWord);
+			} else {
+				const available = reviewData.fact['sentence-chunks'].split(' ');
+				const randomWord = util.randomFromArray(available);
+				reviewData.options.clozeWord = randomWord;
+				reviewData.fact.word = randomWord;
+				reviewData.fact.reading = randomWord;
+				reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
+				console.log(available, reviewData.options.randomWord);
+			}
 		}
 
 		res.render('recall-review', reviewData);
 		break;
 	case 3:
-		let condition = 0;
+		condition = 0;
+
 		if(reviewData.state.condition) condition = reviewData.state.condition;
 		if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
+
+		if(options.cyclePromptTypes) {
+			condition = util.mod(reviewData.fact.id.hashCode() + reviewData.state.streak, 3);
+			if(condition == 0 && !reviewData.fact.audio) condition = 2;
+			console.log('cycled audio condition is ', condition);
+		}
+
 		switch (condition){
 			case 0:
 				reviewData.options.promptType = 'audio-cloze';
@@ -434,6 +570,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				break;
 			case 1:
 				reviewData.options.useTextInput = false;
+				if(options.noSpeech) reviewData.options.useTextInput = true;
 				res.render('kanji-review', reviewData);
 				break;
 			case 2:
@@ -513,6 +650,7 @@ const handleKanjiReviewResponse = (req, res) => {
 	console.log('streak was:', state.streak);
 
 	if(req.body.type == 't') {
+		logMessage.inputType = 't';
 		const input = req.body.input;
 		if(reading == input || reading == wanakana.toKana(input)){
 			logMessage.result = 1;
@@ -528,6 +666,7 @@ const handleKanjiReviewResponse = (req, res) => {
 
 		res.json(result);
 	} else if(req.body.type == 's'){
+		logMessage.inputType = 's';
 		logMessage.result = 0;
 		for(let i = 0; i < req.body.results.length; i++){
 			let transcript = req.body.results[i];
@@ -580,6 +719,7 @@ const handleRecallReviewResponse = (req, res) => {
 	let originalText = originalFact.reading;
 	if(source != 'normal') originalText = originalFact['sentence-reading'];
 	if(source == 'full-recall' && req.body.promptType == 'audio-cloze') originalText = req.body.clozeWord;
+	if(source == 'tiered-full-recall' && req.body.promptType == 'audio-cloze') originalText = req.body.clozeWord;
 	const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
 	const preStreak = state.streak;
@@ -658,11 +798,49 @@ const handleRenderReviewRequest = (req, res, getReviewData) => {
 	const deck = getDeckFromRequest(req);
 	if(!deck) return;
 	const reviewData = getReviewData();
+	console.log('reviewData:', reviewData);
 	renderReviewOrNoReviews(res, deck.name, reviewData.id, reviewData.options);
 };
 
+const falseSet = {
+	'0': true,
+	'f': true,
+	'false': true
+};
+
+const isFlagSet = (query, val) => {
+	if(val in query){
+		return !(query[val].toLowerCase() in falseSet);
+	}
+
+	if(val.toLowerCase() in query){
+		const key = val.toLowerCase();
+		return !(query[key].toLowerCase() in falseSet);
+	}
+
+	return null;
+}
+
+const reviewQueryFlags = [
+	'noSpeech',
+	'noImage',
+	'cyclePromptTypes'
+];
+
+const getOptionsForReviewQuery = (query) => {
+	const options = {};
+
+	for(const flag of reviewQueryFlags){
+		options[flag] = isFlagSet(query, flag);
+	}
+
+	return options;
+}
+
 module.exports.init = (app) => {
 	app.get('/review', (req, res) => {
+		 console.log('query:', req.query);
+
 		const deck = getDeckFromRequest(req);
 		if(!deck) return;
 
@@ -678,15 +856,17 @@ module.exports.init = (app) => {
 
 		const expiredReviewId = deck.getExpiredReview();
 		if(expiredReviewId == null){
-			const recallReview = getRecallReview();
+			let recallReview = null;
+			if(!isFlagSet(req.query, 'skipRecall')) recallReview = getRecallReview();
 			if(deck.name == 'kanji' && recallReview) {
 				// console.log(recallReview);
-				renderReview(res, 'kanji', recallReview, { type: 2, promptType: 'audio', hideImage: true, source: 'daily-recall' });
+				renderReview(res, 'kanji', recallReview, { type: 2, promptType: 'audio', noImage: true, source: 'daily-recall' });
 			} else {
 				renderNoReviews(res, deck.name);
 			}
 		} else {
-			renderReview(res, deck.name, expiredReviewId);
+			const options = getOptionsForReviewQuery(req.query);
+			renderReview(res, deck.name, expiredReviewId, options);
 		}
 	});
 
@@ -751,8 +931,30 @@ module.exports.init = (app) => {
 			console.log(review);
 			return {
 				id: review,
-				options: { type: 2, promptType: 'audio-cloze', source: 'full-recall', hideImage: true, skipStreakUpdate: true, randomWord: true }
-				// options: { type: 2, promptType: 'audio', source: 'full-recall', hideImage: true, skipStreakUpdate: true, randomWord: true }
+				options: { type: 2, promptType: 'audio-cloze', source: 'full-recall', noImage: true, skipStreakUpdate: true, randomWord: true }
+			};
+		});
+	});
+
+	app.get('/tiered-full-recall-review', (req, res) => {
+		handleRenderReviewRequest(req, res, () => {
+			const options = {};
+			if(req.query.count) options.count = parseInt(req.query.count);
+			const review = getTieredFullRecallReview(options);
+			if(req.query.maxWords) review.maxWords = parseInt(req.query.maxWords);
+			console.log('tiered-full-recall review:', review);
+			return {
+				id: review ? review.id : null,
+				options: { 
+					type: 2, 
+					promptType: 'audio-cloze', 
+					source: 'tiered-full-recall', 
+					noImage: true, 
+					skipStreakUpdate: true, 
+					randomWord: true, 
+					maxRandomWords: review ? review.maxWords : null,
+					remainingToday: review ? review.remainingToday : null
+				}
 			};
 		});
 	});
@@ -793,6 +995,9 @@ module.exports.init = (app) => {
 		if(deck){
 			const id = req.body.id;
 			if(id){
+				const fact = deck.find(id);
+				const state = deck.findState(id);
+				reviewLogging.log({ type: 'delete-fact', fact: fact, state: state });
 				deck.delete(id);
 			}
 			res.send('done');	

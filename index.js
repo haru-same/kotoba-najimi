@@ -134,6 +134,26 @@ app.get('/render-furigana', (req, res) => {
 	res.send(furiganaHtml);
 });
 
+const frequencyTable = JSON.parse(fs.readFileSync('cache/frequencies.json'));
+const getFrequency = (text) => {
+	const freqs = [];
+	for(var i = 0; i < text.length; i++){
+		const key = text.substring(0, i+1);
+		if(frequencyTable[key]){
+			const f = frequencyTable[key];
+			if(f >= 100) freqs.push('H');
+			else freqs.push(f);
+		} else {
+			freqs.push('L');
+		}
+	}
+	return freqs.join(' / ');
+};
+
+app.get('/frequency', (req, res) => {
+	res.send(getFrequency(req.query.text));
+});
+
 io.on('connection', function (socket) {
 	console.log('socket connected');
 

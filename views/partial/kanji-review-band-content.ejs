@@ -26,5 +26,5 @@
 <% if(options.onlyKanji){ %>
 <div id="continue" class="band" style="display: none; font-style: italic; text-align: center; font-size: 2em"><%= fact.type == 1 ? fact.context : fact.sentence %><br>Do you know the meaning of this Kanji? <br> <button id="meaning-0" style="font-size: 1em">No</button><button id="meaning-1"  style="font-size: 1em">Yes</button></div>
 <% } else { %>
-<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
+<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= options.remainingToday || reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 <% } %>
