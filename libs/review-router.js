@@ -220,10 +220,10 @@ const getTieredFullRecallReview = (options) => {
 
 			if(!(item.message.id in streaks)){
 				streaks[item.message.id] = -2;
-			} else if(item.message.score > 0.99){
-				streaks[item.message.id]++;
+			} else if(item.message.score < 0.99 && item.message.tries == "0"){
+				streaks[item.message.id]--;
 			} else {
-				streaks[item.message.id] = -1;
+				streaks[item.message.id]++;
 			}
 		}
 	}
@@ -454,11 +454,14 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 	let type = reviewData.fact.type;
 
-	if((reviewData.fact.type == 1 || reviewData.fact.type == 3) && reviewData.state.streak > 2 && util.mod(reviewData.state.streak - 1, 4) == 0){
+	if((reviewData.fact.type == 1 || reviewData.fact.type == 3) && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
 		reviewData.options.onlyKanji = true;
 		reviewData.options.noImage = true;
+		reviewData.options.useTextInput = true;
+		reviewData.options.useCloze = false;
 		type = 1;
 	}
+	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.options);
 
 	if(options.type) type = options.type;
 	console.log("type:" + type);
@@ -480,9 +483,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	case 1:
 		condition = reviewData.state.condition;
 
-		if(options.cyclePromptTypes){
-			condition = util.mod(reviewData.fact.id.hashCode() + reviewData.state.streak, 3);
-			console.log('cycled silent condition: ', condition, ';', reviewData.fact.id.hashCode(), ',', reviewData.state.streak);
+		if(options.cyclePromptTypes && !reviewData.options.onlyKanji){
+			condition = util.mod(condition + reviewData.state.streak, 3);
+			console.log('cycled silent condition: ', condition, ';x', reviewData.fact.id.hashCode(), 'x,', reviewData.state.streak);
 		}
 
 		if(options.noSpeech && condition == 1) {
@@ -492,14 +495,14 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 		switch (condition){
 			case 0:
-				reviewData.options.useTextInput = true;
+				reviewData.options.useTextInput = reviewData.options.useTextInput || true;
 				break;
 			case 1:
-				reviewData.options.useTextInput = false;
+				reviewData.options.useTextInput = reviewData.options.useTextInput || false;
 				break;
 			case 2:
-				reviewData.options.useTextInput = true;
-				reviewData.options.useCloze = true;
+				reviewData.options.useTextInput = reviewData.options.useTextInput || true;
+				reviewData.options.useCloze = reviewData.options.useCloze == null ? true : reviewData.options.useCloze;
 				break;
 		}
 
@@ -558,7 +561,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
 
 		if(options.cyclePromptTypes) {
-			condition = util.mod(reviewData.fact.id.hashCode() + reviewData.state.streak, 3);
+			condition = util.mod(condition + reviewData.state.streak, 3);
 			if(condition == 0 && !reviewData.fact.audio) condition = 2;
 			console.log('cycled audio condition is ', condition);
 		}
@@ -669,7 +672,8 @@ const handleKanjiReviewResponse = (req, res) => {
 		logMessage.inputType = 's';
 		logMessage.result = 0;
 		for(let i = 0; i < req.body.results.length; i++){
-			let transcript = req.body.results[i];
+			let transcript = req.body.results[i].replace(/ /g, '');
+			console.log('t', i, ':', transcript, original, '; ', reading, '; ', transcript == reading);
 			if(transcript == original || transcript == reading){
 				logMessage.result = 1;
 				result.correct = 1;
@@ -949,6 +953,7 @@ module.exports.init = (app) => {
 					type: 2, 
 					promptType: 'audio-cloze', 
 					source: 'tiered-full-recall', 
+					tries: 1,
 					noImage: true, 
 					skipStreakUpdate: true, 
 					randomWord: true, 

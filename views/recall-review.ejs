@@ -6,6 +6,7 @@ options.giveFeedback = options.giveFeedback || options.promptType == 'audio-cloz
 
 let tries = 0;
 if(options.promptType == 'audio-cloze') tries = 1;
+if(options.tries != null) tries = options.tries;
 
 if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 %>

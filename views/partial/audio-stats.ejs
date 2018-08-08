@@ -180,6 +180,8 @@ for(const id in facts){
 
 // console.log(audioCards);
 
+const startDate = new Date("July 20, 2018 01:00:00");
+
 const learnedReading = {};
 const forgotReading = {};
 const learnedMeaning = {};
@@ -313,6 +315,7 @@ for(const logEntry of reviewLogs){
 	const isTraining = logEntry.message.type == 'kanji' || isClozeRecall;
 	const result = logEntry.message.result == 1 || logEntry.message.score == 1 ? 1 : 0;
 
+	if(!logEntry.message.time || parseInt(logEntry.message.time) < startDate.getTime()) continue;
 	// if(logEntry.message.source == 'full-recall') continue;
 
 	if(isTraining){
@@ -494,6 +497,7 @@ for(const key in staticCounts) {
 	staticCountsTable.push(row);
 }
 %>
+<div>Start date: <%= startDate %></div>
 <table>
 	<% for(const row of streakCountsTable){%>
 	<tr>
