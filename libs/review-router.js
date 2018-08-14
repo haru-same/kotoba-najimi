@@ -671,10 +671,13 @@ const handleKanjiReviewResponse = (req, res) => {
 	} else if(req.body.type == 's'){
 		logMessage.inputType = 's';
 		logMessage.result = 0;
+		const originalHiragana = wanakana._katakanaToHiragana(original);
+		const readingHiragana = wanakana._katakanaToHiragana(reading);
 		for(let i = 0; i < req.body.results.length; i++){
 			let transcript = req.body.results[i].replace(/ /g, '');
 			console.log('t', i, ':', transcript, original, '; ', reading, '; ', transcript == reading);
-			if(transcript == original || transcript == reading){
+			transcriptHiragana = wanakana._katakanaToHiragana(transcript);
+			if(transcript == original || transcript == reading || transcriptHiragana == originalHiragana || transcriptHiragana == readingHiragana){
 				logMessage.result = 1;
 				result.correct = 1;
 				setUpdatedDue(state, 1);
