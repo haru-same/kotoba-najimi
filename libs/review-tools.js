@@ -1,4 +1,5 @@
 const ed = require('edit-distance');
+const wanakana = require('./wanakana');
 
 const ignore = "、…。！？～";
 const _levInsert = (node) => { return 1; };
@@ -29,6 +30,21 @@ module.exports.scoreReview = (original, input) => {
 	}
 
 	return { pairs: pairs, score: correctCount / totalCount };
+};
+
+module.exports.scoreSpeechReview = (original, reading, speechResults) => {
+	const originalHiragana = wanakana._katakanaToHiragana(original);
+	const readingHiragana = wanakana._katakanaToHiragana(reading);
+	for(let i = 0; i < speechResults.length; i++){
+		let transcript = speechResults[i].replace(/ /g, '');
+		console.log('t', i, ':', transcript, "; original:", original, '; reading:', reading, '; ', transcript == reading || transcript == original);
+		transcriptHiragana = wanakana._katakanaToHiragana(transcript);
+		if(transcript == original || transcript == reading || transcriptHiragana == originalHiragana || transcriptHiragana == readingHiragana){
+			return { score: 1 };
+		}
+	}
+
+	return { score: 0 };
 };
 
 module.exports.streakToInterval = (streak) => {

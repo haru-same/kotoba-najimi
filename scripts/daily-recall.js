@@ -4,13 +4,16 @@ const decks = require('../libs/review-data');
 
 const averageRecallLengths = (arr) => {
 	let sum = 0;
-	for(const review of arr) sum += review.message.input.length;
+	for(const review of arr) sum += review.message.input.replace(/ /g,'').length;
 	return sum / arr.length;
 };
 
 const averageRecallCorrect = (arr) => {
 	let sum = 0;
-	for(const review of arr) sum += review.message.score * facts[review.message.id].sentence.length;
+	for(const review of arr) {
+		if(facts[review.message.id])
+			sum += review.message.score * facts[review.message.id].sentence.length;
+	}
 	return sum / arr.length;
 };
 

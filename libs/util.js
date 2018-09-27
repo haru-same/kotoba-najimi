@@ -25,6 +25,11 @@ module.exports.mod = (n, m) => {
 	return ((n % m) + m) % m;
 }
 
+module.exports.isTrueString = (s) => {
+	s = s.toLowerCase();
+	return s == 't' || s == 'true' || s == '1';
+}
+
 String.prototype.hashCode = () => {
 	let hash = 0, i, chr;
 	if (this.length === 0) return hash;

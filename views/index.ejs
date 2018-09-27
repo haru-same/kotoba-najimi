@@ -1,7 +1,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <head>
 	<script src="/js/jquery-3.2.1.min.js"></script>
-	<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
 	<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
 	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
 	<script type="text/javascript" src="/js/mobile-check.js"></script>
@@ -227,6 +227,24 @@
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata ? textData.metadata.voice : 'NULL'})`, (reading) => {
 						$.post('/create-cloze-fact', { sentence: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+							console.log(res);
+						});
+					});
+        			break;
+        		// e key 
+        		case 101:
+        			console.log('did is: ', currentDid);
+        			if(!currentDid) break;
+        			if(!currentWord) break;
+					textData = idToData[currentDid];
+					console.log('word found', currentWord);
+					if(!textData || !textData.metadata.voice) break;
+					text = textData.text.replace(/\n/g, '');
+					console.log('text data with voice found', textData);
+
+					let inputWord = prompt(`Phrase for:\n\n${text}`, currentWord);
+					getVerifiedPronunciation(inputWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${inputWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
+						$.post('/create-respeak-fact', { text: text, metadata: textData.metadata, reading: reading, word: inputWord }, (res) => {
 							console.log(res);
 						});
 					});

@@ -1,8 +1,11 @@
 <div id="begin-band" class="band" style="text-align:center; font-size: 2rem">
 	<button id="begin-input" style="text-align:center; font-size: 2rem"><i class="fas fa-play"></i></button>
 </div>
+<% if(options.useSpeechInput) { %>
+<div class="band response-input"  style="text-align:center; font-size: 2rem"><button id="mic-button" style="text-align:center; font-size: 2rem"><i class="fa fa-microphone" aria-hidden="true"></i></button> 	&nbsp;	&nbsp;	&nbsp;	&nbsp;<span id="speech-out"></span></div>
+<% } else { %>
 <input
-	class="band" 
+	class="band response-input" 
 	id="reading-input-<%= Math.random() %>" 
 	name="" 
 	style="text-align:center; font-size: 2rem"
@@ -12,6 +15,7 @@
 	autocomplete="false"
 	spellcheck="false"
 />
+<% } %>
 <div id="output-text" class="band" style="text-align:center; font-size: 2rem"></div>
 <div id="answer-text-container" class="band" style="display:none; text-align:center; font-size: 2rem""><%- furiganaHtml %><br><button id="post-play-button"><i class="fas fa-volume-up"></i></button></div>
 <div class="error"></div>

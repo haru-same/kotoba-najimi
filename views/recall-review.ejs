@@ -17,6 +17,9 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 	<%- include('partial/head') %>
 	<link rel="stylesheet" type="text/css" href="/css/review.css">
 
+	<script src="/js/speech-recognizer.js"></script>
+	<script src="/js/text-selection.js"></script>
+
 	<link rel="apple-touch-icon" sizes="120x120" href="/icons/joshua-dot/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/icons/joshua-dot/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="/icons/joshua-dot/favicon-16x16.png">
@@ -44,7 +47,16 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 		const SubmitInput = 2;
 		const AwaitingAudioState = 3;
 		const DoneState = 4;
+		const BeginSpeech = 5;
+		const AwaitingSpeech = 6;
+		const AfterBeginInput = <%= options.useSpeechInput ? 'BeginSpeech' : 'BeginInput' %>;
 		const ignore = "、…。！？～";
+
+		let chunks = [];
+		let chunkIndex = 0;
+		<% if(options.chunks) { %>
+		chunks = <%- JSON.stringify(options.chunks) %>;
+		<% } %>
 
 		let setCorrectColor = () => {
 			$("body").css('background-color', 'lightgreen');
@@ -105,28 +117,101 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 			});
 		};
 
+		const renderFurigana = () => {
+			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
+				$('.response-input').hide();
+				$('#output-text').show();
+				$("#output-text").html(res);
+				state = DoneState;
+			});
+		};
+
+		const startRecording = () => {
+			speechRecognizer.setTargetPhrase('<%= fact.word %>');
+			speechRecognizer.startRecording(() => { 
+				console.log('end');
+				console.log({ id: targetId, type: 's', results: results });
+				const outResults = [];
+				for(let i = 0; i < results.length; i++){
+					outResults.push(results[i].transcript);
+				}
+
+				const reviewData =  { 
+	    			deck: '<%= deck %>', 
+	    			id: targetId,
+	    			scoreType: 'speech',
+	    			speechResults: outResults,
+	    			original: originalText, 
+	    			word: '<%= fact.word %>',
+	    			reading: '<%= fact.reading %>',
+	    			duration: new Date().getTime() - start, 
+	    			debug: <%= debug %>, 
+	    			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
+	    			promptType: '<%= options.promptType %>',
+	    			source: '<%= options.source || 'normal' %>',
+	    			clozeWord: '<%= options.clozeWord %>',
+	    			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
+	    			tries: tries
+	    		};
+
+				$.post('/review', reviewData, (res) => {
+					if(res.score >= 0.99) setCorrectColor();
+					else setWrongColor();
+
+					$("#speech-out").toggleClass('partial', false);
+					$("#mic-button").toggleClass('recording', false);
+					if(res.score == 0){
+						$("#mic-button").attr('disabled', false);
+					}
+
+					if(res.hasTries){
+						$('input').attr('disabled', false);
+						$('input').focus();
+						$('input').select();
+						state = BeginSpeech;
+					} else {
+						$("#continue").show();
+						renderFurigana();
+					}
+					tries--;
+				});
+			});
+		};
+
 		const stateEnterHandlers = [
 			() => { // beginInput
-				<% if(options.promptType != 'text') {%>
+				<% if(options.promptType == 'text') {%>
+				$("#original-text").hide();
+				$("#begin-band").hide();
+				$('.response-input').show();
+				$('.response-input').focus();
+
+				state = AfterBeginInput;		
+				<% } else if(options.promptType == 'word-by-word') { %>
+				if(chunkIndex < chunks.length){
+					$("#original-text-container").html(chunks[chunkIndex]);
+					chunkIndex++;
+				} else {
+					$("#begin-band").hide();
+					$("#original-text").hide();
+					$("#blanked-text").show();
+					$('.response-input').show();
+					$('.response-input').focus();
+					state = AfterBeginInput;
+				}
+				<% } else { %>
 				state = AwaitingAudioState;
-				var audio = new Audio('/audio/<%- fact.audio %>');
+				const audio = new Audio('/audio/<%- fact.audio %>');
 				$("#begin-band").hide();
 				audio.addEventListener("ended", function(){
 					$("#original-text").hide();
 					$("#blanked-text").show();
-					$('input').show();
-					$('input').focus();
+					$('.response-input').show();
+					$('.response-input').focus();
 
-					state = BeginInput;
+					state = AfterBeginInput;
 				});
 				audio.play();
-				<% } else { %>
-				$("#original-text").hide();
-				$("#begin-band").hide();
-				$('input').show();
-				$('input').focus();
-
-				state = BeginInput;
 				<% } %>
 			},
 			() => { // submitInput
@@ -150,15 +235,6 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 	        			clozeWord: '<%= options.clozeWord %>',
 	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
 	        			tries: tries
-	        		};
-
-	        		const renderFurigana = () => {
-	        			$.get('/render-furigana', { text: '<%= fact.word %>', reading: '<%= fact.reading %>' }, (res) => {
-							$('input').hide();
-							$('#output-text').show();
-							$("#output-text").html(res);
-							state = DoneState;
-						});
 	        		};
 
 	        		const postReview = () => {
@@ -208,32 +284,44 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 			},
 			() => {
 				location.reload();
+			},
+			() => {
+				startRecording();
+				state = AwaitingSpeech;
+			},
+			() => {
+
 			}
 		];
 
-		$(document).ready(() => {
-			<% if(options.randomWord && !fact['sentence-chunks']) { %>
-			$.get('/sentence-chunks', { text: '<%= fact['sentence-reading'] %>' }, (res) => {
+		const updateSentenceChunks = () => {
+			$.get('/sentence-chunks', { text: '<%= fact['sentence-reading'] %>', id: targetId }, (res) => {
 				let chunks = prompt('<%= fact.sentence %>\nEnter the chunks for this sentence:', res);
 				if (chunks == null || chunks == "") {
 					console.log("canceled reading input");
-					location.reload();
 				} else {
 					$.post('/sentence-chunks', { id: targetId, sentenceChunks: chunks }, () => {
 	    				location.reload();
 	    			});
 				}
 			});
+		};
+
+		$(document).ready(() => {
+			<% if(options.requireChunks && !fact['sentence-chunks']) { %>
+			updateSentenceChunks();
 			<% } %>
+
+			$("#update-sentence-chunks").click(updateSentenceChunks);
 
 			const textInput = document.querySelector('input');
 			wanakana.bind(textInput);
-			$('input').hide();
+			$('.response-input').hide();
 			$('#output-text').hide();
 
 			$(document).keypress((e) => {
 	        	console.log(e.which);
-	        	if(e.which == 13) {
+	        	if(e.which == 13 || e.which == 32) {
 	        		stateEnterHandlers[state]();
 				}
 			});
@@ -242,23 +330,33 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 				stateEnterHandlers[state]();
 			});
 
-			$("#delete-review").click(() => {
-				if(confirm("Are you sure you want to delete this?")){
-					$.post('/delete-review', { deck: '<%= deck %>', id: targetId }, () => {
-						location.reload();
-					});
-				}
+
+			$("#mic-button").click(() => {
+				if(new Date().getTime() - start > 5 * 60 * 1000) start = new Date().getTime();
+				
+				startRecording();
 			});
 
-			$("#post-play-button").click(() => {
-				const audio = new Audio('/audio/<%- fact.audio %>');
-				audio.play();
+			console.log('sel tools hook');
+			selectionToolsReady((selectionTools) => {
+				console.log(selectionTools);
+				selectionTools.html("<button id='create-respeak-button'><%= deck == 'respeak' ? '✎' : '+' %>respeak</button>");
+
+				$('#create-respeak-button').click(() => { 
+			        let inputPhrase = prompt("Target for:\n<%= fact.sentence || fact.context %>", window.getSelection().toString());
+			        if(!inputPhrase) return;
+			        $.get('/furigana?text=' + inputPhrase, (reading) => {
+			        	let inputReading = prompt("Reading for:\n" + inputPhrase, reading);
+			        	if(!inputReading) return;
+			        	const route = '<%= deck == 'respeak' ? '/update-respeak-fact' : '/create-respeak-fact' %>';
+			        	$.post(route,  { word: inputPhrase, deck: "<%= deck %>", reading: inputReading, id: targetId }, (res) => {
+				        	console.log(res);
+				        });
+			        });
+			    });
 			});
 
-			$(".post-play-button").click(() => {
-				const audio = new Audio('/audio/<%- fact.audio %>');
-				audio.play();
-			});
+			// $("#continue").show();
 		});
 	</script>
 </head>

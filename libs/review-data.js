@@ -24,6 +24,12 @@ TYPE_TO_TEMPLATE[AUDIO_WORD_TYPE] = {
 	audio: String
 };
 
+const RESPEAK_TYPE = 4;
+TYPE_TO_TEMPLATE[RESPEAK_TYPE] = {
+	word: String,
+	reading: String
+};
+
 const decks = {};
 module.exports.getDeck = (deckName) => {
 	if(!decks[deckName]){
@@ -61,3 +67,4 @@ module.exports.createFact = (deckName, type, data) => {
 module.exports.KANJI_TYPE = KANJI_TYPE;
 module.exports.AUDIO_SENTENCE_TYPE = AUDIO_SENTENCE_TYPE;
 module.exports.AUDIO_WORD_TYPE = AUDIO_WORD_TYPE;
+module.exports.RESPEAK_TYPE = RESPEAK_TYPE;

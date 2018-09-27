@@ -5,7 +5,7 @@
 	<br>
 	<%- include('recall-review-response') %>
 
-	<div id="continue" class="band" style="display: none; font-style: italic; text-align: center">Press enter or click to continue... (<%= reviewProgress.nowReviews %> remaining) <button id="delete-review">delete</button> <button class="post-play-button"><i class="fas fa-volume-up"></i></button></div>
+	<%- include('continue-band', { reviewProgress: reviewProgress }) %>
 </div>
 
 <%- include('review-image') %>

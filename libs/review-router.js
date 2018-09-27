@@ -35,7 +35,14 @@ const DECK_TO_ICON = {
 
 const setUpdatedDue = (state, result) => {
 	if(result == 1){
-		state.streak++;
+		if(state["disable-reset"] && state.streak > 0) {
+			if(state["max-streak"] == null) state["max-streak"] = -1;
+			if(state.streak > state["max-streak"]) state["max-streak"] = state.streak;
+			state["max-streak"]++;
+			state.streak = state["max-streak"];
+		} else {
+			state.streak++;
+		}
 	} else if(result == -1) {
 		state.streak = -1;
 	} else {
@@ -415,6 +422,45 @@ const getImageCondition = () => {
 	return util.randomInt(2);
 }
 
+const setRandomCloze = (reviewData) => {
+	if(reviewData.options.maxRandomWords){
+		const available = reviewData.fact['sentence-chunks'].split(' ');
+		let index = util.randomInt(available.length);
+		index = Math.max(0, Math.min(available.length - reviewData.options.maxRandomWords, index));
+		const length = Math.min(available.length, reviewData.options.maxRandomWords);
+		const words = [];
+
+		reviewData.options.reviewPrompt = "";
+		for(let i = 0; i < index; i++){
+			reviewData.options.reviewPrompt += available[i] + " ";
+		}
+
+		for(let i = index; i < index + length; i++) {
+			words.push(available[i]);
+			reviewData.options.reviewPrompt += "____ ";
+		}
+
+		for(let i = index + length; i < available.length; i++){
+			reviewData.options.reviewPrompt += available[i] + " ";
+		}
+
+		const randomWord = words.join(' ');
+		reviewData.options.clozeWord = randomWord;
+		reviewData.fact.word = randomWord;
+		reviewData.fact.reading = randomWord;
+		reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
+		console.log('random words:', reviewData.options.maxRandomWords, available, randomWord, reviewData.options.randomWord);
+	} else {
+		const available = reviewData.fact['sentence-chunks'].split(' ');
+		const randomWord = util.randomFromArray(available);
+		reviewData.options.clozeWord = randomWord;
+		reviewData.fact.word = randomWord;
+		reviewData.fact.reading = randomWord;
+		reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
+		console.log(available, reviewData.options.randomWord);
+	}
+}
+
 const renderReview = (res, deckName, id, options, debugData) => {
 	const deck = decks.getDeck(deckName);
 	if(!deck) {
@@ -424,6 +470,20 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 	const reviewData = { };
 	reviewData.fact = deck.find(id);
+
+	if(reviewData.fact['linked-fact']){
+		const split = reviewData.fact['linked-fact'].split(':');
+		const linkedDeckName = split[0];
+		const linkedId = split[1];
+		const linkedDeck = decks.getDeck('kanji');
+		const linkedFact = linkedDeck.find(linkedId);
+		for(const propName in linkedFact){
+			if(!reviewData.fact[propName]){
+				reviewData.fact[propName] = linkedFact[propName];
+			}
+		}
+	}
+
 	if(!reviewData.fact){
 		res.send("fact not found: " + id);
 		return;
@@ -432,10 +492,10 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.deck = deckName;
 	reviewData.state = deck.findState(id);
 
-	if(reviewData.fact.image && !('image-condition' in reviewData.state)){
-		reviewData.state['image-condition'] = getImageCondition();
-		deck.updateState(reviewData.state);
-	}
+	// if(reviewData.fact.image && !('image-condition' in reviewData.state)){
+	// 	reviewData.state['image-condition'] = getImageCondition();
+	// 	deck.updateState(reviewData.state);
+	// }
 
 	for(const key in debugData){
 		const split = key.split('__');
@@ -452,9 +512,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	options = options || {};
 	reviewData.options = options;
 
-	let type = reviewData.fact.type;
+	let type = options.type == null ? reviewData.fact.type : options.type;
 
-	if((reviewData.fact.type == 1 || reviewData.fact.type == 3) && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
+	if((type == 1 || type == 3) && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
 		reviewData.options.onlyKanji = true;
 		reviewData.options.noImage = true;
 		reviewData.options.useTextInput = true;
@@ -462,8 +522,6 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		type = 1;
 	}
 	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.options);
-
-	if(options.type) type = options.type;
 	console.log("type:" + type);
 
 	// console.log(reviewData.fact);
@@ -478,13 +536,24 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	}
 	reviewData.furiganaHtml = furiganaHtml;
 
+	if(reviewData.fact['sentence-chunks']){
+		reviewData.options.chunks = reviewData.fact['sentence-chunks'].split(' ');
+
+		if(reviewData.options.randomWord){
+			setRandomCloze(reviewData);
+		}
+	}
+
 	let condition = 0;
 	switch(type){
+	case 0:
+		res.render('recall-review', reviewData);
 	case 1:
 		condition = reviewData.state.condition;
 
 		if(options.cyclePromptTypes && !reviewData.options.onlyKanji){
-			condition = util.mod(condition + reviewData.state.streak, 3);
+			const maxStreak = reviewData.state['max-streak'] || 0;
+			condition = util.mod(condition + reviewData.state.streak + maxStreak, 3);
 			console.log('cycled silent condition: ', condition, ';x', reviewData.fact.id.hashCode(), 'x,', reviewData.state.streak);
 		}
 
@@ -513,45 +582,6 @@ const renderReview = (res, deckName, id, options, debugData) => {
 			reviewData.options.promptType = reviewData.state.condition == 0 ? 'text' : 'audio';
 		}
 
-		if(reviewData.options.randomWord && reviewData.fact['sentence-chunks']){
-			if(reviewData.options.maxRandomWords){
-				const available = reviewData.fact['sentence-chunks'].split(' ');
-				let index = util.randomInt(available.length);
-				index = Math.max(0, Math.min(available.length - reviewData.options.maxRandomWords, index));
-				const length = Math.min(available.length, reviewData.options.maxRandomWords);
-				const words = [];
-
-				reviewData.options.reviewPrompt = "";
-				for(let i = 0; i < index; i++){
-					reviewData.options.reviewPrompt += available[i] + " ";
-				}
-
-				for(let i = index; i < index + length; i++) {
-					words.push(available[i]);
-					reviewData.options.reviewPrompt += "____ ";
-				}
-
-				for(let i = index + length; i < available.length; i++){
-					reviewData.options.reviewPrompt += available[i] + " ";
-				}
-
-				const randomWord = words.join(' ');
-				reviewData.options.clozeWord = randomWord;
-				reviewData.fact.word = randomWord;
-				reviewData.fact.reading = randomWord;
-				reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
-				console.log('random words:', reviewData.options.maxRandomWords, available, randomWord, reviewData.options.randomWord);
-			} else {
-				const available = reviewData.fact['sentence-chunks'].split(' ');
-				const randomWord = util.randomFromArray(available);
-				reviewData.options.clozeWord = randomWord;
-				reviewData.fact.word = randomWord;
-				reviewData.fact.reading = randomWord;
-				reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
-				console.log(available, reviewData.options.randomWord);
-			}
-		}
-
 		res.render('recall-review', reviewData);
 		break;
 	case 3:
@@ -561,7 +591,8 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
 
 		if(options.cyclePromptTypes) {
-			condition = util.mod(condition + reviewData.state.streak, 3);
+			const maxStreak = reviewData.state['max-streak'] || 0;
+			condition = util.mod(condition + reviewData.state.streak + maxStreak, 3);
 			if(condition == 0 && !reviewData.fact.audio) condition = 2;
 			console.log('cycled audio condition is ', condition);
 		}
@@ -607,6 +638,12 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		} else {
 			res.render('inverted-cloze-review', reviewData);
 		}
+		break;
+	case 7:
+		reviewData.options.blankLength = reviewData.fact.word.length;
+		reviewData.options.promptType = 'audio-cloze';
+		reviewData.options.useSpeechInput = true;
+		res.render('recall-review', reviewData);
 		break;
 	default:
 		res.send("unhandled type: " + type);
@@ -655,7 +692,7 @@ const handleKanjiReviewResponse = (req, res) => {
 	if(req.body.type == 't') {
 		logMessage.inputType = 't';
 		const input = req.body.input;
-		if(reading == input || reading == wanakana.toKana(input)){
+		if(reading == input || wanakana._katakanaToHiragana(reading) == wanakana.toKana(input)){
 			logMessage.result = 1;
 			result.correct = 1;
 			setUpdatedDue(state, 1);
@@ -709,10 +746,9 @@ const handleKanjiReviewResponse = (req, res) => {
 
 const handleRecallReviewResponse = (req, res) => {
 	const deck = decks.getDeck(req.body.deck);
-
-	const input = req.body.input.replace(/ /g,'');
 	let originalFact = deck.find('id', req.body.id);
 	if(!originalFact){
+		const input = req.body.input.replace(/ /g,'');
 		const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
 		const testScoreInfo = reviewTools.scoreReview(testOriginal, input);
 		testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.body.id + "]. No data recorded.";
@@ -727,10 +763,22 @@ const handleRecallReviewResponse = (req, res) => {
 	if(source != 'normal') originalText = originalFact['sentence-reading'];
 	if(source == 'full-recall' && req.body.promptType == 'audio-cloze') originalText = req.body.clozeWord;
 	if(source == 'tiered-full-recall' && req.body.promptType == 'audio-cloze') originalText = req.body.clozeWord;
-	const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
 	const state = deck.findState('id', req.body.id);
 	const preStreak = state.streak;
-	const scoreInfo = reviewTools.scoreReview(original, input);
+
+	let scoreInfo = null;
+	let responseInput = null;
+	if(req.body.scoreType == 'speech'){
+		const word = req.body.word || originalFact.word;
+		const reading = req.body.reading || originalFact.reading;
+		scoreInfo = reviewTools.scoreSpeechReview(word, reading, req.body.speechResults);
+		responseInput = req.body.speechResults[0];
+	} else {
+		const original = wanakana._katakanaToHiragana(originalText).replace(/ /g,'');
+		const input = req.body.input.replace(/ /g,'');
+		scoreInfo = reviewTools.scoreReview(original, input);
+		responseInput = input;
+	}
 	
 	let doUpdateDue = true;
 	if(req.body.skipStreakUpdate == 'true') {
@@ -767,7 +815,7 @@ const handleRecallReviewResponse = (req, res) => {
 			type: "recall", 
 			condition: state.condition,
 			promptType: req.body.promptType,
-			input: req.body.input, 
+			input: responseInput, 
 			score: scoreInfo.score, 
 			duration: parseInt(req.body.duration),
 			streak: preStreak,
@@ -783,6 +831,7 @@ const handleRecallReviewResponse = (req, res) => {
 const getDeckFromRequest = (req) => {
 	let deckName = 'kanji';
 	if(req.query.deck) deckName = req.query.deck;
+	if(req.body.deck) deckName = req.body.deck;
 
 	const deck = decks.getDeck(deckName);
 	if(!deck) {
@@ -793,11 +842,11 @@ const getDeckFromRequest = (req) => {
 	return deck;
 };
 
-const renderReviewOrNoReviews = (res, deckName, id, options) => {
+const renderReviewOrNoReviews = (res, deckName, id, options, debug) => {
 	if(id == null){
 		renderNoReviews(res, deckName);
 	} else {
-		renderReview(res, deckName, id, options);
+		renderReview(res, deckName, id, options, debug);
 	}
 }
 
@@ -806,7 +855,7 @@ const handleRenderReviewRequest = (req, res, getReviewData) => {
 	if(!deck) return;
 	const reviewData = getReviewData();
 	console.log('reviewData:', reviewData);
-	renderReviewOrNoReviews(res, deck.name, reviewData.id, reviewData.options);
+	renderReviewOrNoReviews(res, deck.name, reviewData.id, reviewData.options, reviewData.debug);
 };
 
 const falseSet = {
@@ -938,7 +987,7 @@ module.exports.init = (app) => {
 			console.log(review);
 			return {
 				id: review,
-				options: { type: 2, promptType: 'audio-cloze', source: 'full-recall', noImage: true, skipStreakUpdate: true, randomWord: true }
+				options: { type: 2, promptType: 'audio-cloze', source: 'full-recall', noImage: true, skipStreakUpdate: true, randomWord: true, requireChunks: true }
 			};
 		});
 	});
@@ -971,6 +1020,59 @@ module.exports.init = (app) => {
 		res.redirect('/review?deck=recall');
 	});
 
+	app.get('/respeak-review', (req, res) => {
+		req.query.deck = req.query.deck || 'respeak';
+
+		handleRenderReviewRequest(req, res, () => {
+			const deck = getDeckFromRequest(req);
+			const expiredReviewId = deck.getExpiredReview();
+			const respeakFact = expiredReviewId ? deck.find(expiredReviewId) : {};
+			console.log('rs fact', respeakFact);
+
+			return {
+				id: respeakFact.id,
+				options: { 
+					type: 7,
+					// skipStreakUpdate: true,
+					phrase: respeakFact.phrase,
+					source: 'respeak'
+				}
+			};
+		});
+	});
+
+	app.get('/reading-speed-review', (req, res) => {
+		const deck = getDeckFromRequest(req);
+		if(!deck) return;
+
+		handleRenderReviewRequest(req, res, () => {
+			const deck = decks.getDeck("kanji");
+			const facts = deck.getAllFacts();
+			const factList = [];
+			for(const id in facts){
+				if(facts[id]['sentence-chunks']) factList.push(id);
+			}
+			const factId = util.randomFromArray(factList);
+			console.log(factId);
+
+			return {
+				id: factId,
+				options: { 
+					type: 0,
+					promptType: 'word-by-word', 
+					noImage: true, 
+					source: 'reading-speed',
+					requireChunks: true,
+					skipStreakUpdate: true, 
+					randomWord: true, 
+				},
+				debug: {
+					debug: true 
+				}
+			};
+		});
+	});
+
 	app.post('/create-kanji-fact', (req, res) => {
 		const data = req.body;
 		data.type = KanjiType;
@@ -1000,13 +1102,36 @@ module.exports.init = (app) => {
 
 	app.post('/delete-review', (req, res) => {
 		const deck = getDeckFromRequest(req, res);
+		console.log('delete', req.body, deck);
 		if(deck){
 			const id = req.body.id;
 			if(id){
+				console.log(deck);
 				const fact = deck.find(id);
 				const state = deck.findState(id);
 				reviewLogging.log({ type: 'delete-fact', fact: fact, state: state });
 				deck.delete(id);
+			}
+			res.send('done');	
+		}
+	});
+
+	app.post('/set-disable-reset', (req, res) => {
+		const deck = getDeckFromRequest(req, res);
+		if(deck){
+			const id = req.body.id;
+			if(id){
+				// const fact = deck.find(id);
+				const state = deck.findState(id);
+				const val = req.body.value == null ? !state["disable-reset"] : util.isTrueString(req.body.value);
+				if(val){
+					state["disable-reset"] = val;
+				} else {
+					delete state["disable-reset"];
+				}
+				deck.updateState(state);
+				// reviewLogging.log({ type: 'delete-fact', fact: fact, state: state });
+				// deck.delete(id);
 			}
 			res.send('done');	
 		}
@@ -1070,6 +1195,52 @@ module.exports.init = (app) => {
 		res.json({ success: true });
 	});
 
+	app.post('/create-respeak-fact', (req, res) => {
+		console.log("creating respeak fact", req.body);
+		let fact = null;
+		if(req.body.id){
+			fact = { 
+				'linked-fact': `${req.body.deck}:${req.body.id}`,
+				word: req.body.word,
+				reading: req.body.reading,
+			};
+		} else {
+			console.log("creating fact", req.body);
+			const voice = gameTools.tryStoreVoiceFile(req.body.metadata);
+			const img = gameTools.tryStoreImageFile(req.body.metadata);
+			if(!voice){
+				console.log('Audio file could not be found.');
+				res.json({ success: false, error: 'Audio file could not be found. See server log.' });
+				return;
+			}
+
+			fact = { 
+				sentence: req.body.text.replace(/\n/g, ''), 
+				word: req.body.word, 
+				reading: req.body.reading, 
+				audio: voice, 
+				image: img 
+			};
+		}
+		decks.createFact('respeak', decks.RESPEAK_TYPE, fact);
+		res.json({ success: true });
+	});
+
+	app.post('/update-respeak-fact', (req, res) => {
+		console.log('updating fact: ' + req.body.id);
+		const deck = decks.getDeck('respeak');
+		const fact = deck.find(req.body.id);
+		fact['word'] = req.body.word;
+		fact['reading'] = req.body.word;
+		deck.updateFact(fact);
+
+		const state = deck.findState(req.body.id);
+		state.streak--;
+		state.due = new Date().getTime() + 1000 * 60;
+		console.log('new due is ' + state.due);
+		deck.updateState(state);
+	});
+
 	app.get('/test-media', (req, res) => {
 		mediaserver.pipe(req, res, 'C:/Users/Gabriel Culbertson/Documents/GitHub/kotoba-najimi/public/audio/ed6sc/ch0010190368.ogg');
 	});
@@ -1103,7 +1274,7 @@ module.exports.init = (app) => {
 		reviewLogging.log(logMessage);
 
 		if(req.body.result == 0 && !req.body.skipReset){
-			resetFact('kanji', req.body.id);
+			// resetFact('kanji', req.body.id);
 		}
 		res.send('done');
 	});
@@ -1136,6 +1307,15 @@ module.exports.init = (app) => {
 	});
 
 	app.get('/sentence-chunks', (req, res) => {
+		if(req.query.id){
+			const deck = decks.getDeck("kanji");
+			const fact = deck.find(req.body.id);
+			if(fact['sentence-chunks']){
+				res.send(available.join(' ').replace( /\s\s+/g, ' '));
+				return fact['sentence-chunks'];
+			}
+		}
+
 		const tokens = jaTools.getTokensSync(req.query.text);
 		const available = [];
 		for(const t of tokens){
@@ -1157,5 +1337,17 @@ module.exports.init = (app) => {
 	app.post('/log-note', (req, res) => {
 		reviewLogging.log({ note: req.body.note });
 		res.send('done');
+	});
+
+	app.get('/edit-distance', (req, res) => {
+		if(req.query.id){
+			const deck = decks.getDeck("kanji");
+			const fact = deck.find(req.query.id);
+			req.query.input = fact['sentence-chunks'];
+			req.query.reference = fact.context || fact.sentence;
+		}
+		const testScoreInfo = reviewTools.scoreReview(req.query.reference, req.query.input);
+		testScoreInfo.error = "Not a valid fact (id missing or not found) [id: " + req.query.id + "]. No data recorded.";
+		res.json(testScoreInfo);
 	});
 };
