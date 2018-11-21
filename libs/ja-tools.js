@@ -1,6 +1,7 @@
 var kuromoji = require('kuromoji');
 var hepburn = require("hepburn");
 var EventEmitter = require('events').EventEmitter;
+const reviewTools = require("./review-tools");
 var emitter = new EventEmitter();
 
 var wanakana = require('./wanakana.js');
@@ -123,3 +124,46 @@ module.exports.getTokensSync = function(text){
 module.exports.getMinForm = function(text){
 	return getPronunciationSync(text);
 }
+
+module.exports.getAlignedWords = (ref, hyp) => {
+	ref = clean.cleanPunctuation(ref);
+	hyp = clean.cleanPunctuation(hyp);
+	console.log('ref:', ref);
+	console.log('hyp:', hyp);
+	const score = reviewTools.scoreReview(ref, hyp);
+	console.log(score);
+
+	const wordPairs = [['','']];
+	for(const pair of score.pairs){
+		console.log(pair);
+
+		if(pair[1] == null || pair[1] == ' '){
+			if(wordPairs[wordPairs.length - 1][0].length > 0){
+				wordPairs.push(['','']);
+				console.log('new pair');
+			}
+		} else {
+			wordPairs[wordPairs.length - 1][0] += pair[1];
+		}
+
+		if(pair[0] != null && pair[0] != ' '){
+			wordPairs[wordPairs.length - 1][1] += pair[0];
+		}
+	}
+
+	if(wordPairs[wordPairs.length - 1][0] == ''){
+		wordPairs.pop();
+	}
+
+	return wordPairs;
+}
+
+module.exports.splitKanjiWithReadingString = (ref, hyp) =>{
+	const wordPairs = module.exports.getAlignedWords(ref, hyp);
+	console.log(wordPairs);
+	const words = [];
+	for(const pair of wordPairs){
+		words.push(pair[1]);
+	}
+	return words;
+};

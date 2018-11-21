@@ -47,6 +47,19 @@ module.exports.scoreSpeechReview = (original, reading, speechResults) => {
 	return { score: 0 };
 };
 
+module.exports.scoreReviewWithMatching = (inputs, references) => {
+	inputs = inputs.map(i => wanakana._katakanaToHiragana(i.replace(/\s/g, '')));
+	references = references.map(i => wanakana._katakanaToHiragana(i));
+	console.log(inputs);
+	console.log(references);
+	for(const input of inputs){
+		for(const reference of references){
+			if(input == reference) return { score: 1 };
+		}
+	}
+	return { score: 0 };
+};
+
 module.exports.streakToInterval = (streak) => {
 	const minute = 1000 * 60;
 	const hour = minute * 60;
@@ -58,7 +71,9 @@ module.exports.streakToInterval = (streak) => {
 			return 0;
 		case 0:
 			return 5 * minute;
-		default:
+		case 1: case 2: case 3: case 4: case 5:
 			return day * Math.pow(2, streak - 1) - 6 * hour;
+		default:
+			return (16 + 4*(streak - 5)) * day;
 	}
 };

@@ -30,6 +30,16 @@ TYPE_TO_TEMPLATE[RESPEAK_TYPE] = {
 	reading: String
 };
 
+const VIDEO_TYPE = 5;
+TYPE_TO_TEMPLATE[VIDEO_TYPE] = {
+	sentence: String,
+	word: String, 
+	reading: String, 
+	start: Number,
+	end: Number,
+	'video-id': String
+}
+
 const decks = {};
 module.exports.getDeck = (deckName) => {
 	if(!decks[deckName]){
@@ -68,3 +78,4 @@ module.exports.KANJI_TYPE = KANJI_TYPE;
 module.exports.AUDIO_SENTENCE_TYPE = AUDIO_SENTENCE_TYPE;
 module.exports.AUDIO_WORD_TYPE = AUDIO_WORD_TYPE;
 module.exports.RESPEAK_TYPE = RESPEAK_TYPE;
+module.exports.VIDEO_TYPE = VIDEO_TYPE;

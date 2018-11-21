@@ -1,4 +1,11 @@
-const punctuation = '.,\'!?。…、！？。、';
+const punctuation = '.,\'!?。…、！？、“”"♪～';
+
+const breaks = [
+	'<br />',
+	'<br>',
+	'<br/>',
+	'<BR>'
+];
 
 const punctuationTable = {};
 for(var i in punctuation){
@@ -16,7 +23,7 @@ module.exports.punctuation = punctuation;
 module.exports.cleanPunctuation = function(text){
 	var punctuationFreeText = [];
 	// remove pronunciation
-	for(var i in text){
+	for(let i = 0; i < text.length; i++){
 		if(text[i] in punctuationTable){
 			addSpace(punctuationFreeText);
 		} else if(text[i] == ' '){
@@ -25,7 +32,7 @@ module.exports.cleanPunctuation = function(text){
 			punctuationFreeText.push(text[i]);
 		}
 	}
-	return punctuationFreeText.join('');
+	return punctuationFreeText.join('').trim();
 }
 
 module.exports.containsPunctuation = (text) => {
@@ -35,4 +42,11 @@ module.exports.containsPunctuation = (text) => {
 		} 
 	}
 	return false;
+};
+
+module.exports.replaceBreaksWithNewlines = (text) => {
+	for (const b of breaks){
+		text = text.replace(new RegExp(b, 'g'), '\n');
+	}
+	return text;
 };

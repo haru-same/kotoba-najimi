@@ -1,5 +1,5 @@
 const fs = require('fs');
-const gameConfig = require('./game-config');
+const medaiConfig = require('../media-config');
 const { spawn } = require('child_process');
 
 const audioDirectoryKey = 'audioDirectory';
@@ -13,7 +13,7 @@ let _testPfx = "";
 module.exports._setTestPrefex = (str) => { _testPfx = str; };
 
 module.exports.storeVoiceFile = (key) => {
-	const audioDir = gameConfig.getValue(gameKey, audioDirectoryKey, defaultAudioDirectory);
+	const audioDir = medaiConfig.getValue(gameKey, audioDirectoryKey, defaultAudioDirectory);
 	const filename = keyToFilename(key);
 
 	const destDir = `${serverAudioDirectory}${gameKey}`;
@@ -58,7 +58,7 @@ module.exports.storeVoiceFile = (key) => {
 
 const glob = require('glob');
 module.exports.test = (key, path) => {
-	let audioDir = gameConfig.getValue(gameKey, audioDirectoryKey, defaultAudioDirectory);
+	let audioDir = medaiConfig.getValue(gameKey, audioDirectoryKey, defaultAudioDirectory);
 	if(path) audioDir = path;
 	const filename = keyToFilename(key);
 

@@ -1,0 +1,59 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+let offset = -5;
+
+$(document).ready(() => {
+	let currentCaption = null;
+
+	$.get('/parse-srt?file=data/srt/th-s01e01-test.srt', (captions) => {
+		for (const caption of captions) {
+			caption.start += offset;
+			caption.end += offset;
+		}
+
+		console.log(captions);
+		$('#main-video').on('timeupdate', () => {
+			const currentTime = $('#main-video')[0].currentTime;
+			// console.log(currentTime);
+			let nextCaption = null;
+			for(const caption of captions){
+				console.log(caption);
+				if(caption.end > currentTime) {
+					nextCaption = caption;
+					break;
+				}
+			}
+
+			console.log(nextCaption);
+			if(currentCaption != nextCaption){
+				currentCaption = nextCaption;
+				if(currentCaption){
+					$('#captions').html(currentCaption.text);
+				} else {
+					$('#captions').html('-');
+				}
+			}
+
+			if(currentCaption){
+				$('#captions').toggleClass('light', currentTime < currentCaption.start);
+			}
+		});
+	});
+});
+	</script>
+	<style type="text/css">
+		.light{
+			opacity: 0.25;
+		}
+	</style>
+</head>
+<body>
+	<div style="text-align:center">
+		<video id="main-video" height="80%" controls>
+			<source src="/video/th-s01e01.mkv">
+			Your browser does not support the video tag.
+		</video>
+		<div id="captions" style="font-size:xx-large;"></div>
+	</div>
+</body>

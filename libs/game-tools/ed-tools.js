@@ -1,5 +1,5 @@
 const fs = require('fs');
-const gameConfig = require('./game-config');
+const mediaConfig = require('../media-config');
 
 const audioDirectoryKey = 'audioDirectory';
 const serverAudioDirectory = './public/audio/';
@@ -13,7 +13,7 @@ module.exports.EDSettings = class EDSettings {
 };
 
 module.exports.storeVoiceFile = (edSettings, key) => {
-	const audioDir = gameConfig.getValue(edSettings.gameKey, audioDirectoryKey, edSettings.defaultAudioDirectory);
+	const audioDir = mediaConfig.getValue(edSettings.gameKey, audioDirectoryKey, edSettings.defaultAudioDirectory);
 	const filename = edSettings.keyToFilename(key);
 	const destDir = `${serverAudioDirectory}${edSettings.gameKey}`;
 	const sourceFilename = `${audioDir}/${filename}`;
