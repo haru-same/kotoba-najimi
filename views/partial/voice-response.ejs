@@ -1,0 +1,55 @@
+<div id="response-content" class="card-row" style="text-align:left">
+	<div class="card-row"><i id="microphone" class="fas fa-microphone large" style="margin-left:16px; color:gray"></i><span style="display:inline-block;width:40px"></span><span id="speech-out" class="large"></span></div>
+</div>
+
+<script type="text/javascript">
+	const microphoneButtonContent = '<i class="fas fa-microphone large"></i>';
+	let results = {};
+
+	getResponsePromise = () => {
+		return new Promise((resolve) => {
+			speechRecognizer.setTargetPhrase('<%= fact.word %>');
+
+			const handleScore = (scoreInfo) => {
+				if(scoreInfo.score == 1){
+					setCorrect();
+					resolve({ info: 'typed response complete' });
+				} else {
+					setIncorrect();
+					if(tries > 0){
+						beginInput();
+					} else {
+						resolve({ info: 'typed response complete' });
+					}
+				}
+			};
+
+			const beginInput = () => {
+				$('#record-button').attr('disabled', false);
+
+				onNextContinueKeypress(microphoneButtonContent, () => {
+					$('#microphone').css('color', 'red');
+		    		speechRecognizer.startRecording(() => { 
+		    			$('#microphone').css('color', 'gray');
+						console.log({ id: targetId, results: results });
+						const outResults = [];
+						for(let i = 0; i < results.length; i++){
+							outResults.push(results[i].transcript);
+						}
+
+						postReview(outResults, handleScore);
+					});
+				});
+			}
+
+			$(document).on('review-complete', () => {
+				if(!$("#main-card").hasClass('incorrect')){
+					$('#speech-out').html('<%= fact.reading %>');
+				}
+				$('#speech-out').css('color', 'black');
+			});
+
+			beginInput();
+		});
+	};
+</script>

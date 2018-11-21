@@ -267,7 +267,7 @@
 					textData = idToData[currentDid];
 					console.log('word found', currentWord);
 					if(!textData || !textData.metadata.voice) break;
-					text = textData.text.replace(/\n/g, '');
+					text = textData.text;
 					console.log('text data with voice found', textData);
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
@@ -283,7 +283,7 @@
 				const did = $(e.target).closest('.text-chunk').attr('did');
 				console.log(did);
 				const textData = idToData[did];
-				const text = textData.text.replace(/\n/g, '');
+				const text = textData.text;
 
 				getVerifiedPronunciation(text, `Enter pronunciation for:\n${text}\n(voice: ${textData.metadata.voice})`, (reading) => {
 					$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading }, (res) => {

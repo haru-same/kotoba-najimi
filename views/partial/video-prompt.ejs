@@ -1,0 +1,54 @@
+<div id="prompt-content" class="card-row" style="text-align:left; padding-left: 8px">
+	<span id="prompt-text" class="large" style="display:none;"><%- params.promptText %></span>
+	<span id="prompt-answer" class="large" style="display:none;"><%- params.boldedFuriganaHtml %></span>
+</div>
+
+<script type="text/javascript">
+	const videoButtonContent = '<i class="fas fa-play-circle"></i>';
+	const endTime = <%- fact.end %>;
+	$('#main-video')[0].currentTime = <%= fact.start %>;
+
+	getPromptPromise = () => {
+		return new Promise((resolve) => {
+			const playPrompt = (callback) => {
+				$('#main-video')[0].currentTime = <%= fact.start %>;
+				$('#main-video').on('timeupdate', () => {
+					console.log($('#main-video')[0].currentTime, );
+					if($('#main-video')[0].currentTime > endTime) {
+						$('#main-video').off('timeupdate');
+						$('#main-video')[0].pause();
+
+						if(callback) callback();
+					}
+				});
+
+				$('#main-video')[0].play();
+			};
+
+			const playVideo = () => {
+				$('#play-button').off('click');
+				$('#play-button').attr('disabled', true);
+
+				playPrompt(() => {
+					$("#play-button").hide();
+					$("#prompt-text").show();
+
+					resolve({ info: 'video prompt complete' });
+				});
+			};
+
+			replayPrompt = playPrompt;
+
+			$('#play-button').on('click', () => {
+				playVideo();
+			});
+
+			onNextContinueKeypress(videoButtonContent, playVideo);
+
+			$(document).on("review-complete", () => {
+				$('#prompt-text').hide();
+				$('#prompt-answer').show();
+			});
+		});
+	};
+</script>

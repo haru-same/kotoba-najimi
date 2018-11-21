@@ -1,0 +1,8 @@
+<%for (const videoId in videos){%>
+<div>
+	<a href='/video?videoId=<%= videoId %>'><%= videos[videoId].title || videos[videoId].path %></a>
+</div>
+<%}%>
+<br>
+<br>
+<a href="new-video">new</a>

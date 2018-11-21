@@ -1,0 +1,17 @@
+<div id="prompt-content" class="card-row" style="text-align:left; padding-left: 8px">
+	<span id="prompt-text" class="large"><%- params.promptText.replace(/\n/g, '<br>') %></span>
+	<span id="prompt-answer" class="large" style="display:none;"><%- params.boldedFuriganaHtml %></span>
+</div>
+
+<script type="text/javascript">
+	getPromptPromise = () => {
+		return new Promise((resolve) => {
+			$(document).on("review-complete", () => {
+				$('#prompt-text').hide();
+				$('#prompt-answer').show();
+			});
+
+			resolve();
+		});
+	};
+</script>

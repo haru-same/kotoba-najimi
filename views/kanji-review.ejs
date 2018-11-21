@@ -62,7 +62,7 @@ if(options.noImage == null){
 		};
 
 		const playAudio = () => {
-			const audioId = '<%- options.onlyKanji ? '' : fact.audio %>';
+			const audioId = '<%- fact.audio || '' %>';
 			if(audioId){
 				const audio = new Audio('/audio/' + audioId);
 				audio.play();

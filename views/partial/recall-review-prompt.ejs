@@ -1,7 +1,9 @@
 <div id="original-text" class="band" style="text-align:center; font-size: 2rem">
 	<% if(options.promptType == 'audio') {%>
 	<i class="fas fa-volume-up"></i>
-	<% } else if(options.promptType == 'audio-cloze') { %>
+	<% } else if(options.promptType == 'audio-cloze' && options.showDuringPlay) { %>
+	<span id="original-text-container"><%- furiganaHtml %></span>
+	<% } else if(options.promptType == 'audio-cloze' && !options.showDuringPlay) { %>
 	__<span style="text-decoration: underline;"><i class="fas fa-volume-up"></i></span>__
 	<% } else if(options.promptType == 'text') { %>
 	<span id="original-text-container"><%- furiganaHtml %></span>

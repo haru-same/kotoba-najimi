@@ -1,0 +1,95 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+const videoId = '<%- videoId %>';
+let offset = -5;
+
+const getVerifiedPronunciation = (text, message, callback) => {
+	if(!text) {
+		console.error("Can't get pronunciation for null or empty text.");
+		return;
+	}
+
+	$.get('/furigana', { text: text }, (res) => {
+		let reading = prompt(message, res);
+		if (reading == null || reading == "") console.log("canceled reading input");
+		else callback(reading);
+	});
+};
+
+$(document).ready(() => {
+	let currentCaption = null;
+
+	$.get('/parse-srt?file=data/srt/th-s01e01-test.srt', (captions) => {
+		for (const caption of captions) {
+			caption.start += offset;
+			caption.end += offset;
+		}
+
+		console.log(captions);
+		$('#main-video').on('timeupdate', () => {
+			const currentTime = $('#main-video')[0].currentTime;
+			// console.log(currentTime);
+			let nextCaption = null;
+			for(const caption of captions){
+				console.log(caption);
+				if(caption.end > currentTime) {
+					nextCaption = caption;
+					break;
+				}
+			}
+
+			console.log(nextCaption);
+			if(currentCaption != nextCaption){
+				currentCaption = nextCaption;
+				if(currentCaption){
+					$('#captions').html(currentCaption.text);
+				} else {
+					$('#captions').html('-');
+				}
+			}
+
+			if(currentCaption){
+				$('#captions').toggleClass('light', currentTime < currentCaption.start);
+			}
+		});
+	});
+
+	$(document).keypress((e) => {
+		if(e.key == 'r'){
+			const selectedWord = window.getSelection().toString();
+			if(!currentCaption || !selectedWord){
+				return;
+			}
+			const sentence = currentCaption.text;
+			getVerifiedPronunciation(selectedWord, `${sentence}\nEnter pronunciation for:\n${selectedWord}`, (reading) => {
+				$.post('/create-video-fact', { 
+					text: sentence, 
+					reading: reading, 
+					word: selectedWord,
+					start: parseFloat(currentCaption.start),
+					end: parseFloat(currentCaption.end),
+					videoId: videoId,
+				}, (res) => {
+					console.log(res);
+				});
+			});
+		}
+	});
+});
+	</script>
+	<style type="text/css">
+		.light{
+			opacity: 0.25;
+		}
+	</style>
+</head>
+<body>
+	<div style="text-align:center">
+		<video id="main-video" height="80%" controls>
+			<source src="/video/th-s01e01.mkv">
+			Your browser does not support the video tag.
+		</video>
+		<div id="captions" style="font-size:xx-large;"></div>
+	</div>
+</body>

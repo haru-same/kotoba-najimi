@@ -1,0 +1,45 @@
+<head>
+	<script type="text/javascript">
+		// Load the IFrame Player API code asynchronously.
+		var tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/player_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		// Replace the 'ytplayer' element with an <iframe> and
+		// YouTube player after the API code downloads.
+		let player;
+		function onYouTubePlayerAPIReady() {
+			const endTime = 1452;
+			const onPlayerReady = (event) => {
+				console.log(player);
+				event.target.seekTo(1448);
+				event.target.playVideo();
+
+				let interval = null;
+				interval = setInterval(() => {
+					if(player.getCurrentTime() > endTime){
+						player.pauseVideo();
+						clearInterval(interval);
+					}
+				}, 100);
+			};
+
+			player = new YT.Player('player-div', {
+				height: '100%',
+				width: '100%',
+				videoId: 'Mrv1fsM0mrw',
+				playerVars: {
+					rel: 0
+				},
+				events: {
+		        	onReady: onPlayerReady
+		        }
+			});
+		}
+	</script>
+</head>
+<body style="padding: 0; margin: 0">
+	<div id='player-div'></div>
+	<div style="position: absolute; bottom: 10px; left: 10px; width: 100px; height: 100px; background-color: blue">a</div>
+</body>

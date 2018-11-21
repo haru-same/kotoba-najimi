@@ -1,0 +1,238 @@
+<head>
+	<title>Video</title>
+	<%- include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+
+	<script src="/js/speech-recognizer.js"></script>
+	<script src="/js/text-selection.js"></script>
+
+	<link rel="apple-touch-icon" sizes="120x120" href="/icons/joshua-dot/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icons/joshua-dot/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icons/joshua-dot/favicon-16x16.png">
+	<link rel="manifest" href="/icons/joshua-dot/site.webmanifest">
+	<link rel="mask-icon" href="/icons/joshua-dot/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/icons/joshua-dot/favicon.ico">
+	<meta name="msapplication-TileColor" content="#00a300">
+	<meta name="msapplication-config" content="/icons/joshua-dot/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<script type="text/javascript">
+const videoId = '<%- videoId %>';
+let offsets = <%- JSON.stringify(videoInfo.captions.offsets) %>;
+let currentRecommendedIndex = 0;
+let currentRecommended = null;
+let recommendedSet = {};
+
+const updateRecommended = (newRecommended) => {
+	console.log(newRecommended);
+	currentRecommendedIndex = 0;
+	currentRecommended = newRecommended;
+	recommendedSet = {};
+	for(const rec of currentRecommended){
+		recommendedSet[rec.text] = true;
+	}
+};
+
+const getVerifiedPronunciation = (text, message, callback) => {
+	if(!text) {
+		console.error("Can't get pronunciation for null or empty text.");
+		return;
+	}
+
+	$.get('/furigana', { text: text }, (res) => {
+		let reading = prompt(message, res);
+		if (reading == null || reading == "") console.log("canceled reading input");
+		else callback(reading);
+	});
+};
+
+const findGaps = (captions) => {
+	let lastCaption = null;
+	for(const caption of captions) {
+		if (lastCaption && caption.start - lastCaption.start > 60){
+			console.log('gap: ', caption.start - lastCaption.start);
+			console.log(lastCaption);
+			console.log(caption);
+		}
+		lastCaption = caption;
+	}
+}
+
+const findLastGapStart = (captions, time) => {
+	let gapStart = 0;
+
+	let lastCaption = null;
+	for(const caption of captions) {
+		if (caption.start > time) break;
+
+		if (lastCaption && caption.start - lastCaption.start > 60){
+			gapStart = lastCaption.start;
+		}
+
+		lastCaption = caption;
+	}
+	return gapStart;
+}
+
+$(document).ready(() => {
+	let currentCaptions = null;
+	let currentCaption = null;
+
+	$.get('/parse-srt?file=<%- videoInfo.captions.path %>', (captions) => {
+		currentCaptions = captions;
+
+		console.log(captions);
+		findGaps(captions);
+
+		$('#main-video').on('timeupdate', () => {
+			const currentTime = $('#main-video')[0].currentTime;
+			let offset = 0;
+			for(const offsetInfo of offsets){
+				if (currentTime < offsetInfo.start){
+					break;
+				}
+				offset = offsetInfo.offset;
+			}
+			let nextCaption = null;
+			for(const caption of captions){
+				if(caption.end + offset > currentTime) {
+					nextCaption = caption;
+					break;
+				}
+			}
+
+			if(currentCaption != nextCaption){
+				currentCaption = nextCaption;
+				if(currentCaption){
+					$('#captions').html(currentCaption.text);
+				} else {
+					$('#captions').html('-');
+				}
+			}
+
+			if(currentCaption){
+				$('#captions').toggleClass('light', currentTime < currentCaption.start + offset);
+				$('#captions').toggleClass('target', currentCaption.text in recommendedSet);
+			}
+		});
+	});
+
+	const setOffset = (offset) => {
+		console.log('updating offset: ', offset);
+		$.post('/set-video-offset', { videoId: videoId, start: 0, offset: offset }, (videoInfo) => {
+			offsets = videoInfo.captions.offsets;
+		});
+	}
+
+	const moveOffset = (start, amount) => {
+		console.log('offset: ', offsets[0].offset + amount);
+		setOffset(offsets[0].offset + amount);
+	}
+
+	$(document).keydown((e) => {
+		console.log(e.which);
+		if (e.which == 37) { // left
+			moveOffset(0, -0.5);
+		} else if (e.which == 39) { // right
+			moveOffset(0, 0.5);
+		}
+	});
+
+	$(document).keypress((e) => {
+		if(e.key == 'r'){
+			const selectedWord = window.getSelection().toString();
+			if(!currentCaption || !selectedWord){
+				return;
+			}
+			const sentence = currentCaption.text;
+			getVerifiedPronunciation(selectedWord, `${sentence}\nEnter pronunciation for:\n${selectedWord}`, (reading) => {
+				$.post('/create-video-fact', { 
+					text: sentence, 
+					reading: reading, 
+					word: selectedWord,
+					start: parseFloat(currentCaption.start),
+					end: parseFloat(currentCaption.end + 1),
+					videoId: videoId,
+				}, (res) => {
+					currentRecommended = null;
+					$.get('/recommend-captions', (rec) => {
+						updateRecommended(rec);
+					});
+
+					console.log(res);
+				});
+			});
+		}
+
+		if(e.key == '0'){
+			const currentTime = $('#main-video')[0].currentTime;
+			const offset = currentTime - currentCaptions[0].start;
+			setOffset(offset);
+		}
+	});
+
+	$("#main-video").attr('controls', true);
+
+	const seekToCaption = (text) => {
+		for (const caption of currentCaptions){
+			if(caption.text == text){
+				$('#main-video')[0].currentTime = caption.start - 0.5;
+				$('#main-video')[0].play();
+				return;
+			}
+		}
+	};
+
+	const seekInDirection = (direction) => {
+		if(!currentRecommended){
+			$.get(`/recommend-captions?videoId=${videoId}`, (rec) => {
+				updateRecommended(rec);
+				seekToCaption(currentRecommended[currentRecommendedIndex].text);
+			});
+		} else {
+			currentRecommendedIndex = currentRecommendedIndex + direction;
+			if(currentRecommendedIndex < 0) currentRecommendedIndex += currentRecommended.length;
+			if(currentRecommendedIndex >= currentRecommended.length) currentRecommendedIndex -= currentRecommended.length;
+			seekToCaption(currentRecommended[currentRecommendedIndex].text);
+		}
+	};
+
+	$('#next-recommended').click(() => {
+		seekInDirection(1);
+	});
+
+	$('#replay-recommended').click(() => {
+		seekInDirection(0);
+	});
+
+	$('#previous-recommended').click(() => {
+		seekInDirection(-1);
+	});
+});
+	</script>
+	<style type="text/css">
+		.light{
+			opacity: 0.25;
+		}
+
+		.target{
+			color: green;
+		}
+	</style>
+</head>
+<body style="text-align: center; height:100vh;width:100%;overflow: hidden;">
+	<%- include('partial/video-background', { videoInfo: videoInfo }) %>
+	
+	<div style="z-index:100;height:100%;display:flex;justify-content:center;position: relative;pointer-events: none">
+		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:800px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0; pointer-events: auto">
+			<div class="card-row large" style="text-align:center">
+				<div id="captions" style="display:inline-block;text-align: left"></div>
+			</div>
+			<div id="next-review" class="card-row" style="text-align:center">
+				<button id="previous-recommended" class="mdc-button mdc-button--raised large" style="width:30%;"><i class="fas fa-arrow-left"></i></button>
+				<button id="replay-recommended" class="mdc-button mdc-button--raised large" style="width:30%;"><i class="fas fa-sync-alt"></i></button>
+				<button id="next-recommended" class="mdc-button mdc-button--raised large" style="width:30%;"><i class="fas fa-arrow-right"></i></button>
+			</div>
+		</div>
+	</div>
+</body>

@@ -9,6 +9,13 @@ if(options.promptType == 'audio-cloze') tries = 1;
 if(options.tries != null) tries = options.tries;
 
 if(options.noImage == null) options.noImage = state['image-condition'] == 1;
+
+let scoringMethod = 'reading';
+let source = options.source || 'normal';
+if(source != 'normal') scoringMethod = 'sentence-reading';
+if(source == 'full-recall' && options.promptType == 'audio-cloze') scoringMethod = 'cloze-word';
+if(source == 'tiered-full-recall' && options.promptType == 'audio-cloze') scoringMethod = 'cloze-word';
+if(options.scoringMethod) scoringMethod = options.scoringMethod;
 %>
 <% include partial/review-progress %>
 <html>
@@ -52,10 +59,17 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 		const AfterBeginInput = <%= options.useSpeechInput ? 'BeginSpeech' : 'BeginInput' %>;
 		const ignore = "、…。！？～";
 
+		let clozeWord = '<%= options.clozeWord %>';
 		let chunks = [];
+		let chunkToReading = {};
+		let chunkReadStart = 0;
+		let chunkReadTimes = [];
 		let chunkIndex = 0;
 		<% if(options.chunks) { %>
 		chunks = <%- JSON.stringify(options.chunks) %>;
+		<% } %>
+		<% if(options.chunkToReading) { %>
+		chunkToReading = <%- JSON.stringify(options.chunkToReading) %>;
 		<% } %>
 
 		let setCorrectColor = () => {
@@ -149,7 +163,8 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 	    			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
 	    			promptType: '<%= options.promptType %>',
 	    			source: '<%= options.source || 'normal' %>',
-	    			clozeWord: '<%= options.clozeWord %>',
+	    			clozeWord: clozeWord,
+	    			scoringMethod: '<%= scoringMethod %>',
 	    			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
 	    			tries: tries
 	    		};
@@ -178,6 +193,14 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 			});
 		};
 
+		const trimFurigana = (surface, reading) => {
+			while(reading.length > 0 && reading[reading.length - 1] == surface[surface.length - 1]){
+				reading = reading.slice(0, -1);
+				surface = surface.slice(0, -1);
+			}
+			return reading;
+		};
+
 		const stateEnterHandlers = [
 			() => { // beginInput
 				<% if(options.promptType == 'text') {%>
@@ -190,13 +213,51 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 				<% } else if(options.promptType == 'word-by-word') { %>
 				if(chunkIndex < chunks.length){
 					$("#original-text-container").html(chunks[chunkIndex]);
+
+					if(chunkReadStart){
+						chunkReadTimes.push(new Date().getTime() - chunkReadStart);
+					}
+					chunkReadStart = new Date().getTime();
+
 					chunkIndex++;
 				} else {
+					chunkReadTimes.push(new Date().getTime() - chunkReadStart);
+
+					let timedWords = [];
+					let timedChunksHtml = '<ruby>';
+					for(let i = 0; i < chunks.length; i++){
+						timedChunksHtml += `<rb>&nbsp;${chunks[i]}&nbsp;</rb><rt>${chunkReadTimes[i]}</rt>`;
+						timedWords.push({ word: chunks[i], time: chunkReadTimes[i] });
+					}
+					timedChunksHtml += '</ruby>';
+					$('#answer-text-container').html(timedChunksHtml);
+					
+					timedWords.sort((a, b) => {
+						return b.time - a.time;
+					});
+					console.log(timedWords);
+					timedWords = timedWords.slice(0, 3);
+					console.log(timedWords);
+					targetWord = timedWords[Math.floor(timedWords.length * Math.random())];
+
+					let blankedTextHtml = '<ruby>';
+					for(let i = 0; i < chunks.length; i++){
+						if(chunks[i] == targetWord.word){
+							blankedTextHtml += `<rb>&nbsp;____&nbsp;</rb><rt></rt>`;
+						} else {
+							let reading = trimFurigana(chunks[i], chunkToReading[chunks[i]]);
+							blankedTextHtml += `<rb>&nbsp;${chunks[i]}&nbsp;</rb><rt style="text-align:left">&nbsp;&nbsp;${reading}</rt>`;
+						}
+					}
+					blankedTextHtml += '</ruby>';
+					$('#blanked-text').html(blankedTextHtml);
+
 					$("#begin-band").hide();
 					$("#original-text").hide();
 					$("#blanked-text").show();
 					$('.response-input').show();
 					$('.response-input').focus();
+
 					state = AfterBeginInput;
 				}
 				<% } else { %>
@@ -232,7 +293,8 @@ if(options.noImage == null) options.noImage = state['image-condition'] == 1;
 	        			type: '<%= options.promptType == 'audio-cloze' ? 'rw' : 'rs' %>',
 	        			promptType: '<%= options.promptType %>',
 	        			source: '<%= options.source || 'normal' %>',
-	        			clozeWord: '<%= options.clozeWord %>',
+	        			clozeWord: clozeWord,
+	        			scoringMethod: '<%= scoringMethod %>',
 	        			skipStreakUpdate: <%= options.skipStreakUpdate == true || options.skipStreakUpdate == 'true' %>,
 	        			tries: tries
 	        		};

@@ -1,0 +1,205 @@
+<head>
+	<% include partial/review-progress %>
+	<title>(まだ<%= params.reviewProgress.nowReviews %>枚) 繰り返すの復習</title>
+	<%- include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+
+	<script src="/js/speech-recognizer.js"></script>
+	<script src="/js/text-selection.js"></script>
+
+	<link rel="apple-touch-icon" sizes="120x120" href="/icons/joshua-dot/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/icons/joshua-dot/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/icons/joshua-dot/favicon-16x16.png">
+	<link rel="manifest" href="/icons/joshua-dot/site.webmanifest">
+	<link rel="mask-icon" href="/icons/joshua-dot/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="/icons/joshua-dot/favicon.ico">
+	<meta name="msapplication-TileColor" content="#00a300">
+	<meta name="msapplication-config" content="/icons/joshua-dot/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<script type="text/javascript">
+		const targetId = '<%= fact.id %>';
+		const originalText = '<%= fact.sentence.replace(/\n/g, ' ') %>';
+		const reviewStart = new Date().getTime();
+		let tries = <%= params.tries || 2 %>;
+		let remaining = <%= params.reviewProgress.nowReviews %>;
+
+		const nextButtonHtmlContent = `<span id="remaining-count"></span><i class="fas fa-arrow-right"></i>`;
+
+		let setCorrect = () => {
+			$("#main-card").toggleClass('correct', true);
+			$("#main-card").toggleClass('incorrect', false);
+		};
+
+		let setIncorrect = () => {
+			$("#main-card").toggleClass('correct', false);
+			$("#main-card").toggleClass('incorrect', true);
+		};
+
+		let setComplete = () => {
+			$(document).trigger("review-complete");
+			$('.before-next-review').show();
+
+			<% if(fact.audio) { %>
+			replayPrompt = () => {
+				const audio = new Audio('/audio/<%- fact.audio %>');
+				audio.addEventListener("ended", function(){
+					callback();
+				});
+				audio.play();
+			};
+			<% } %>
+
+			<% if(params.playAudioOnComplete){ %>
+			if(replayPrompt) replayPrompt();
+			<% } %>
+
+			if(replayPrompt) $("#replay").attr('disabled', false);
+
+			onNextContinueKeypress(nextButtonHtmlContent, () => {
+				location.reload();
+			});
+
+			if($("#main-card").hasClass('incorrect')){
+				remaining++;
+			}
+			$("#remaining-count").html(remaining);
+		}
+
+		const postReview = (inputs, callback) => {
+			console.log('tries--');
+			tries--;
+			const reviewData =  { 
+    			deck: '<%= deck %>', 
+    			id: targetId,
+    			inputs: inputs,
+    			references: [ '<%- fact.word %>', '<%- fact.reading %>' ],
+    			duration: new Date().getTime() - reviewStart, 
+    			promptType: '<%= params.promptType %>',
+    			source: '<%= params.source || 'default' %>',
+    			tries: tries,
+    			options: {
+    				skipLogging: <%= !!params.debug %>,
+    				skipScheduling: <%= !!params.debug %>,
+    			}
+    		};
+    		$.post('/score-review', reviewData, (res) => {
+    			callback(res);
+    		});
+		};
+
+		let continueKeypressHandler = null;
+		const onNextContinueKeypress = (buttonContent, callback) => {
+			const wrappedCallback = () => {
+				$('#continue-button').off('click', callback);
+				$('#continue-button').attr('disabled', true);
+				callback();
+			};
+
+			$('#continue-button').attr('disabled', false);
+			$('#continue-button').html(buttonContent);
+			$('#continue-button').click(wrappedCallback);
+			continueKeypressHandler = wrappedCallback;
+		};
+
+		const getDefaultPromise = () => {
+			new Promise(function(resolve) {
+				resolve();
+			});
+		};
+
+		let getPromptPromise = getDefaultPromise;
+		let getResponsePromise = getDefaultPromise;
+		let replayPrompt = null;
+
+		$(document).ready(() => {
+			keypressHandler = (e) => {
+		    	console.log(e.which);
+		    	if(e.which == 13 || e.which == 32) {
+		    		if(continueKeypressHandler){
+		    			continueKeypressHandler();
+		    			continueKeypressHandler = null;
+		    		}
+				}
+			};
+
+			$("#replay").click(() => {
+				if(replayPrompt) replayPrompt();
+			});
+
+			$(document).keypress(keypressHandler);
+
+			$("#delete-review").click(() => {
+				if(confirm("Are you sure you want to delete this?")){
+					$.post('/delete-review', { deck: '<%= deck %>', id: targetId }, () => {
+						location.reload();
+					});
+				}
+			});
+
+			$("#furigana").click((e) => {
+				if($(e.target).hasClass('on')){
+					$(e.target).toggleClass('on', false);
+					$(e.target).html('字');
+				} else {
+					$(e.target).toggleClass('on', true);
+					$(e.target).html('<ruby><rb>字</rb><rt>じ</rt></ruby>');
+				}
+			});
+
+			selectionToolsReady((selectionTools) => {
+				console.log(selectionTools);
+				selectionTools.html("<button id='create-respeak-button' class='mdc-button mdc-button--raised large' style='z-index:1000'><%= deck == 'respeak' ? '✎' : '+' %>respeak</button>");
+
+				$('#create-respeak-button').click(() => { 
+			        let inputPhrase = prompt(`Target for:\n${originalText}`, window.getSelection().toString());
+			        if(!inputPhrase) return;
+			        $.get('/furigana?text=' + inputPhrase, (reading) => {
+			        	let inputReading = prompt("Reading for:\n" + inputPhrase, reading);
+			        	if(!inputReading) return;
+			        	const route = '<%= deck == 'respeak' ? '/update-respeak-fact' : '/create-respeak-fact' %>';
+			        	$.post(route,  { word: inputPhrase, deck: "<%= deck %>", reading: inputReading, id: targetId }, (res) => {
+				        	console.log(res);
+				        });
+			        });
+			    });
+			});
+		});
+	</script>
+</head>
+<body style="text-align: center; height:100vh; overflow: hidden;">
+	<% if(params.backgroundRoute) { %>
+	<%- include(params.backgroundRoute, { videoInfo: params.videoInfo }) %>
+	<% } %>
+	<div style="z-index:100;height:100%;display:flex;justify-content:center;position:relative;">
+		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:800px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0">
+			<div class="before-next-review" class="card-row" style="text-align:right">
+				<div class="card-row">
+					<span class="before-next-review medium" style="display:none;float:left;margin:6px"><%= `${state.streak > 0 ? '+' : ''}${state.streak}` %></span>
+					<button id="furigana" class="mdc-button mdc-button--raised medium on"><ruby><rb>字</rb><rt>じ</rt></ruby></button>
+					<button id="replay" class="mdc-button mdc-button--raised medium" disabled><i class="fas fa-volume-up"></i></button>
+					<button id="delete-review" class="mdc-button mdc-button--raised medium"><i class="fas fa-trash"></i></button>
+				</div>
+			</div>
+			<%- include(params.promptRoute) %>
+			<%- include(params.responseRoute) %>
+			<div class="before-next-review" class="card-row" style="text-align:left;">
+				<div class="card-row">
+					<button id="continue-button" class="mdc-button mdc-button--raised large" style="width:100%;" disabled></button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		console.log(<%- JSON.stringify(params.videoData) %>);
+
+		getPromptPromise().then((res) => {
+			console.log('done: ', res);
+			return getResponsePromise();
+		}).then((res) => {
+			console.log('done:', res);
+			setComplete();
+		});
+	</script>
+</body>

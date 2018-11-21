@@ -1,6 +1,6 @@
 <div id="continue" class="band" style="display: none; font-style: italic; text-align: center">
 	<div id="base-text-container"><%- fact.sentence || fact.context %></div>
-	Press enter or click to continue... (<%= options.remainingToday || reviewProgress.nowReviews %> remaining) <button id="disable-reset">disable reset <span id="disable-reset-indicator">[on]</span></button> <button id="delete-review">delete</button> <button id="post-play-button"><i class="fas fa-volume-up"></i></button><button id="show-original-button">Original</button>
+	[<%=state.streak%> streak] Press enter or click to continue... (<%= options.remainingToday || reviewProgress.nowReviews %> remaining) <button id="disable-reset">disable reset <span id="disable-reset-indicator">[on]</span></button> <button id="delete-review">delete</button> <button id="post-play-button"><i class="fas fa-volume-up"></i></button><button id="show-original-button">Original</button>
 </div>
 
 <script type="text/javascript">

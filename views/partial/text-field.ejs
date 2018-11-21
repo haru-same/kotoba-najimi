@@ -1,0 +1,25 @@
+<div class="mdc-text-field text-field mdc-text-field--outlined mdc-text-field--dense mdc-text-field--fullwidth" style="padding-left: 10px">
+  <input 
+  	class="mdc-text-field__input response-input" 
+  	style=" font-size: 2rem; text-align: left;"
+	id="reading-input-<%= Math.random() %>"
+	name="" 
+	style="text-align:center; font-size: 2rem"
+	type="text"
+	autocapitalize="none"
+	autocorrect="off"
+	autocomplete="false"
+	spellcheck="false"
+  />
+  <label for="tf-outlined" class="mdc-floating-label">読み方</label>
+  <div class="mdc-notched-outline">
+    <svg>
+      <path class="mdc-notched-outline__path"/>
+    </svg>
+  </div>
+  <div class="mdc-notched-outline__idle"></div>
+</div>
+
+<script type="text/javascript">
+	const textField = new mdc.textfield.MDCTextField(document.querySelector('.mdc-text-field'));
+</script>

@@ -1,0 +1,45 @@
+<div id="response-content" class="card-row" style="text-align:left">
+	<div class="card-row"><%- include('text-field') %></div>
+</div>
+
+<script type="text/javascript">
+	const textButtonContent = '<i class="fas fa-check"></i>';
+	const textInput = document.querySelector('input');
+	wanakana.bind(textInput);
+	$('input').attr('disabled', true);
+
+	getResponsePromise = () => {
+		return new Promise((resolve) => {
+			const handleScore = (scoreInfo) => {
+				if(scoreInfo.score == 1){
+					setCorrect();
+					resolve({ info: 'typed response complete' });
+				} else {
+					setIncorrect();
+					if(tries > 0){
+						beginInput();
+					} else {
+						resolve({ info: 'typed response complete' });
+					}
+				}
+			};
+
+			const beginInput = () => {
+				$('input').attr('disabled', false);
+				$('input').focus();
+				$('input').select();
+
+				onNextContinueKeypress(textButtonContent, () => {
+					$('input').attr('disabled', true);
+		    		postReview([ $('input').val() ], handleScore);
+				});
+			}
+
+			$(document).on('review-complete', () => {
+				$('input').val('<%= fact.reading %>');
+			});
+
+			beginInput();
+		});
+	};
+</script>

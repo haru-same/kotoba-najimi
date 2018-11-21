@@ -1,23 +1,34 @@
 <%
+if (!params.reviewProgress) {
+    params.reviewProgress = {};
+}
+
 let dayStart = new Date();
 dayStart.setHours(0,0,0,0);
 
 let dayEnd = new Date();
 dayEnd.setHours(23,59,59,999);
 
-reviewProgress.createdToday = 0;
+params.reviewProgress.createdToday = 0;
 for(let id in facts){
 	const created = facts[id].created;
 	if(created >= dayStart && created <= dayEnd){
-		reviewProgress.createdToday++;
+		params.reviewProgress.createdToday++;
 	}
 }
 
 const now = new Date().getTime();
-reviewProgress.nowReviews = 0;
+params.reviewProgress.nowReviews = 0;
 for(const id in states){
 	if(states[id].due < now){
-		reviewProgress.nowReviews++;
+		params.reviewProgress.nowReviews++;
+	}
+}
+
+// Temporary while global review progress is deprecated.
+if(typeof reviewProgress !== 'undefined' && reviewProgress){
+	for(const key in params.reviewProgress){
+		reviewProgress[key] = params.reviewProgress[key];
 	}
 }
 %>
