@@ -1,10 +1,3 @@
-<div id="prompt-content" class="card-row" style="text-align:left; padding-left: 8px">
-	<span id="pre-prompt-text" class="large"><%- params.prePromptText %></span>
-	<!-- <button id="play-button" class="mdc-button mdc-button--raised large primary" style="width:100%"></button> -->
-	<span id="prompt-text" class="large" style="display:none;"><%- params.promptText %></span>
-	<span id="prompt-answer" class="large" style="display:none;"><%- params.boldedFuriganaHtml %></span>
-</div>
-
 <script type="text/javascript">
 	const audioButtonContent = '<i class="fas fa-volume-up"></i>';
 	getPromptPromise = () => {
@@ -22,9 +15,10 @@
 				$('#play-button').attr('disabled', true);
 
 				playPrompt(() => {
-					$("#pre-prompt-text").hide();
-					$("#play-button").hide();
-					$("#prompt-text").show();
+					// $("#pre-prompt-text").hide();
+					// $("#play-button").hide();
+					// $("#prompt-text").show();
+					
 
 					resolve({ info: 'audio prompt complete' });
 				});
@@ -38,10 +32,10 @@
 
 			onNextContinueKeypress(audioButtonContent, playVideo);
 
-			$(document).on("review-complete", () => {
-				$('#prompt-text').hide();
-				$('#prompt-answer').show();
-			});
+			// $(document).on("review-complete", () => {
+			// 	$('#prompt-text').hide();
+			// 	$('#prompt-answer').show();
+			// });
 		});
 	};
 </script>

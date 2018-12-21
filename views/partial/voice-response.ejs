@@ -28,6 +28,8 @@
 				$('#record-button').attr('disabled', false);
 
 				onNextContinueKeypress(microphoneButtonContent, () => {
+					setDisplayText('response-started');
+					
 					$('#microphone').css('color', 'red');
 		    		speechRecognizer.startRecording(() => { 
 		    			$('#microphone').css('color', 'gray');

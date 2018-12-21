@@ -15,7 +15,12 @@ const renderFurigana = require('./libs/render-furigana');
 const reviewRouter = require('./libs/review-router');
 const config = require('./libs/config');
 const ip = require('./libs/network-ip');
+const clean = require('./libs/clean');
 const cleanHtml = require('./libs/clean-html');
+
+const videoConfig = require('./libs/video-tools/video-config');
+const recommendCaptions = require('./libs/recommend-captions');
+const parseSRT = require('parse-srt');
 
 // (() => {
 // 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
@@ -76,9 +81,9 @@ const usedKeys = {
 app.get('/new-text', function(req, res){
 	console.log(req.query.text);
 
-	req.query.text = req.query.text.replace(/<br>/g, "");
+	req.query.text = req.query.text.replace(/<br>/g, "\n");
 	if(req.query.trans){
-		req.query.trans = req.query.trans.replace(/<br>/g, "");
+		req.query.trans = req.query.trans.replace(/<br>/g, "\n");
 	}
 
 	console.log(req.query);
@@ -132,6 +137,99 @@ app.get('/render-furigana', (req, res) => {
 	}
 	const furiganaHtml = ejs.render(template, { elements: renderFurigana(req.query.text, furiganaText) });
 	res.send(furiganaHtml);
+});
+
+app.get('/videos', (req, res) => {
+	res.render('videos', { videos:videoConfig.getConfig() });
+});
+
+app.post('/set-video-offset', (req, res) => {
+	if (!req.body.videoId || !req.body.start || !req.body.offset){
+		console.log('Missing required field, unable to update offset.');
+		return;
+	}
+	videoConfig.setOffset(req.body.videoId, parseFloat(req.body.start), parseFloat(req.body.offset));
+
+	const videoMediaInfo = videoConfig.getVideoDataForId(req.body.videoId);
+	res.json(videoMediaInfo);
+});
+
+app.get('/video-info', (req, res) => {
+	const videoId = req.query.videoId;
+	const videoMediaInfo = videoConfig.getVideoDataForId(videoId);
+	res.json(videoMediaInfo);
+});
+
+app.get('/video', (req, res) => {
+	// const videoMediaInfo = {
+	// 	type: 'file',
+	// 	path: 'video/th-s01e01.mkv'
+	// };
+	let videoMediaInfo = {
+		"type": "file",
+		"path": "video/[HorribleSubs] One Piece - 696 [1080p].mkv",
+		"captions": { 
+			"path": "data/srt/th-s01e01-test.srt",
+			"offsets": [
+				{
+					"start": 0,
+					"offset": 0
+				}
+			]
+		}
+	};
+	let videoId = req.query.videoId;
+	console.log('watch ', videoId);
+	if(videoId) {
+		videoMediaInfo = videoConfig.getVideoDataForId(videoId);
+	} else {
+		videoId = videoConfig.getOrCreateVideoIdForMedia(videoMediaInfo);
+	}
+
+	console.log('media id', videoId);
+	res.render('video-viewer', { videoId: videoId, videoInfo: videoMediaInfo });
+});
+
+app.get('/new-video', (req, res) => {
+	let videoMediaInfo = {
+		"type": "file",
+		"title": "new_video",
+		"path": "video/new_file",
+		"captions": { 
+			"path": "data/srt/new_srt.srt",
+			"offsets": [
+				{
+					"start": 0,
+					"offset": 0
+				}
+			]
+		}
+	};
+	videoConfig.getOrCreateVideoIdForMedia(videoMediaInfo);
+	res.redirect('/videos');
+});
+
+app.get('/parse-srt', (req, res) => {
+	console.log(req.query.file);
+	const fileText = fs.readFileSync(req.query.file, 'utf-8');
+	const srtData = parseSRT(fileText);
+	const finalSrt = [];
+	for (const caption of srtData){
+		if (clean.cleanPunctuation(caption.text) == ""){
+			continue;
+		}
+		finalSrt.push(caption);
+	}
+	res.json(finalSrt);
+});
+
+app.get('/recommend-captions', (req, res) => {
+	const videoMediaInfo = videoConfig.getVideoDataForId(req.query.videoId);
+	const fileText = fs.readFileSync(videoMediaInfo.captions.path, 'utf-8');
+	const captions = parseSRT(fileText).map(c => c.text);
+	const decks = [ 'kanji', 'video' ];
+	const recommended = recommendCaptions.scoreLines(captions, decks);
+	res.json(recommended.slice(0, 20));
 });
 
 const frequencyTable = JSON.parse(fs.readFileSync('cache/frequencies.json'));

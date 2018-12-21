@@ -379,11 +379,11 @@ const getClozeChoices = (reviewInfo, factType, count, external) => {
 };
 
 const getSimpleCloze = (text, word, blankLength=2) => {
-	return text.replace(word, "＿".repeat(blankLength));
+	return clean.replaceNewlinesWithBreaks(text.replace(word, "＿".repeat(blankLength)));
 }
 
 const getSimpleHighlight = (text, word) => {
-	return text.replace(word, `<b>${word}</b>`);
+	return clean.replaceNewlinesWithBreaks(text.replace(word, `<b>${word}</b>`));
 }
 
 const getExternalClozeReview = (req, options) => {
@@ -522,11 +522,6 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.deck = deckName;
 	reviewData.state = deck.findState(id);
 
-	// if(reviewData.fact.image && !('image-condition' in reviewData.state)){
-	// 	reviewData.state['image-condition'] = getImageCondition();
-	// 	deck.updateState(reviewData.state);
-	// }
-
 	for(const key in debugData){
 		const split = key.split('__');
 		if(split.length == 2){
@@ -541,22 +536,11 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 	options = options || {};
 	reviewData.options = options;
+	reviewData.params = reviewData.options;
 
 	let type = options.type == null ? reviewData.fact.type : options.type;
 
-	if(type == 3 && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
-		reviewData.options.onlyKanji = true;
-		reviewData.options.noImage = true;
-		reviewData.options.useTextInput = true;
-		reviewData.options.useCloze = false;
-		reviewData.options.promptText = reviewData.fact.word;
-		type = 1;
-		console.log('kanji only review');
-	}
-	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.options);
-	console.log("type:" + type);
-
-	// console.log(reviewData.fact);
+	console.log(reviewData.fact);
 
 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
 	const sentence = reviewData.fact.sentence || reviewData.fact.context;
@@ -571,16 +555,16 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	if(reviewData.fact['sentence-chunks']){
 		getChunksForReviewData(reviewData);
 
-		if(reviewData.options.randomWord){
+		if(reviewData.params.randomWord){
 			setRandomCloze(reviewData);
 		}
 	}
 
 	if(reviewData.fact['video-id']){
-		reviewData.options.videoInfo = videoConfig.getVideoDataForId(reviewData.fact['video-id']);
+		reviewData.params.videoInfo = videoConfig.getVideoDataForId(reviewData.fact['video-id']);
 	}
 
-	reviewData.options.boldedFuriganaHtml = ejs.render(template, { 
+	reviewData.params.boldedFuriganaHtml = ejs.render(template, { 
 		elements: renderFurigana(
 			sentence, 
 			reviewData.fact['sentence-reading'] || furigana(sentence, { onlyFurigana: true }),
@@ -589,18 +573,39 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				getTaggedPair: (p) => { return { r: p.r, s: `<b>${p.s}</b>` }; }
 			})
 	});
+	reviewData.params.displayText = reviewData.params.displayText || {};
+	reviewData.params.displayText['response-complete'] = reviewData.params.boldedFuriganaHtml;
+
+	if(type == 3 && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
+		reviewData.params.onlyKanji = true;
+		reviewData.params.noImage = true;
+		reviewData.params.useTextInput = true;
+		reviewData.params.useCloze = false;
+		type = 1;
+		console.log('kanji only review');
+
+		reviewData.params.promptRoute = 'partial/text-prompt';
+		reviewData.params.responseRoute = 'partial/typed-response';
+		reviewData.params.promptType = 'typed-reading';
+		reviewData.params.playAudioOnComplete = true;
+
+		reviewData.params.displayText['initial'] = reviewData.fact.word;
+		res.render('review-base', reviewData);
+		return;
+	}
+	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.params);
+	console.log("type:" + type);
 
 	let condition = 0;
 	switch(type){
 	case 0:
-		reviewData.params = reviewData.options;
 		const renderRoute = options.renderRoute || 'recall-review';
 		res.render(renderRoute, reviewData);
 		break;
 	case 1:
 		condition = reviewData.state.condition || condition;
 
-		if(options.cyclePromptTypes && !reviewData.options.onlyKanji){
+		if(options.cyclePromptTypes && !reviewData.params.onlyKanji){
 			const maxStreak = reviewData.state['max-streak'] || 0;
 			const streakHash = util.mod(condition + reviewData.state.streak + maxStreak, 4);
 			if (streakHash % 2 == 0){
@@ -618,47 +623,42 @@ const renderReview = (res, deckName, id, options, debugData) => {
 			console.log('overwriting speech condition with typing');
 		}
 
-
-		reviewData.params = reviewData.options;
 		reviewData.params.promptRoute = 'partial/text-prompt';
-		reviewData.params.responseRoute = 'partial/typed-response';
 		reviewData.params.playAudioOnComplete = true;
 
 		console.log(`rendering type ${type} condition ${condition}`);
 		switch (condition){
 			case 0:
 				reviewData.params.promptType = 'typed-reading';
-				reviewData.params.promptText = reviewData.options.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.responseRoute = 'partial/typed-response';
+
+				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 				res.render('review-base', reviewData);
 				return;
-
-				reviewData.options.useTextInput = reviewData.options.useTextInput || true;
-				break;
 			case 1:
 				reviewData.params.promptType = 'spoken-reading';
 				reviewData.params.responseRoute = 'partial/voice-response';
-				reviewData.params.promptText = reviewData.options.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+
+				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+
 				res.render('review-base', reviewData);
 				return;
-				
-				// reviewData.options.useTextInput = reviewData.options.useTextInput || false;
-				break;
 			case 2:
 				reviewData.params.promptType = 'typed-cloze';
-				reviewData.params.promptText = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.responseRoute = 'partial/typed-response';
+
+				reviewData.params.displayText['initial'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
 				res.render('review-base', reviewData);
 				return;
-
-				// reviewData.options.useTextInput = reviewData.options.useTextInput || true;
-				// reviewData.options.useCloze = reviewData.options.useCloze == null ? true : reviewData.options.useCloze;
-				break;
 		}
 
 		res.render('kanji-review', reviewData);
 		break;
 	case 2:
-		if(!reviewData.options.promptType){
-			reviewData.options.promptType = reviewData.state.condition == 0 ? 'text' : 'audio';
+		if(!reviewData.params.promptType){
+			reviewData.params.promptType = reviewData.state.condition == 0 ? 'text' : 'audio';
 		}
 
 		res.render('recall-review', reviewData);
@@ -678,49 +678,48 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 		switch (condition){
 			case 0:
-				reviewData.options.promptType = 'audio-cloze';
+				reviewData.params.promptType = 'audio-cloze';
 
-				reviewData.params = reviewData.options;
 				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.promptRoute = 'partial/audio-prompt';
 				reviewData.params.responseRoute = 'partial/typed-response';
-				reviewData.params.promptText = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
+
+				reviewData.params.displayText['initial'] = "";
+				reviewData.params.displayText['prompt-complete'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+
 				res.render('review-base', reviewData);
 
 				// res.render('recall-review', reviewData);
 				break;
 			case 1:
-				reviewData.params = reviewData.options;
 				reviewData.params.promptType = 'spoken-reading';
 				reviewData.params.promptRoute = 'partial/text-prompt';
 				reviewData.params.responseRoute = 'partial/voice-response';
 				reviewData.params.playAudioOnComplete = true;
-				reviewData.params.promptText = reviewData.options.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+
+				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+
 				res.render('review-base', reviewData);
 				return;
 
-				reviewData.options.useTextInput = false;
-				if(options.noSpeech) reviewData.options.useTextInput = true;
+				reviewData.params.useTextInput = false;
+				if(options.noSpeech) reviewData.params.useTextInput = true;
 				res.render('kanji-review', reviewData);
 				break;
 			case 2:
-				reviewData.options.promptType = 'typed-cloze';
+				reviewData.params.promptType = 'typed-cloze';
 				
-				reviewData.params = reviewData.options;
 				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.promptRoute = 'partial/text-prompt';
 				reviewData.params.responseRoute = 'partial/typed-response';
 				reviewData.params.playAudioOnComplete = true;
-				reviewData.params.promptText = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
+
+				reviewData.params.displayText['initial'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 
 				res.render('review-base', reviewData);
 				return;
-
-				// console.log('is cloze');
-				// reviewData.options.useTextInput = true;
-				// reviewData.options.useCloze = true;
-				// res.render('kanji-review', reviewData);
-				break;
 		}
 		break;
 	case 4:
@@ -733,10 +732,10 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		res.render('cloze-review', reviewData);
 		break;
 	case 6:
-		reviewData.options.promptType = 'text';
-		if(util.randomInt(2) == 1) reviewData.options.promptType = 'audio';
-		reviewData.options.clozeChoices = options.clozeChoices;
-		for(const choice of reviewData.options.clozeChoices){
+		reviewData.params.promptType = 'text';
+		if(util.randomInt(2) == 1) reviewData.params.promptType = 'audio';
+		reviewData.params.clozeChoices = options.clozeChoices;
+		for(const choice of reviewData.params.clozeChoices){
 			const sentence = choice.sentence || choice.context;
 			const word = choice.word || choice.target;
 			choice.clozeSentenceHtml = ejs.render(template, { elements: furigana(sentence.replace(word, '____')) });
@@ -748,9 +747,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		}
 		break;
 	case 7: // respeak
-		reviewData.options.blankLength = reviewData.fact.word.length;
-		reviewData.options.promptType = 'audio-cloze';
-		reviewData.options.useSpeechInput = true;
+		reviewData.params.blankLength = reviewData.fact.word.length;
+		reviewData.params.promptType = 'audio-cloze';
+		reviewData.params.useSpeechInput = true;
 		reviewData.furiganaHtml = ejs.render(template, { 
 			elements: renderFurigana(
 				sentence, 
@@ -762,12 +761,11 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		});
 
 
-		reviewData.params = reviewData.options;
 		reviewData.params.backgroundRoute = 'partial/image-background';
 		reviewData.params.promptRoute = 'partial/audio-prompt';
 		reviewData.params.responseRoute = 'partial/voice-response';
-		reviewData.params.prePromptText = reviewData.furiganaHtml;
-		reviewData.params.promptText = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+		reviewData.params.displayText['initial'] = reviewData.furiganaHtml;
+		reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 		res.render('review-base', reviewData);
 
 		// res.render('recall-review', reviewData);
@@ -1293,7 +1291,7 @@ module.exports.init = (app) => {
 			};
 
 			if(factId){
-				reviewData.options.promptText = getSimpleCloze(facts[factId].sentence, facts[factId].word);
+				reviewData.options.displayText = {'initial': getSimpleCloze(facts[factId].sentence, facts[factId].word)};
 			}
 
 			return reviewData;

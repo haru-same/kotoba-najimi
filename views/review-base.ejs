@@ -26,6 +26,16 @@
 
 		const nextButtonHtmlContent = `<span id="remaining-count"></span><i class="fas fa-arrow-right"></i>`;
 
+		const setDisplayText = (eventName) => {
+			const target = $(`.display-text[event="${eventName}"]`);
+			if (target.length) {
+				$(`.display-text`).hide();
+				target.show();
+			} else {
+
+			}
+		};
+
 		let setCorrect = () => {
 			$("#main-card").toggleClass('correct', true);
 			$("#main-card").toggleClass('incorrect', false);
@@ -181,6 +191,11 @@
 					<button id="delete-review" class="mdc-button mdc-button--raised medium"><i class="fas fa-trash"></i></button>
 				</div>
 			</div>
+			<div id="prompt-content" class="card-row" style="text-align:left; padding-left: 8px">
+				<% for (const key in params.displayText) { %>
+				<span event="<%= key %>" class="display-text large" style="display:none;"><%- params.displayText[key] %></span>
+				<% } %>
+			</div>
 			<%- include(params.promptRoute) %>
 			<%- include(params.responseRoute) %>
 			<div class="before-next-review" class="card-row" style="text-align:left;">
@@ -194,10 +209,13 @@
 	<script type="text/javascript">
 		console.log(<%- JSON.stringify(params.videoData) %>);
 
+		setDisplayText('initial');
 		getPromptPromise().then((res) => {
+			setDisplayText('prompt-complete');
 			console.log('done: ', res);
 			return getResponsePromise();
 		}).then((res) => {
+			setDisplayText('response-complete');
 			console.log('done:', res);
 			setComplete();
 		});

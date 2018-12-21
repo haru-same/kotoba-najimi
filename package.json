@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@material/button": "^0.40.1",
+    "@material/card": "^0.40.1",
+    "@material/textfield": "^0.40.1",
     "body-parser": "^1.18.2",
     "chai": "^4.1.2",
     "edit-distance": "^1.0.1",
@@ -19,6 +22,7 @@
     "kuromoji": "0.0.5",
     "mediaserver": "^0.1.1",
     "opener": "^1.4.3",
+    "parse-srt": "^1.0.0-alpha",
     "request": "^2.85.0",
     "socket.io": "^1.4.8",
     "ttest": "^1.1.0",

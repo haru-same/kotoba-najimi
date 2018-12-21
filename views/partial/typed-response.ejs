@@ -39,6 +39,11 @@
 				$('input').val('<%= fact.reading %>');
 			});
 
+			$('input').on('input', () => {
+				setDisplayText('response-started');
+				$('input').off('input');
+			});
+
 			beginInput();
 		});
 	};

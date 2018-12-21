@@ -50,3 +50,10 @@ module.exports.replaceBreaksWithNewlines = (text) => {
 	}
 	return text;
 };
+
+module.exports.replaceNewlinesWithBreaks = (text) => {
+	if (!text) {
+		return text;
+	}
+	return text.replace(/\n/g, '<br>');
+};
