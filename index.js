@@ -19,7 +19,7 @@ const clean = require('./libs/clean');
 const cleanHtml = require('./libs/clean-html');
 
 const videoConfig = require('./libs/video-tools/video-config');
-const recommendCaptions = require('./libs/recommend-captions');
+// const recommendCaptions = require('./libs/recommend-captions');
 const parseSRT = require('parse-srt');
 
 // (() => {
