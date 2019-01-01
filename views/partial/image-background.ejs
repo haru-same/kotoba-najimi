@@ -1,9 +1,12 @@
+<div id='background-container'></div>
+
+<script type="text/javascript">
+	const backgroundHtml = `
 <div class="background-image">
 </div>
 
 <style type="text/css">
 	body {
-		background: black;
 		overflow: hidden;
 	}
 
@@ -27,7 +30,24 @@
 		-o-filter: blur(2px);
 		-ms-filter: blur(2px);
 		filter: blur(2px);
-		opacity: 0.8;
+		opacity: 0;
 		overflow: hidden;
 	}
-</style>
+</style>`;
+
+let backgroundSet = false;
+
+setBackground = () => {
+	if(backgroundSet) return;
+	backgroundSet = true;
+	
+	$('#background-container').html(backgroundHtml);
+	console.log('animate');
+	$('body').animate({
+		backgroundColor: '#000000'
+	}, 250);
+	$('.background-image').animate({
+		opacity: 0.8
+	}, 250, () => { console.log('animate done'); });
+}
+</script>

@@ -71,9 +71,10 @@ module.exports.streakToInterval = (streak) => {
 			return 0;
 		case 0:
 			return 5 * minute;
-		case 1: case 2: case 3: case 4: case 5:
-			return day * Math.pow(2, streak - 1) - 6 * hour;
+		// case 1: case 2: case 3: case 4: case 5:
+		// 	return day * Math.pow(2, streak - 1) - 6 * hour;
 		default:
-			return (16 + 4*(streak - 5)) * day;
+			return day * Math.pow(2, streak - 1) - 6 * hour;
+			// return (16 + 4*(streak - 5)) * day;
 	}
 };

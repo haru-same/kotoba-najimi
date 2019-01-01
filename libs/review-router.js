@@ -49,7 +49,7 @@ const setUpdatedDue = (state, result) => {
 	} else {
 		state.streak = 0;
 	}
-	state.due = new Date().getTime() + reviewTools.streakToInterval(state.streak);
+	state.due = new Date().getTime() + (reviewTools.streakToInterval(state.streak) * (0.9 + (Math.random() * 0.2)));
 };
 
 const resetFact = (deckName, id) => {
@@ -496,7 +496,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	}
 
 	const reviewData = { params: {} };
-	reviewData.fact = deck.find(id);
+	reviewData.state = deck.findState(id);
+	reviewData.stateId = id;
+	reviewData.fact = deck.find(reviewData.state.id);
 
 	if(reviewData.fact['linked-fact']){
 		const split = reviewData.fact['linked-fact'].split(':');
@@ -512,7 +514,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	}
 
 	if(!reviewData.fact){
-		res.send("fact not found: " + id);
+		res.send("fact not found: " + id + "; " + reviewData.state.id);
 		return;
 	}
 
@@ -520,7 +522,6 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.fact.word = reviewData.fact.word || reviewData.fact.target;
 
 	reviewData.deck = deckName;
-	reviewData.state = deck.findState(id);
 
 	for(const key in debugData){
 		const split = key.split('__');
@@ -576,23 +577,23 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.params.displayText = reviewData.params.displayText || {};
 	reviewData.params.displayText['response-complete'] = reviewData.params.boldedFuriganaHtml;
 
-	if(type == 3 && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
-		reviewData.params.onlyKanji = true;
-		reviewData.params.noImage = true;
-		reviewData.params.useTextInput = true;
-		reviewData.params.useCloze = false;
-		type = 1;
-		console.log('kanji only review');
+	// if(type == 3 && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
+	// 	reviewData.params.onlyKanji = true;
+	// 	reviewData.params.noImage = true;
+	// 	reviewData.params.useTextInput = true;
+	// 	reviewData.params.useCloze = false;
+	// 	type = 1;
+	// 	console.log('kanji only review');
 
-		reviewData.params.promptRoute = 'partial/text-prompt';
-		reviewData.params.responseRoute = 'partial/typed-response';
-		reviewData.params.promptType = 'typed-reading';
-		reviewData.params.playAudioOnComplete = true;
+	// 	reviewData.params.promptRoute = 'partial/text-prompt';
+	// 	reviewData.params.responseRoute = 'partial/typed-response';
+	// 	reviewData.params.promptType = 'typed-reading';
+	// 	reviewData.params.playAudioOnComplete = true;
 
-		reviewData.params.displayText['initial'] = reviewData.fact.word;
-		res.render('review-base', reviewData);
-		return;
-	}
+	// 	reviewData.params.displayText['initial'] = reviewData.fact.word;
+	// 	res.render('review-base', reviewData);
+	// 	return;
+	// }
 	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.params);
 	console.log("type:" + type);
 
@@ -667,7 +668,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		condition = 0;
 
 		if(reviewData.state.condition) condition = reviewData.state.condition;
-		if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
+		// if(reviewData.state.experiments && reviewData.state.experiments['listen-speak-cloze']) condition = reviewData.state.experiments['listen-speak-cloze'];
 
 		if(options.cyclePromptTypes) {
 			const maxStreak = reviewData.state['max-streak'] || 0;
@@ -676,13 +677,16 @@ const renderReview = (res, deckName, id, options, debugData) => {
 			console.log('cycled audio condition is ', condition);
 		}
 
+		console.log('COND: ' + condition);
 		switch (condition){
 			case 0:
 				reviewData.params.promptType = 'audio-cloze';
 
-				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.promptRoute = 'partial/audio-prompt';
 				reviewData.params.responseRoute = 'partial/typed-response';
+
+				reviewData.params.backgroundRoute = 'partial/image-background';
+				reviewData.params.noImage = true;
 
 				reviewData.params.displayText['initial'] = "";
 				reviewData.params.displayText['prompt-complete'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
@@ -693,8 +697,11 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				break;
 			case 1:
 				reviewData.params.promptType = 'spoken-reading';
+
 				reviewData.params.promptRoute = 'partial/text-prompt';
 				reviewData.params.responseRoute = 'partial/voice-response';
+
+				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.playAudioOnComplete = true;
 
 				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
@@ -710,16 +717,38 @@ const renderReview = (res, deckName, id, options, debugData) => {
 			case 2:
 				reviewData.params.promptType = 'typed-cloze';
 				
-				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.promptRoute = 'partial/text-prompt';
 				reviewData.params.responseRoute = 'partial/typed-response';
+
 				reviewData.params.playAudioOnComplete = true;
+				reviewData.params.backgroundRoute = 'partial/image-background';
+				reviewData.params.noImage = true;
 
 				reviewData.params.displayText['initial'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
 				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 
 				res.render('review-base', reviewData);
 				return;
+			case 3:
+				reviewData.params.onlyKanji = true;
+				reviewData.params.useTextInput = true;
+				reviewData.params.useCloze = false;
+				type = 1;
+				console.log('kanji only review');
+
+				reviewData.params.promptRoute = 'partial/text-prompt';
+				reviewData.params.responseRoute = 'partial/typed-response';
+				reviewData.params.promptType = 'typed-reading';
+				reviewData.params.playAudioOnComplete = true;
+
+				reviewData.params.backgroundRoute = 'partial/image-background';
+				reviewData.params.noImage = true;
+
+				reviewData.params.displayText['initial'] = reviewData.fact.word;
+				res.render('review-base', reviewData);
+				return;
+			default:
+				console.log('unknown type! ' + condition);
 		}
 		break;
 	case 4:
@@ -966,12 +995,20 @@ const handleRecallReviewResponse = (req, res) => {
 }
 
 const handleBaseReviewPost = (req, res) => {
+	console.log('posting:');
+	console.log(req.body);
+
 	const deck = decks.getDeck(req.body.deck);
 	const source = req.body.source || "default";
 	const hasTries = parseInt(req.body.tries) > 0;
 	const skipScheduling = req.body.options.skipScheduling == 'true';
 	const skipLogging = req.body.options.skipLogging == 'true';
-	const originalFact = deck.find('id', req.body.id);
+	const state = deck.findState(req.body.id);
+	if (!state) {
+		console.log('state not found');
+		return;
+	}
+	const originalFact = deck.find('id', state.id);
 	if(!originalFact){
 		const input = req.body.input.replace(/ /g,'');
 		const testOriginal = wanakana._katakanaToHiragana(furigana(req.body.original, { onlyFurigana: true })).replace(/ /g,'');
@@ -984,12 +1021,12 @@ const handleBaseReviewPost = (req, res) => {
 	const scoreInfo = reviewTools.scoreReviewWithMatching(req.body.inputs, req.body.references);
 	scoreInfo.hasTries = hasTries;
 
-	const state = deck.findState('id', req.body.id);
 	const preStreak = state.streak;
 
 	console.log('skip scheduling:', skipScheduling);
 	console.log('has tries:', parseInt(req.body.tries), hasTries);
 	if(!skipScheduling){
+		console.log(state);
 		if(scoreInfo.score == 0 && !hasTries){
 			console.log('reseting');
 			setUpdatedDue(state, -1);
@@ -1012,6 +1049,7 @@ const handleBaseReviewPost = (req, res) => {
 		reviewLogging.log(logEntry);
 	}
 
+	scoreInfo.nextTime = state.due;
 	res.json(scoreInfo);
 }
 
