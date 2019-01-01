@@ -4,6 +4,9 @@
 	<%- include('partial/head') %>
 	<link rel="stylesheet" type="text/css" href="/css/review.css">
 
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
 	<script src="/js/speech-recognizer.js"></script>
 	<script src="/js/text-selection.js"></script>
 
@@ -18,7 +21,7 @@
 	<meta name="theme-color" content="#ffffff">
 
 	<script type="text/javascript">
-		const targetId = '<%= fact.id %>';
+		const targetId = '<%= stateId %>';
 		const originalText = '<%= fact.sentence.replace(/\n/g, ' ') %>';
 		const reviewStart = new Date().getTime();
 		let tries = <%= params.tries || 2 %>;
@@ -35,6 +38,8 @@
 
 			}
 		};
+
+		let setBackground = () => {};
 
 		let setCorrect = () => {
 			$("#main-card").toggleClass('correct', true);
@@ -74,6 +79,8 @@
 				remaining++;
 			}
 			$("#remaining-count").html(remaining);
+
+			setBackground();
 		}
 
 		const postReview = (inputs, callback) => {
@@ -94,6 +101,7 @@
     			}
     		};
     		$.post('/score-review', reviewData, (res) => {
+    			$('#next-date-span').html(new Date(res.nextTime).toLocaleDateString("ja-JP"));
     			callback(res);
     		});
 		};
@@ -185,7 +193,9 @@
 		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:800px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0">
 			<div class="before-next-review" class="card-row" style="text-align:right">
 				<div class="card-row">
-					<span class="before-next-review medium" style="display:none;float:left;margin:6px"><%= `${state.streak > 0 ? '+' : ''}${state.streak}` %></span>
+					<span class="before-next-review medium" style="display:none;float:left;margin:6px"><%= `${state.streak > 0 ? '+' : ''}${state.streak}` %>
+						&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-arrow-right"></i>&nbsp;&nbsp;&nbsp;&nbsp; <span id='next-date-span'></span>
+					</span>
 					<button id="furigana" class="mdc-button mdc-button--raised medium on"><ruby><rb>字</rb><rt>じ</rt></ruby></button>
 					<button id="replay" class="mdc-button mdc-button--raised medium" disabled><i class="fas fa-volume-up"></i></button>
 					<button id="delete-review" class="mdc-button mdc-button--raised medium"><i class="fas fa-trash"></i></button>
@@ -219,5 +229,9 @@
 			console.log('done:', res);
 			setComplete();
 		});
+
+		<% if (!params.noImage) { %>
+		setBackground();
+		<% } %>
 	</script>
 </body>
