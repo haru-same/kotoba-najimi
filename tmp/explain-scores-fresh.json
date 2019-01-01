@@ -1,0 +1,192 @@
+[
+	{
+		"words": [
+			{
+				"word": "ヤバ",
+				"usefulness": 16.198684153570664,
+				"knowledge": 0.5
+			},
+			{
+				"word": "い",
+				"usefulness": 371.2431633399866,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（安未）ヤバい",
+			"score": 92.81079083499665,
+			"knowledge": 0.25,
+			"usefulness": 371.2431633399866
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "ヤバ",
+				"usefulness": 16.198684153570664,
+				"knowledge": 0.5
+			},
+			{
+				"word": "い",
+				"usefulness": 371.2431633399866,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（雄大）ヤバい",
+			"score": 92.81079083499665,
+			"knowledge": 0.25,
+			"usefulness": 371.2431633399866
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "ヤバ",
+				"usefulness": 16.198684153570664,
+				"knowledge": 0.5
+			},
+			{
+				"word": "い",
+				"usefulness": 371.2431633399866,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（つば冴）ヤバい",
+			"score": 92.81079083499665,
+			"knowledge": 0.25,
+			"usefulness": 371.2431633399866
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "へ",
+				"usefulness": 64.63175307973214,
+				"knowledge": 0.5
+			},
+			{
+				"word": "い",
+				"usefulness": 371.2431633399866,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "へい へい…",
+			"score": 92.81079083499665,
+			"knowledge": 0.25,
+			"usefulness": 371.2431633399866
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "ヤバ",
+				"usefulness": 16.198684153570664,
+				"knowledge": 0.5
+			},
+			{
+				"word": "い",
+				"usefulness": 371.2431633399866,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（安未）ヤバい",
+			"score": 92.81079083499665,
+			"knowledge": 0.25,
+			"usefulness": 371.2431633399866
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "うれしい",
+				"usefulness": 11.04987562112089,
+				"knowledge": 0.5
+			},
+			{
+				"word": "な",
+				"usefulness": 326.15688521081637,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "うれしいな",
+			"score": 81.53922130270409,
+			"knowledge": 0.25,
+			"usefulness": 326.15688521081637
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "来",
+				"usefulness": 80.66178506661774,
+				"knowledge": 0.5
+			},
+			{
+				"word": "た",
+				"usefulness": 311.47061052537646,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（安未）来た",
+			"score": 77.86765263134411,
+			"knowledge": 0.25,
+			"usefulness": 311.47061052537646
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "来",
+				"usefulness": 80.66178506661774,
+				"knowledge": 0.5
+			},
+			{
+				"word": "た",
+				"usefulness": 311.47061052537646,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（みずき）来た",
+			"score": 77.86765263134411,
+			"knowledge": 0.25,
+			"usefulness": 311.47061052537646
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "え",
+				"usefulness": 151.34294130420622,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "え？",
+			"score": 75.67147065210311,
+			"knowledge": 0.5,
+			"usefulness": 151.34294130420622
+		}
+	},
+	{
+		"words": [
+			{
+				"word": "え",
+				"usefulness": 151.34294130420622,
+				"knowledge": 0.5
+			}
+		],
+		"score": {
+			"text": "（雄大）え？",
+			"score": 75.67147065210311,
+			"knowledge": 0.5,
+			"usefulness": 151.34294130420622
+		}
+	}
+]

@@ -1,0 +1,2378 @@
+﻿1
+00:00:01,133 --> 00:00:03,100
+Take this patient to the ward.
+
+2
+00:00:03,167 --> 00:00:05,633
+-It's a femoral compound fracture.
+-Yes, doctor.
+
+3
+00:00:05,967 --> 00:00:07,333
+Dr. Nishigaki!
+
+4
+00:00:07,700 --> 00:00:08,800
+He said to wait.
+
+5
+00:00:08,867 --> 00:00:11,933
+It's too risky to wait.
+
+6
+00:00:12,433 --> 00:00:13,767
+But...
+
+7
+00:00:14,233 --> 00:00:16,100
+The artery needs to be sewn up.
+
+8
+00:00:16,500 --> 00:00:20,867
+<i>I have to be strong.</i>
+<i>I can't be a burden.</i>
+
+9
+00:00:21,333 --> 00:00:22,167
+Forceps.
+
+10
+00:00:22,767 --> 00:00:23,967
+Yes.
+
+11
+00:00:31,433 --> 00:00:32,833
+I'm sorry.
+
+12
+00:00:35,900 --> 00:00:38,233
+<i>My mind is blanking out.</i>
+
+13
+00:00:38,767 --> 00:00:42,633
+<i>The patient, Naoki... It's all my fault.</i>
+
+14
+00:00:43,633 --> 00:00:45,033
+<i>What should I do?</i>
+
+15
+00:00:49,500 --> 00:00:50,400
+Hey.
+
+16
+00:00:53,367 --> 00:00:54,400
+Stand up.
+
+17
+00:01:08,633 --> 00:01:11,133
+I can't use my hands.
+
+18
+00:01:12,467 --> 00:01:15,067
+What are you scared of?
+
+19
+00:01:15,367 --> 00:01:17,633
+Aren't you scared?
+
+20
+00:01:18,100 --> 00:01:19,100
+Of course not.
+
+21
+00:01:19,200 --> 00:01:25,333
+Listen. I studied this for years.
+I'm totally confident.
+
+22
+00:01:27,133 --> 00:01:30,633
+I'm probably better than Dr. Nishigaki.
+
+23
+00:01:31,300 --> 00:01:32,933
+This patient is lucky.
+
+24
+00:01:34,433 --> 00:01:39,333
+I would never allow your little mishaps
+to endanger his life.
+
+25
+00:01:40,300 --> 00:01:42,033
+Just listen to me.
+
+26
+00:01:44,100 --> 00:01:44,933
+Okay.
+
+27
+00:01:46,233 --> 00:01:48,900
+Then go wash up
+and pick up those instruments.
+
+28
+00:01:49,433 --> 00:01:50,433
+Yes.
+
+29
+00:01:56,267 --> 00:01:58,333
+What are you doing?
+
+30
+00:01:59,633 --> 00:02:00,667
+Nurse Shimizu.
+
+31
+00:02:01,333 --> 00:02:04,533
+Dr. Irie, do you have
+Dr. Nishigaki's permission?
+
+32
+00:02:05,233 --> 00:02:06,933
+-No.
+-What?
+
+33
+00:02:07,000 --> 00:02:10,367
+His condition deteriorated suddenly.
+I needed to act quickly.
+
+34
+00:02:10,867 --> 00:02:14,267
+Dr. Nishigaki is operating now.
+He couldn't leave.
+
+35
+00:02:14,333 --> 00:02:17,500
+-I decided to do it.
+-You decide...?
+
+36
+00:02:17,567 --> 00:02:20,000
+-Kotoko, go.
+-Yes.
+
+37
+00:02:23,133 --> 00:02:24,333
+Ms. Irie.
+
+38
+00:02:30,700 --> 00:02:34,033
+Fine. But I can't let her
+do this by herself.
+
+39
+00:02:34,733 --> 00:02:38,633
+I'm going to assist you, too.
+Tell me what I can do.
+
+40
+00:02:39,200 --> 00:02:40,367
+Thank you.
+
+41
+00:02:41,400 --> 00:02:45,667
+<i>I can breathe again.</i>
+<i>I can see clearly now.</i>
+
+42
+00:02:47,533 --> 00:02:49,200
+Okay. I'm fine now.
+
+43
+00:02:51,600 --> 00:02:53,133
+-Forceps.
+-Yes.
+
+44
+00:02:59,433 --> 00:03:01,367
+-Scissors.
+-Yes.
+
+45
+00:03:06,367 --> 00:03:08,500
+-Suture 6.0.
+-Yes.
+
+46
+00:03:27,633 --> 00:03:31,467
+<i>Everything went</i>
+<i>so smoothly after that.</i>
+
+47
+00:03:31,533 --> 00:03:34,200
+<i>Naoki was so sure of himself.</i>
+
+48
+00:03:35,333 --> 00:03:37,233
+-Prepare the saline.
+-Yes.
+
+49
+00:03:39,267 --> 00:03:42,133
+<i>Even Nurse Shimizu,</i>
+<i>who was uncertain at first,</i>
+
+50
+00:03:42,967 --> 00:03:44,733
+<i>seemed to trust him.</i>
+
+51
+00:03:46,067 --> 00:03:49,633
+<i>This was only</i>
+<i>my second time assisting,</i>
+
+52
+00:03:50,500 --> 00:03:54,733
+<i>but Naoki's words</i>
+<i>were so full of confidence</i>
+
+53
+00:03:54,800 --> 00:03:58,633
+<i>that I knew he was right.</i>
+
+54
+00:04:07,633 --> 00:04:10,300
+<i>You can do it, Naoki.</i>
+
+55
+00:04:17,033 --> 00:04:17,933
+Okay.
+
+56
+00:04:19,167 --> 00:04:20,900
+-Gauze.
+-Yes.
+
+57
+00:04:28,267 --> 00:04:29,400
+It's done.
+
+58
+00:04:30,400 --> 00:04:31,500
+Yes.
+
+59
+00:04:33,367 --> 00:04:36,200
+-You did it.
+-Dr. Irie.
+
+60
+00:04:37,033 --> 00:04:39,900
+Thank you. You did a wonderful job.
+
+61
+00:04:39,967 --> 00:04:41,167
+Thank you.
+
+62
+00:04:41,267 --> 00:04:43,700
+Can you check the operating room?
+
+63
+00:04:43,767 --> 00:04:44,633
+Yes.
+
+64
+00:04:50,600 --> 00:04:51,900
+Naoki.
+
+65
+00:04:55,533 --> 00:04:59,133
+The patient's surgery
+went smoothly, too.
+
+66
+00:05:00,633 --> 00:05:01,700
+Good.
+
+67
+00:05:04,867 --> 00:05:06,500
+Naoki.
+
+68
+00:05:08,200 --> 00:05:11,300
+I'm so glad it went well.
+
+69
+00:05:13,667 --> 00:05:16,933
+Your judgment and skills
+saved his life.
+
+70
+00:05:18,200 --> 00:05:20,333
+You were amazing.
+
+71
+00:05:21,033 --> 00:05:23,567
+I was so happy.
+
+72
+00:05:28,400 --> 00:05:29,667
+If...
+
+73
+00:05:31,233 --> 00:05:32,600
+you didn't...
+
+74
+00:05:34,600 --> 00:05:39,700
+knock my head,
+I may have run away.
+
+75
+00:05:42,833 --> 00:05:45,500
+I was petrified.
+
+76
+00:05:47,833 --> 00:05:50,267
+I didn't know what to do.
+
+77
+00:05:53,067 --> 00:05:54,533
+Naoki?
+
+78
+00:05:56,400 --> 00:05:57,667
+Me, too.
+
+79
+00:06:00,567 --> 00:06:01,600
+I...
+
+80
+00:06:02,367 --> 00:06:04,300
+was scared, too.
+
+81
+00:06:06,533 --> 00:06:10,933
+But you... were so confident.
+
+82
+00:06:11,000 --> 00:06:14,900
+That was for your benefit.
+Your mind went blank, right?
+
+83
+00:06:16,800 --> 00:06:20,067
+That was my first emergency.
+
+84
+00:06:23,500 --> 00:06:24,800
+I'm surprised.
+
+85
+00:06:26,733 --> 00:06:27,567
+At what?
+
+86
+00:06:30,933 --> 00:06:34,000
+That you get scared, too.
+
+87
+00:06:40,967 --> 00:06:41,933
+I'm glad...
+
+88
+00:06:43,133 --> 00:06:45,200
+that the patient made it.
+
+89
+00:06:49,967 --> 00:06:53,133
+I'm glad you became a doctor.
+
+90
+00:06:56,500 --> 00:06:57,467
+Yeah.
+
+91
+00:08:56,600 --> 00:09:02,400
+{\an8}MISCHIEVOUS KISS 2
+
+92
+00:09:02,633 --> 00:09:06,433
+CONFERENCE ROOM
+
+93
+00:09:07,100 --> 00:09:08,000
+{\an8}It is unprecedented
+
+94
+00:09:08,067 --> 00:09:09,400
+{\an8}STAND UP FOR LOVE
+
+95
+00:09:09,467 --> 00:09:12,700
+{\an8}for an intern to perform
+a procedure without guidance.
+
+96
+00:09:12,767 --> 00:09:16,367
+It was unthinkable
+when I was an intern.
+
+97
+00:09:16,433 --> 00:09:18,400
+It's unthinkable now.
+
+98
+00:09:22,367 --> 00:09:25,567
+Dr. Nishigaki is Dr. Irie's advisor.
+
+99
+00:09:26,333 --> 00:09:27,200
+Yes.
+
+100
+00:09:27,267 --> 00:09:32,567
+I understand Dr. Irie
+is a very capable intern.
+
+101
+00:09:33,667 --> 00:09:35,367
+But even still...
+
+102
+00:09:37,400 --> 00:09:39,833
+Luckily, this time...
+
+103
+00:09:40,700 --> 00:09:43,367
+the procedure was successful.
+
+104
+00:09:44,567 --> 00:09:46,867
+If something had gone wrong,
+
+105
+00:09:47,800 --> 00:09:52,300
+the responsibility would have been
+too large for an individual to bear.
+
+106
+00:09:55,133 --> 00:09:58,400
+Once a precedent like this is set,
+
+107
+00:09:58,500 --> 00:10:01,700
+we expose ourselves to great risk.
+
+108
+00:10:02,667 --> 00:10:06,400
+Confidence is not always good.
+
+109
+00:10:06,467 --> 00:10:08,167
+Right, Dr. Nishigaki?
+
+110
+00:10:12,567 --> 00:10:16,467
+If I had been Dr. Irie's medical advisor,
+
+111
+00:10:16,567 --> 00:10:20,133
+this would have never happened.
+
+112
+00:10:21,800 --> 00:10:27,333
+In any case, this is not a simple
+problem we're dealing with.
+
+113
+00:10:27,833 --> 00:10:29,667
+Who will take responsibility?
+
+114
+00:10:29,733 --> 00:10:31,533
+What kind of problem is it?
+
+115
+00:10:32,867 --> 00:10:36,533
+I became a doctor
+to save patients' lives.
+
+116
+00:10:37,333 --> 00:10:40,800
+-Hey.
+-Rules don't apply in this case.
+
+117
+00:10:45,133 --> 00:10:47,700
+The patient's life was in danger.
+
+118
+00:10:47,800 --> 00:10:51,233
+Dr. Nishigaki was
+performing another surgery.
+
+119
+00:10:52,867 --> 00:10:56,200
+I had to do it. That's all.
+
+120
+00:10:56,267 --> 00:10:59,033
+But you should have
+respected Dr. Nishigaki's...
+
+121
+00:10:59,133 --> 00:11:01,900
+His patient was in critical condition.
+
+122
+00:11:01,967 --> 00:11:04,433
+He needed to remain focused.
+
+123
+00:11:05,967 --> 00:11:09,433
+I was confident I could save the patient.
+
+124
+00:11:09,533 --> 00:11:12,200
+So, I performed the procedure.
+
+125
+00:11:13,033 --> 00:11:17,100
+If someone needs
+to take responsibility,
+
+126
+00:11:17,200 --> 00:11:20,033
+you don't have to talk
+through my advisor.
+
+127
+00:11:20,633 --> 00:11:22,633
+You can talk directly to me.
+
+128
+00:11:26,533 --> 00:11:28,667
+What an ego this intern has.
+
+129
+00:11:29,900 --> 00:11:31,200
+Dr. Nishigaki.
+
+130
+00:11:32,133 --> 00:11:35,200
+What have you been teaching him?
+
+131
+00:11:38,033 --> 00:11:39,233
+In that case,
+
+132
+00:11:39,333 --> 00:11:43,200
+we'll have to let Dr. Irie
+take responsibility.
+
+133
+00:11:45,000 --> 00:11:47,033
+Naoki is an amazing doctor.
+
+134
+00:11:52,433 --> 00:11:55,033
+You're saying, "intern this"
+and "intern that,"
+
+135
+00:11:55,767 --> 00:11:58,800
+as if interns are helpless little chicks.
+
+136
+00:11:58,900 --> 00:12:00,467
+How impertinent.
+
+137
+00:12:00,567 --> 00:12:04,600
+Naoki's confidence
+is supported by his actions.
+
+138
+00:12:05,900 --> 00:12:10,633
+He may have broken some rules,
+
+139
+00:12:10,700 --> 00:12:13,500
+but in that moment,
+
+140
+00:12:13,700 --> 00:12:17,133
+all Naoki cared about
+was saving a patient's life.
+
+141
+00:12:17,600 --> 00:12:21,167
+That patient is alive because of Naoki.
+
+142
+00:12:21,733 --> 00:12:25,633
+He still has a life ahead of him.
+
+143
+00:12:26,033 --> 00:12:27,367
+Doctors...
+
+144
+00:12:29,567 --> 00:12:33,100
+Doctors... are amazing.
+
+145
+00:12:38,933 --> 00:12:42,067
+Ms. Irie! What did you do now?
+
+146
+00:12:42,167 --> 00:12:44,400
+I'm sorry, doctors.
+
+147
+00:12:45,167 --> 00:12:47,900
+This is preposterous.
+
+148
+00:12:47,967 --> 00:12:52,900
+Who is this girl, Nurse Shimizu?
+
+149
+00:12:54,100 --> 00:12:55,833
+She's out of line.
+
+150
+00:12:57,567 --> 00:12:58,933
+But, doctors...
+
+151
+00:13:00,833 --> 00:13:04,667
+I also assisted Dr. Irie
+in the procedure.
+
+152
+00:13:05,400 --> 00:13:08,333
+I have assisted many surgeries.
+
+153
+00:13:09,167 --> 00:13:12,800
+Dr. Irie's work was that of
+a capable surgeon.
+
+154
+00:13:13,733 --> 00:13:16,433
+If not for him, that patient...
+
+155
+00:13:17,133 --> 00:13:18,400
+Nurse Shimizu...
+
+156
+00:13:19,133 --> 00:13:22,200
+The patient is recovering well.
+
+157
+00:13:23,200 --> 00:13:26,033
+That's all I wanted to report.
+
+158
+00:13:26,967 --> 00:13:28,100
+So...
+
+159
+00:13:28,433 --> 00:13:29,833
+Excuse us.
+
+160
+00:13:31,167 --> 00:13:32,633
+Let's go, Ms. Irie.
+
+161
+00:13:34,467 --> 00:13:35,767
+Excuse me.
+
+162
+00:13:42,567 --> 00:13:43,767
+So...
+
+163
+00:13:44,133 --> 00:13:47,700
+What do you think, Dr. Nishigaki?
+
+164
+00:13:50,100 --> 00:13:52,133
+Well...
+
+165
+00:13:54,500 --> 00:13:58,600
+He may have acted rashly.
+
+166
+00:13:59,867 --> 00:14:00,867
+But...
+
+167
+00:14:01,500 --> 00:14:04,767
+There were many challenges that night.
+
+168
+00:14:04,833 --> 00:14:07,467
+That patient could have easily died.
+
+169
+00:14:08,267 --> 00:14:10,633
+But he survived.
+
+170
+00:14:12,567 --> 00:14:16,600
+So, I cannot refute Dr. Irie's actions.
+
+171
+00:14:17,067 --> 00:14:21,933
+I wouldn't have done that
+as an intern, though.
+
+172
+00:14:27,600 --> 00:14:28,767
+I see.
+
+173
+00:14:30,800 --> 00:14:36,467
+Well, shall we leave it at that, doctors?
+
+174
+00:14:36,533 --> 00:14:38,067
+-But, professor.
+-The precedent...
+
+175
+00:14:38,133 --> 00:14:39,567
+Dr. Irie.
+
+176
+00:14:40,467 --> 00:14:44,800
+I commend you on your judgment
+and skills at such a young age.
+
+177
+00:14:45,667 --> 00:14:50,167
+But a doctor and patient
+must trust each other.
+
+178
+00:14:50,700 --> 00:14:55,200
+Patients don't see interns
+as full doctors.
+
+179
+00:14:56,200 --> 00:14:59,133
+We must avoid
+making them feel insecure.
+
+180
+00:14:59,233 --> 00:15:00,700
+Do you understand?
+
+181
+00:15:02,067 --> 00:15:02,967
+Yes.
+
+182
+00:15:03,600 --> 00:15:06,767
+Okay. Then we're finished.
+
+183
+00:15:07,667 --> 00:15:10,900
+Dr. Nishigaki, please write up
+an incident report.
+
+184
+00:15:11,833 --> 00:15:14,333
+It's your responsibility as his advisor.
+
+185
+00:15:16,167 --> 00:15:17,100
+Yes.
+
+186
+00:15:28,867 --> 00:15:33,600
+My record was impeccable.
+
+187
+00:15:33,667 --> 00:15:36,967
+Now it's marred because of
+an overly confident intern.
+
+188
+00:15:38,400 --> 00:15:40,900
+Shall I write the report for you?
+
+189
+00:15:41,733 --> 00:15:42,733
+Shut up!
+
+190
+00:15:43,767 --> 00:15:46,367
+Act more like a humble intern.
+
+191
+00:15:46,433 --> 00:15:49,033
+And write up the report.
+
+192
+00:15:49,100 --> 00:15:51,033
+No, wait. I'll do it.
+
+193
+00:15:51,100 --> 00:15:53,400
+They'll chew me out again.
+
+194
+00:16:04,800 --> 00:16:06,367
+Watch out.
+
+195
+00:16:08,033 --> 00:16:11,433
+Are you Konomi Sagawa?
+Sorry to approach you like this.
+
+196
+00:16:12,600 --> 00:16:13,567
+Yes.
+
+197
+00:16:14,767 --> 00:16:16,833
+It's Konomi. Konomi!
+
+198
+00:16:17,667 --> 00:16:18,933
+What?
+
+199
+00:16:19,633 --> 00:16:21,533
+This guy wants to talk to you.
+
+200
+00:16:26,800 --> 00:16:29,433
+I go to West High School
+by the station.
+
+201
+00:16:29,500 --> 00:16:34,100
+I saw you walking by.
+Right near here.
+
+202
+00:16:34,200 --> 00:16:37,067
+Who are those guys?
+
+203
+00:16:37,167 --> 00:16:38,533
+Shut up. Be quiet.
+
+204
+00:16:38,633 --> 00:16:40,033
+Oh, sorry.
+
+205
+00:16:43,067 --> 00:16:46,867
+I see you on the train every day.
+
+206
+00:16:48,133 --> 00:16:52,100
+I think you're cute.
+You've been on my mind lately.
+
+207
+00:16:54,033 --> 00:16:54,967
+So...
+
+208
+00:16:56,767 --> 00:16:58,900
+Will you go out with me?
+
+209
+00:17:00,100 --> 00:17:01,833
+You go to Tonan High, right?
+
+210
+00:17:02,767 --> 00:17:04,400
+It's nearby.
+
+211
+00:17:04,467 --> 00:17:06,767
+Will you see me sometime?
+
+212
+00:17:07,900 --> 00:17:11,667
+I know he's my friend,
+but he's a really good guy.
+
+213
+00:17:13,467 --> 00:17:14,600
+But...
+
+214
+00:17:16,667 --> 00:17:19,367
+Oh, my God.
+
+215
+00:17:19,467 --> 00:17:22,833
+He's asking Konomi out.
+What are you going to do?
+
+216
+00:17:22,900 --> 00:17:24,300
+What am I going to...?
+
+217
+00:17:25,533 --> 00:17:26,533
+Do you...
+
+218
+00:17:26,600 --> 00:17:28,600
+Do you have a boyfriend?
+
+219
+00:17:30,200 --> 00:17:32,933
+-A boyfriend.
+-You're so cute.
+
+220
+00:17:33,033 --> 00:17:35,167
+Do you have a boyfriend?
+
+221
+00:17:36,600 --> 00:17:38,233
+A boyfriend?
+
+222
+00:17:38,733 --> 00:17:40,533
+Tell him. Tell him, Konomi.
+
+223
+00:17:40,633 --> 00:17:43,267
+Tell him you have a boyfriend
+named Yuki Irie.
+
+224
+00:17:43,367 --> 00:17:44,300
+Hey.
+
+225
+00:17:46,433 --> 00:17:48,733
+I don't.
+
+226
+00:17:50,600 --> 00:17:52,000
+Yes!
+
+227
+00:17:52,067 --> 00:17:54,433
+So, will you go out with him?
+
+228
+00:17:54,500 --> 00:17:55,667
+He's really nice.
+
+229
+00:17:55,733 --> 00:17:57,833
+Start off by texting.
+
+230
+00:17:57,900 --> 00:17:58,933
+But...
+
+231
+00:18:00,133 --> 00:18:01,200
+I'm sorry.
+
+232
+00:18:02,433 --> 00:18:03,667
+What?
+
+233
+00:18:05,600 --> 00:18:06,967
+Really.
+
+234
+00:18:07,967 --> 00:18:09,800
+I'm sorry.
+
+235
+00:18:11,367 --> 00:18:14,133
+Wait. Just your number,
+or e-mail address.
+
+236
+00:18:16,433 --> 00:18:19,267
+Konomi is so popular.
+
+237
+00:18:20,067 --> 00:18:22,267
+Right, Yuki?
+
+238
+00:18:23,900 --> 00:18:25,300
+Yuki?
+
+239
+00:18:27,000 --> 00:18:27,967
+I'm going home.
+
+240
+00:18:28,033 --> 00:18:30,967
+Wait. Yuki.
+
+241
+00:18:31,400 --> 00:18:34,967
+First, you loop the yarn around
+and pull it tight.
+
+242
+00:18:35,600 --> 00:18:37,867
+Right. So, pull it through.
+
+243
+00:18:39,067 --> 00:18:42,733
+That's it. Don't get it tangled.
+
+244
+00:18:42,833 --> 00:18:44,233
+Pull.
+
+245
+00:18:44,333 --> 00:18:46,967
+That's not exactly right.
+
+246
+00:18:50,767 --> 00:18:54,333
+Will I make it in time for Valentine's?
+
+247
+00:18:54,433 --> 00:18:56,767
+You can do it. Try again.
+
+248
+00:18:58,667 --> 00:19:02,600
+Another knitting student
+for Valentine's Day.
+
+249
+00:19:02,667 --> 00:19:03,933
+She's here.
+
+250
+00:19:04,233 --> 00:19:06,900
+Yes. Come in.
+
+251
+00:19:11,633 --> 00:19:14,633
+Hello. Thanks for having me.
+
+252
+00:19:14,733 --> 00:19:17,033
+Come in, Konomi.
+
+253
+00:19:17,433 --> 00:19:19,133
+How's it going?
+
+254
+00:19:20,400 --> 00:19:21,700
+Pretty well.
+
+255
+00:19:21,767 --> 00:19:25,700
+Oh, my God. I've only gotten this far.
+
+256
+00:19:28,533 --> 00:19:30,733
+Hello, Yuki.
+
+257
+00:19:32,533 --> 00:19:34,100
+Thanks for having me.
+
+258
+00:19:35,100 --> 00:19:36,333
+What are you doing here?
+
+259
+00:19:39,067 --> 00:19:40,233
+Nothing.
+
+260
+00:19:42,533 --> 00:19:47,200
+She came to see you of course, Yuki.
+
+261
+00:19:51,133 --> 00:19:53,467
+So, you came to see me, huh?
+
+262
+00:19:55,600 --> 00:19:56,533
+Yes.
+
+263
+00:19:57,833 --> 00:20:01,467
+Why are you acting like my girlfriend
+when you're not?
+
+264
+00:20:03,500 --> 00:20:06,367
+Don't be mean, Yuki.
+
+265
+00:20:06,433 --> 00:20:09,500
+Yeah. That sounds so mean.
+
+266
+00:20:12,267 --> 00:20:13,133
+Sorry.
+
+267
+00:20:16,733 --> 00:20:17,967
+You're right.
+
+268
+00:20:20,967 --> 00:20:25,100
+I'm not even your girlfriend
+and I come over all the time.
+
+269
+00:20:26,267 --> 00:20:28,233
+Who do I think I am?
+
+270
+00:20:31,267 --> 00:20:32,867
+This isn't right.
+
+271
+00:20:41,133 --> 00:20:42,100
+Sorry.
+
+272
+00:20:44,433 --> 00:20:45,633
+I'm going home.
+
+273
+00:20:46,700 --> 00:20:47,533
+Konomi.
+
+274
+00:20:51,000 --> 00:20:52,033
+I'm sorry.
+
+275
+00:20:53,100 --> 00:20:55,033
+-Konomi?
+-Konomi.
+
+276
+00:20:56,233 --> 00:20:58,767
+What's going on? She was crying.
+
+277
+00:21:00,867 --> 00:21:02,700
+She was?
+
+278
+00:21:46,667 --> 00:21:47,500
+Yes?
+
+279
+00:21:50,100 --> 00:21:52,267
+Are you busy, Naoki?
+
+280
+00:21:52,733 --> 00:21:55,100
+Hey. What?
+
+281
+00:21:55,167 --> 00:21:58,700
+Well, it's nothing, really.
+
+282
+00:22:03,133 --> 00:22:06,033
+-You're not on duty tonight?
+-No.
+
+283
+00:22:07,633 --> 00:22:09,967
+What are you studying?
+
+284
+00:22:10,533 --> 00:22:12,567
+Respiratory distress syndrome.
+
+285
+00:22:13,300 --> 00:22:15,233
+Sounds complicated.
+
+286
+00:22:18,467 --> 00:22:20,933
+Do doctors really...
+
+287
+00:22:21,033 --> 00:22:24,167
+What do you want?
+
+288
+00:22:24,633 --> 00:22:29,133
+Well... I wanted to...
+
+289
+00:22:31,033 --> 00:22:34,500
+ask you... Well...
+
+290
+00:22:36,700 --> 00:22:38,167
+What do you like about Kotoko?
+
+291
+00:22:41,000 --> 00:22:44,867
+I mean, she's not your type or anything.
+
+292
+00:22:44,933 --> 00:22:47,233
+So, when did you start liking her?
+
+293
+00:22:49,967 --> 00:22:51,433
+What's going on?
+
+294
+00:22:52,667 --> 00:22:53,733
+Is it Konomi?
+
+295
+00:22:56,500 --> 00:22:57,733
+No.
+
+296
+00:22:58,667 --> 00:23:01,833
+I never thought this day would come.
+
+297
+00:23:04,067 --> 00:23:04,900
+Well...
+
+298
+00:23:05,633 --> 00:23:10,867
+She kept saying, "I love you"
+as if it were a spell.
+
+299
+00:23:11,700 --> 00:23:13,600
+It was so annoying.
+
+300
+00:23:14,067 --> 00:23:15,267
+What?
+
+301
+00:23:15,333 --> 00:23:18,933
+But I started to get used to it.
+
+302
+00:23:20,300 --> 00:23:24,467
+When she said she was
+going to give up on me,
+
+303
+00:23:25,333 --> 00:23:27,233
+I remember feeling mad.
+
+304
+00:23:28,233 --> 00:23:29,533
+I...
+
+305
+00:23:32,533 --> 00:23:34,867
+I'm going to give up on you.
+
+306
+00:23:37,900 --> 00:23:41,567
+I should have been relieved.
+
+307
+00:23:44,967 --> 00:23:46,300
+Kotoko...
+
+308
+00:23:47,200 --> 00:23:50,267
+can't do 90 percent of what I can do.
+
+309
+00:23:50,967 --> 00:23:53,300
+But she can do the 10 percent...
+
+310
+00:23:53,900 --> 00:23:58,000
+that I could never do
+in a hundred years.
+
+311
+00:24:00,067 --> 00:24:03,667
+Maybe it became a habit.
+
+312
+00:24:07,167 --> 00:24:10,100
+I don't know anymore.
+
+313
+00:24:11,567 --> 00:24:14,833
+How Konomi feels or how I feel.
+
+314
+00:24:18,200 --> 00:24:19,767
+I tutor her.
+
+315
+00:24:20,400 --> 00:24:23,933
+She drags me to movies and cafes.
+
+316
+00:24:25,433 --> 00:24:28,067
+I say it's annoying.
+
+317
+00:24:29,233 --> 00:24:31,600
+But I wonder if it really is.
+
+318
+00:24:34,200 --> 00:24:38,133
+When I saw another guy
+confess his feelings for her...
+
+319
+00:24:39,067 --> 00:24:40,367
+it pissed me off.
+
+320
+00:24:41,800 --> 00:24:43,267
+I said some harsh things to her.
+
+321
+00:24:47,267 --> 00:24:48,133
+Sorry.
+
+322
+00:24:49,133 --> 00:24:51,433
+I realized...
+
+323
+00:24:52,500 --> 00:24:56,400
+we really are brothers.
+
+324
+00:24:57,500 --> 00:24:58,700
+What about?
+
+325
+00:25:00,067 --> 00:25:01,667
+If you aren't sure, ask Konomi.
+
+326
+00:25:02,900 --> 00:25:05,767
+That's the simplest answer.
+
+327
+00:25:10,100 --> 00:25:12,333
+Sorry for bothering you.
+
+328
+00:25:13,333 --> 00:25:14,267
+Yuki.
+
+329
+00:25:15,300 --> 00:25:19,067
+I'll tell you the one thing
+that Kinnosuke taught me.
+
+330
+00:25:20,500 --> 00:25:22,533
+According to him...
+
+331
+00:25:23,333 --> 00:25:26,067
+it's called "jealousy."
+
+332
+00:25:57,533 --> 00:25:58,700
+Let me say this up front.
+
+333
+00:25:59,233 --> 00:26:02,033
+I wasn't waiting for you
+because it's Valentine's Day.
+
+334
+00:26:02,100 --> 00:26:04,567
+It just happened to be
+Valentine's Day today.
+
+335
+00:26:04,633 --> 00:26:05,600
+Then...
+
+336
+00:26:06,667 --> 00:26:07,967
+why were you waiting for me?
+
+337
+00:26:08,900 --> 00:26:10,000
+Why?
+
+338
+00:26:15,833 --> 00:26:17,500
+S... Sorry.
+
+339
+00:26:19,967 --> 00:26:22,133
+Sorry about the other day.
+
+340
+00:26:26,567 --> 00:26:29,767
+But it was partly your fault, too.
+
+341
+00:26:32,033 --> 00:26:33,000
+My fault?
+
+342
+00:26:35,300 --> 00:26:38,267
+You said you didn't have a boyfriend.
+
+343
+00:26:42,033 --> 00:26:43,933
+To that guy who asked you out.
+
+344
+00:26:44,633 --> 00:26:45,633
+So I...
+
+345
+00:26:46,767 --> 00:26:47,967
+How did you know?
+
+346
+00:26:49,633 --> 00:26:51,100
+I happened to be passing by.
+
+347
+00:26:52,233 --> 00:26:54,633
+You always said that you liked me.
+
+348
+00:26:55,600 --> 00:26:56,800
+So...
+
+349
+00:27:01,333 --> 00:27:02,633
+But...
+
+350
+00:27:04,200 --> 00:27:05,667
+What can I do?
+
+351
+00:27:08,100 --> 00:27:11,800
+I do like you. A lot.
+
+352
+00:27:11,900 --> 00:27:15,400
+That hasn't changed
+since middle school.
+
+353
+00:27:16,300 --> 00:27:20,033
+But no matter how much I like you...
+
+354
+00:27:21,067 --> 00:27:23,600
+As long as you don't like me back...
+
+355
+00:27:25,500 --> 00:27:28,067
+I can't call you my boyfriend.
+
+356
+00:27:32,233 --> 00:27:34,633
+I feel like I'm threatening you.
+
+357
+00:27:34,800 --> 00:27:40,400
+I don't care if it's a one-way love.
+
+358
+00:27:41,433 --> 00:27:46,567
+Although it would be nice
+if you felt the same way.
+
+359
+00:27:52,933 --> 00:27:54,633
+This is perfect.
+
+360
+00:27:55,800 --> 00:27:58,300
+It's your Valentine's Day present.
+
+361
+00:28:02,667 --> 00:28:03,967
+How is it?
+
+362
+00:28:21,167 --> 00:28:24,600
+Good. It suits you.
+
+363
+00:28:34,500 --> 00:28:36,833
+I just...
+
+364
+00:28:39,267 --> 00:28:40,133
+Just...?
+
+365
+00:28:42,233 --> 00:28:43,833
+That wasn't on a whim.
+
+366
+00:28:46,767 --> 00:28:47,967
+I like you.
+
+367
+00:28:49,000 --> 00:28:50,367
+I like you, Konomi.
+
+368
+00:28:52,333 --> 00:28:56,533
+So, when other guys ask you out,
+
+369
+00:28:57,133 --> 00:28:58,733
+tell them you have a boyfriend.
+
+370
+00:29:01,667 --> 00:29:02,533
+Okay.
+
+371
+00:29:08,367 --> 00:29:09,300
+Okay.
+
+372
+00:29:10,800 --> 00:29:12,033
+Don't cry.
+
+373
+00:29:14,233 --> 00:29:15,333
+Tell me again.
+
+374
+00:29:16,533 --> 00:29:17,467
+What?
+
+375
+00:29:18,433 --> 00:29:19,567
+That you like me.
+
+376
+00:29:22,000 --> 00:29:23,667
+I can't repeat it so many times.
+
+377
+00:29:24,567 --> 00:29:27,167
+-But it was only twice.
+-I said it twice.
+
+378
+00:29:27,233 --> 00:29:28,867
+It's not easy to say it twice.
+
+379
+00:29:38,733 --> 00:29:39,733
+Thank you.
+
+380
+00:29:53,400 --> 00:29:54,233
+I'm...
+
+381
+00:30:03,967 --> 00:30:04,967
+Hey.
+
+382
+00:30:05,267 --> 00:30:08,867
+You'll catch a cold sleeping here.
+
+383
+00:30:12,133 --> 00:30:15,100
+You're home, Naoki.
+
+384
+00:30:16,400 --> 00:30:20,800
+I guess I fell asleep.
+
+385
+00:30:23,533 --> 00:30:25,567
+I'm going to take a bath. Go to sleep.
+
+386
+00:30:38,600 --> 00:30:42,200
+Here. I made you some coffee.
+
+387
+00:30:43,900 --> 00:30:47,967
+Coffee? Before I go to sleep?
+
+388
+00:30:53,067 --> 00:30:55,033
+Help you with your nursing report?
+
+389
+00:30:56,200 --> 00:30:57,467
+Please?
+
+390
+00:30:58,000 --> 00:31:00,267
+Because...
+
+391
+00:31:00,367 --> 00:31:05,100
+I've rewritten it a dozen times,
+but they're so critical.
+
+392
+00:31:05,200 --> 00:31:09,233
+For once, I'd like to turn in a report
+that they don't tear apart.
+
+393
+00:31:09,467 --> 00:31:12,967
+I just need your advice.
+
+394
+00:31:13,067 --> 00:31:16,467
+Just the main points. Please?
+
+395
+00:31:19,067 --> 00:31:20,033
+Unbelievable.
+
+396
+00:31:25,000 --> 00:31:27,100
+Sit down.
+
+397
+00:31:28,700 --> 00:31:29,933
+Really?
+
+398
+00:31:30,400 --> 00:31:32,533
+Yay!
+
+399
+00:31:36,833 --> 00:31:40,067
+Thank you, Dr. Irie.
+
+400
+00:31:40,167 --> 00:31:41,100
+Take care.
+
+401
+00:31:42,433 --> 00:31:44,467
+Take care. Thank you.
+
+402
+00:32:01,067 --> 00:32:03,367
+You look tired.
+
+403
+00:32:04,067 --> 00:32:05,833
+Nurse Hosoi.
+
+404
+00:32:06,500 --> 00:32:09,600
+I'm a little sleep deprived.
+
+405
+00:32:09,733 --> 00:32:11,033
+I see.
+
+406
+00:32:11,133 --> 00:32:13,867
+That's your last patient
+for the afternoon.
+
+407
+00:32:13,933 --> 00:32:15,600
+Go get some rest.
+
+408
+00:32:15,700 --> 00:32:18,000
+You have another surgery
+this afternoon, right?
+
+409
+00:32:18,433 --> 00:32:20,833
+Yes. Thank you.
+
+410
+00:32:20,900 --> 00:32:24,567
+Kotoko is really shaping up lately.
+
+411
+00:32:24,667 --> 00:32:29,033
+I can tell by her report
+that she really studied hard.
+
+412
+00:32:30,733 --> 00:32:32,033
+I see.
+
+413
+00:32:32,400 --> 00:32:33,933
+Irie!
+
+414
+00:32:35,133 --> 00:32:36,233
+Irie!
+
+415
+00:32:38,100 --> 00:32:41,133
+Irie! Where are you?
+
+416
+00:32:42,367 --> 00:32:44,767
+Come out, you idiot!
+
+417
+00:32:45,467 --> 00:32:46,867
+Hey, Irie.
+
+418
+00:32:48,167 --> 00:32:50,167
+Do you know Naoki Irie?
+
+419
+00:32:50,700 --> 00:32:52,100
+Kin-chan. Chris.
+
+420
+00:32:53,000 --> 00:32:54,033
+Kotoko.
+
+421
+00:32:54,967 --> 00:32:57,933
+Kotoko, where's Irie?
+
+422
+00:32:58,000 --> 00:33:01,300
+He's seeing a patient in there, but...
+
+423
+00:33:01,367 --> 00:33:05,200
+What's going on? This is a hospital.
+
+424
+00:33:05,267 --> 00:33:06,767
+What is it, Kinnosuke?
+
+425
+00:33:06,833 --> 00:33:10,967
+Irie, I need your help. It's Chris.
+
+426
+00:33:11,500 --> 00:33:13,300
+Calm down. What's wrong?
+
+427
+00:33:14,133 --> 00:33:15,067
+Naoki.
+
+428
+00:33:16,267 --> 00:33:17,667
+I messed up.
+
+429
+00:33:22,433 --> 00:33:23,400
+Gauze.
+
+430
+00:33:29,500 --> 00:33:30,333
+Bandage.
+
+431
+00:33:37,900 --> 00:33:40,167
+<i>Chris was splattered with hot oil?</i>
+
+432
+00:33:40,667 --> 00:33:41,500
+Yeah.
+
+433
+00:33:42,633 --> 00:33:45,100
+She burned her leg in the kitchen.
+
+434
+00:33:45,633 --> 00:33:48,900
+I... My mind went blank.
+
+435
+00:33:48,967 --> 00:33:52,067
+I should have gone to the nearest
+hospital, but I ended up here.
+
+436
+00:33:53,033 --> 00:33:55,167
+I always give Irie a hard time,
+
+437
+00:33:55,733 --> 00:33:58,700
+but when it came down to it,
+I could only think of him.
+
+438
+00:34:01,433 --> 00:34:03,700
+If anything happens to Chris, I...
+
+439
+00:34:04,200 --> 00:34:06,900
+Don't worry. You did the right thing.
+
+440
+00:34:06,967 --> 00:34:08,667
+Naoki is a miracle worker.
+
+441
+00:34:09,433 --> 00:34:10,800
+I hope you're right.
+
+442
+00:34:14,967 --> 00:34:15,800
+Chris.
+
+443
+00:34:16,567 --> 00:34:18,633
+Are you okay? Does it hurt?
+
+444
+00:34:19,400 --> 00:34:20,733
+A little.
+
+445
+00:34:21,633 --> 00:34:25,067
+Nurse Hosoi, she's my friend.
+I'll take her.
+
+446
+00:34:25,133 --> 00:34:26,767
+Go ahead, then.
+
+447
+00:34:27,867 --> 00:34:31,500
+Her husband can go in
+and speak to Dr. Irie.
+
+448
+00:34:35,800 --> 00:34:36,933
+Her... husband?
+
+449
+00:34:41,200 --> 00:34:43,433
+So? How is Chris?
+
+450
+00:34:44,567 --> 00:34:46,000
+I'll explain in a minute.
+
+451
+00:34:46,600 --> 00:34:49,067
+Sit down, husband.
+
+452
+00:34:55,133 --> 00:34:56,700
+Her burns...
+
+453
+00:34:58,533 --> 00:35:01,800
+are pretty bad.
+It's penetrated the inner skin.
+
+454
+00:35:03,133 --> 00:35:05,000
+She'll be in pain for a while.
+
+455
+00:35:05,067 --> 00:35:07,600
+She should be hospitalized
+until she's stable.
+
+456
+00:35:09,367 --> 00:35:11,633
+-Regarding scarring...
+-What?
+
+457
+00:35:12,467 --> 00:35:14,567
+There may be a little.
+
+458
+00:35:15,500 --> 00:35:18,267
+She may need cosmetic surgery.
+
+459
+00:35:18,333 --> 00:35:19,567
+Wait a minute.
+
+460
+00:35:21,200 --> 00:35:25,633
+There may be scarring?
+Chris is an unmarried woman.
+
+461
+00:35:26,900 --> 00:35:30,800
+If her body is scarred,
+what if she can't get married?
+
+462
+00:35:30,867 --> 00:35:33,433
+But you're marrying her, right?
+
+463
+00:35:36,533 --> 00:35:38,567
+So, what's the problem?
+
+464
+00:35:39,700 --> 00:35:41,333
+What are you saying?
+
+465
+00:35:42,867 --> 00:35:46,033
+Are you going to let
+another guy have her?
+
+466
+00:35:46,633 --> 00:35:47,700
+Are you kidding?
+
+467
+00:35:49,200 --> 00:35:50,433
+No way.
+
+468
+00:35:54,000 --> 00:35:55,767
+I won't let that happen.
+
+469
+00:35:56,967 --> 00:35:59,933
+I'm not giving her to anyone.
+
+470
+00:36:02,333 --> 00:36:03,400
+I see.
+
+471
+00:36:06,300 --> 00:36:08,867
+Got a problem with it?
+
+472
+00:36:09,933 --> 00:36:12,733
+Then why don't you tell Chris?
+
+473
+00:36:16,667 --> 00:36:17,833
+I know.
+
+474
+00:36:21,300 --> 00:36:23,300
+Okay, take it easy, Chris.
+
+475
+00:36:23,633 --> 00:36:24,700
+Ready?
+
+476
+00:36:26,367 --> 00:36:27,833
+-Okay.
+-Okay.
+
+477
+00:36:33,367 --> 00:36:37,233
+Kotoko, you're a real nurse.
+I'm impressed.
+
+478
+00:36:37,767 --> 00:36:39,600
+Really?
+
+479
+00:36:40,833 --> 00:36:45,100
+And what about Kin-chan?
+He was so desperate.
+
+480
+00:36:45,567 --> 00:36:47,933
+I've never seen him like that.
+
+481
+00:36:48,033 --> 00:36:51,700
+He was more panicked than I was.
+He's so rash sometimes.
+
+482
+00:36:52,133 --> 00:36:53,767
+I guess I can't talk.
+
+483
+00:36:55,600 --> 00:36:59,167
+He must think you're very special.
+
+484
+00:36:59,733 --> 00:37:01,867
+-Really?
+-Yeah.
+
+485
+00:37:01,967 --> 00:37:04,367
+-How is it, Chris?
+-See?
+
+486
+00:37:04,767 --> 00:37:06,933
+-Kinnosuke.
+-Does it hurt?
+
+487
+00:37:07,000 --> 00:37:10,500
+I'm fine.
+The painkillers are kicking in.
+
+488
+00:37:11,133 --> 00:37:13,633
+By the way, what did Irie say?
+
+489
+00:37:14,900 --> 00:37:17,167
+The pain will only last
+a couple of days.
+
+490
+00:37:19,033 --> 00:37:21,367
+What about scarring?
+
+491
+00:37:22,833 --> 00:37:26,667
+Don't worry.
+I told Irie to take care of it.
+
+492
+00:37:26,767 --> 00:37:29,067
+I'll beat him up if he leaves a scar.
+
+493
+00:37:29,133 --> 00:37:32,667
+-Kin-chan.
+-Don't worry about a thing.
+
+494
+00:37:33,067 --> 00:37:36,467
+Irie and Kotoko are here.
+I'll come every day, too.
+
+495
+00:37:37,300 --> 00:37:38,267
+Okay.
+
+496
+00:37:40,300 --> 00:37:41,367
+<i>Kin-chan.</i>
+
+497
+00:37:43,233 --> 00:37:46,700
+I gave Mr. Suzuki in Room 205
+painkillers at 3:00 p.m.
+
+498
+00:37:46,767 --> 00:37:49,400
+Please check on his pain level.
+
+499
+00:37:49,500 --> 00:37:50,933
+Okay.
+
+500
+00:37:54,967 --> 00:37:57,167
+I'll be going, then.
+
+501
+00:37:57,267 --> 00:37:59,100
+-Good night.
+-Good night.
+
+502
+00:38:00,533 --> 00:38:02,633
+I'm starving.
+
+503
+00:38:03,333 --> 00:38:05,300
+-See you.
+-Good night.
+
+504
+00:38:06,233 --> 00:38:10,700
+Now for the night shift.
+It's not good for my skin.
+
+505
+00:38:11,567 --> 00:38:14,467
+-Ms. Irie.
+-Nurse Hosoi. I'm going.
+
+506
+00:38:14,533 --> 00:38:18,667
+Good night.
+Does Dr. Irie seem tired at home?
+
+507
+00:38:20,667 --> 00:38:22,200
+Naoki? Why?
+
+508
+00:38:22,267 --> 00:38:25,600
+He's had one major surgery
+after another.
+
+509
+00:38:26,267 --> 00:38:28,800
+I don't think he's getting much sleep.
+
+510
+00:38:31,700 --> 00:38:37,533
+The action plan is to discuss
+pain remedies with the doctor.
+
+511
+00:38:40,733 --> 00:38:45,067
+He had another emergency case
+right after his outpatient clinic.
+
+512
+00:38:45,900 --> 00:38:50,633
+Then he went into surgery
+without eating anything.
+
+513
+00:38:51,633 --> 00:38:53,800
+It's going to be another long one.
+
+514
+00:38:56,033 --> 00:38:59,667
+I know you're working, too, but...
+
+515
+00:39:00,400 --> 00:39:03,667
+please take care of
+Dr. Irie's health and nutrition.
+
+516
+00:39:04,733 --> 00:39:06,800
+A doctor's hours are never fixed.
+
+517
+00:39:06,867 --> 00:39:10,033
+It's both physically
+and mentally taxing.
+
+518
+00:39:10,500 --> 00:39:14,167
+You're a doctor's wife, after all.
+
+519
+00:39:15,267 --> 00:39:17,600
+Yes, thank you.
+
+520
+00:39:23,133 --> 00:39:27,333
+<i>She's right.</i>
+<i>I haven't done anything lately.</i>
+
+521
+00:39:28,200 --> 00:39:30,900
+<i>Mom does all the cooking</i>
+<i>and cleaning.</i>
+
+522
+00:39:31,700 --> 00:39:35,267
+<i>I asked him to help me with my report</i>
+<i>instead of getting sleep.</i>
+
+523
+00:39:40,933 --> 00:39:45,400
+<i>Naoki, it's been six hours</i>
+<i>since the surgery began.</i>
+
+524
+00:39:49,567 --> 00:39:50,633
+Okay.
+
+525
+00:39:58,167 --> 00:40:00,567
+What is all this, Kotoko?
+
+526
+00:40:01,600 --> 00:40:04,200
+Naoki has a long surgery tonight.
+
+527
+00:40:04,300 --> 00:40:07,633
+I thought I'd bring him
+a nutritious meal.
+
+528
+00:40:08,600 --> 00:40:09,967
+Oh, my.
+
+529
+00:40:11,000 --> 00:40:12,300
+How wonderful.
+
+530
+00:40:12,733 --> 00:40:15,133
+He'll be so happy.
+
+531
+00:40:15,733 --> 00:40:17,567
+I hope so.
+
+532
+00:40:21,367 --> 00:40:23,167
+<i>Just wait, Naoki.</i>
+
+533
+00:40:23,767 --> 00:40:26,033
+<i>I made you lots of good food.</i>
+
+534
+00:40:30,900 --> 00:40:31,733
+Naoki.
+
+535
+00:40:33,067 --> 00:40:35,400
+You just finished your surgery.
+
+536
+00:40:35,467 --> 00:40:39,500
+I wanted to bring you
+something nutritious
+
+537
+00:40:39,600 --> 00:40:41,100
+that will give you stamina...
+
+538
+00:40:56,467 --> 00:40:58,067
+Naoki.
+
+539
+00:40:59,867 --> 00:41:01,300
+Naoki?
+
+540
+00:41:03,467 --> 00:41:04,700
+Naoki?
+
+541
+00:41:06,467 --> 00:41:08,400
+Naoki.
+
+542
+00:41:09,900 --> 00:41:11,133
+Naoki.
+
+543
+00:41:13,200 --> 00:41:14,833
+Naoki!
+
+544
+00:41:15,433 --> 00:41:16,533
+No!
+
+545
+00:41:16,633 --> 00:41:19,367
+Naoki! Naoki!
+
+546
+00:41:20,100 --> 00:41:22,433
+Naoki!
+
+547
+00:41:23,067 --> 00:41:26,167
+Naoki, get up!
+
+548
+00:42:55,367 --> 00:42:56,200
+It's my fault.
+
+549
+00:42:56,267 --> 00:42:57,100
+<i>Next Episode</i>
+<i>Ep.15 "Tearful Proposal"</i>
+
+550
+00:42:57,167 --> 00:42:59,233
+<i>My goodness, Naoki.</i>
+<i>You're so lame.</i>
+
+551
+00:42:59,300 --> 00:43:02,000
+What happened to your
+triple flip landing?
+
+552
+00:43:02,067 --> 00:43:03,667
+<i>I'll be your private nurse.</i>
+
+553
+00:43:05,233 --> 00:43:06,767
+<i>Don't try to find the spot</i>
+<i>with the needle in.</i>
+
+554
+00:43:07,700 --> 00:43:09,600
+<i>Too much garlic in it.</i>
+
+555
+00:43:09,667 --> 00:43:12,333
+Can we talk?
+
+556
+00:43:12,433 --> 00:43:15,467
+How did you propose to Kotoko?
+
+557
+00:43:15,533 --> 00:43:17,433
+I decided to do it in front of my family.
+
+558
+00:43:17,500 --> 00:43:18,833
+I knew she'd say yes.
+
+559
+00:43:18,900 --> 00:43:20,633
+-Did that help?
+-Hell no.
+
+560
+00:43:21,233 --> 00:43:24,233
+{\an8}Will you break up with Naoki
+and marry Kinnosuke?
+
+561
+00:43:24,300 --> 00:43:25,367
+{\an8}DISCLAIMER:
+THIS DRAMA IS A WORK OF FICTION
+
+562
+00:43:25,433 --> 00:43:28,367
+MISCHIEVOUS KISS 2
+
