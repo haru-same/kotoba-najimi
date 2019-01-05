@@ -167,3 +167,38 @@ module.exports.splitKanjiWithReadingString = (ref, hyp) =>{
 	}
 	return words;
 };
+
+module.exports.getDefaultIsContent = (text) => {
+	if (clean.containsPunctuation) {
+		return false;
+	}
+	return true;
+};
+
+module.exports.getDefaultSentenceJson = (text) => {
+	const tokens = module.exports.getTokensSync(text);
+	const jsonText = [];
+	for (const token of tokens) {
+		const isContent = module.exports.getDefaultIsContent(token.s);
+		const text = [];
+		if (token.r && token.r != token.s) {
+			let suffix = '';
+			for (let i = 0; i < token.r.length; i++) {
+				if (token.s[token.s.length - i - 1] != token.s[token.r.length - i - 1]) {
+					break;
+				}
+				suffix += token.s[token.s.length - i - 1];
+			}
+			text.push([
+				token.s.substring(0, token.s.length - suffix.length), 
+				token.r.substring(0, token.s.length - suffix.length)]);
+			if (suffix.length > 0) {
+				text.push([suffix]);
+			}
+		} else {
+			text.push([token.s]);
+		}
+		jsonText.push({text:text, isContent:isContent});
+	}
+	return jsonText;
+};

@@ -1,5 +1,11 @@
-<div class="mdc-text-field text-field mdc-text-field--outlined mdc-text-field--dense mdc-text-field--fullwidth" style="padding-left: 10px">
-  <input 
+<div class="mdc-text-field mdc-text-field--textarea">
+  <textarea id="textarea" class="mdc-text-field__input" rows="4"
+  style="font-size: 2rem"></textarea>
+  <label for="textarea" class="mdc-floating-label"></label>
+</div>
+
+<!-- <div class="mdc-text-field text-field mdc-text-field--textarea mdc-text-field--outlined mdc-text-field--dense mdc-text-field--fullwidth" style="padding-left: 10px">
+  <textarea
   	class="mdc-text-field__input response-input" 
   	style=" font-size: 2rem; text-align: left;"
 	id="reading-input-<%= Math.random() %>"
@@ -10,25 +16,16 @@
 	autocorrect="off"
 	autocomplete="false"
 	spellcheck="false"
-  />
-  <label for="tf-outlined">読み方</label>
+  rows="4"
+  ></textarea> 
+  <label for="tf-outlined" class="mdc-floating-label">読み方</label>
   <div class="mdc-notched-outline">
     <svg>
       <path class="mdc-notched-outline__path"/>
     </svg>
   </div>
   <div class="mdc-notched-outline__idle"></div>
-</div>
-
-<style type="text/css">
-  .mdc-notched-outline {
-    pointer-events: none;
-  }
-
-  .mdc-notched-outline__idle {
-    pointer-events: none;
-  }
-</style>
+</div> -->
 <script type="text/javascript">
 	new mdc.textfield.MDCTextField(document.querySelector('.mdc-text-field'));
 </script>

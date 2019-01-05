@@ -3,6 +3,8 @@ const logging = require('../libs/review-logging');
 const decks = require('../libs/review-data');
 const jaTools = require('../libs/ja-tools');
 const jaDictionary = require('../libs/ja-dictionary');
+const util = require('../libs/util');
+const clean = require('../libs/clean');
 
 const clozeSources = [
 	'data/alllines-fc.txt',
@@ -46,4 +48,16 @@ module.exports.getRandomClozeSentence = (id) => {
 	const list = wordClozes[id];
 	if(!list) return null;
 	return list[Math.floor(Math.random() * list.length)];
+};
+
+module.exports.getNewClozeFact = () => {
+	const deck = decks.getDeck('kanji');
+	const facts = deck.getAllFacts();
+	const availableFactIds = [];
+	for (const factId in facts) {
+		if (facts[factId].audio) {
+			availableFactIds.push(factId);
+		}
+	}
+	return facts[util.randomFromArray(availableFactIds)];
 };

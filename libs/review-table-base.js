@@ -48,6 +48,16 @@ class ReviewTable {
 		userdata.saveTable(statesTable);
 	}
 
+	deleteState(id){
+		if(!id) return; 
+
+		const statesTable = userdata.getTable(this.stateTableName);
+
+		if(statesTable.data[id]) delete statesTable.data[id];
+		
+		userdata.saveTable(statesTable);
+	}
+
 	deleteAll(){
 		userdata.deleteTable(this.factTableName);
 		userdata.deleteTable(this.stateTableName);

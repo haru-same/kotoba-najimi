@@ -1063,7 +1063,7 @@ const getDeckFromRequest = (req) => {
 		res.send("deck not found: " + deckName);
 		return null;
 	}
-	deck.syncStates();
+	// deck.syncStates();
 	return deck;
 };
 
@@ -1374,10 +1374,9 @@ module.exports.init = (app) => {
 			const id = req.body.id;
 			if(id){
 				console.log(deck);
-				const fact = deck.find(id);
 				const state = deck.findState(id);
-				reviewLogging.log({ type: 'delete-fact', fact: fact, state: state });
-				deck.delete(id);
+				reviewLogging.log({ type: 'delete-state', state: state });
+				deck.deleteState(id);
 			}
 			res.send('done');	
 		}
@@ -1593,10 +1592,12 @@ module.exports.init = (app) => {
 	app.get('/sentence-chunks', (req, res) => {
 		if(req.query.id){
 			const deck = decks.getDeck("kanji");
-			const fact = deck.find(req.body.id);
+			const fact = deck.find(req.query.id);
 			if(fact['sentence-chunks']){
-				res.send(available.join(' ').replace( /\s\s+/g, ' '));
-				return fact['sentence-chunks'];
+				res.send(fact['sentence-chunks'].replace( /\s\s+/g, ' '));
+				return;
+			} else {
+				req.query.text = fact.sentence;
 			}
 		}
 
@@ -1654,5 +1655,33 @@ module.exports.init = (app) => {
 		});
 
 		res.send(furiganaHtml);
+	});
+
+	app.get('/sentence-json-editor', (req, res) => {
+		const fact = clozeReviews.getNewClozeFact();
+		const furiganaTemplate = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+		const furiganaHtml = ejs.render(furiganaTemplate, { elements: furigana(fact.sentence) });
+
+		if (!fact['sentence-json']) {
+			fact['sentence-json'] = jaTools.getDefaultSentenceJson(fact.sentence);
+		}
+
+		res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact });
+	});
+
+	app.post('/sentence-json', (req, res) => {
+		if(!req.body.id){
+			return;
+		}
+
+		const fact = clozeReviews.getNewClozeFact();
+		const furiganaTemplate = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+		const furiganaHtml = ejs.render(furiganaTemplate, { elements: furigana(fact.sentence) });
+
+		if (!fact['sentence-json']) {
+			fact['sentence-json'] = jaTools.getDefaultSentenceJson(fact.sentence);
+		}
+
+		res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact });
 	});
 };

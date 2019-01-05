@@ -1,0 +1,101 @@
+<div class="card-row display-text large" style="text-align:left; padding-left: 8px"><%- furiganaHtml %></div>
+<%- include('text-area') %>
+<div id="rendered-sentence" class="card-row display-text large" style="text-align:left; padding-left: 8px"><%= fact.sentence %></div>
+<%- include('button', {id: 'submit-button', label: '<i class="fas fa-plus-circle"></i>'}) %>
+
+<style type="text/css">
+	.text-part {
+		display: inline-block;
+		margin-right: 4px;
+	}
+
+	.text-part.is-content {
+		background: var(--mdc-theme-primary, #6200ee);
+		color:white;
+		border-radius: 6px;
+		padding: 0 8px;
+	}
+</style>
+
+<script type="text/javascript">
+	const sentenceJson = <%- JSON.stringify(fact['sentence-json']) %>;
+
+	const jsonToHtml = (sentenceJson) => {
+		const htmlParts = [];
+		for (const jsonPart of sentenceJson) {
+			htmlParts.push(`<span class="text-part ${jsonPart.isContent ? 'is-content' : ''}">`);
+			htmlParts.push('<ruby>');
+			for (const textPart of jsonPart.text) {
+				const rb = textPart[0];
+				const rt = textPart[1] || '';
+				htmlParts.push(`<rb>${rb}</rb><rt>${rt}</rt>`);
+			}
+			htmlParts.push('</ruby>');
+			htmlParts.push('</span>');
+		}
+		return htmlParts.join('');
+	};
+
+	const jsonToFormatString = (jsonParts) => {
+		const stringParts = [];
+		for (const jsonPart of sentenceJson) {
+			console.log(jsonPart);
+			for (const textPart of jsonPart.text) {
+				if (textPart.length == 1) {
+					stringParts.push(textPart[0]);
+				} else if (textPart.length == 2) {
+					stringParts.push(`［${textPart[0]}：${textPart[1]}］`)
+				}
+			}
+		}
+		return stringParts.join(' ');
+	}
+
+	const formatStringToJson = (formatString) => {
+		const parts = formatString.split(' ');
+		const jsonParts = [];
+		console.log(parts);
+		for(const part of parts) {
+			let jsonPart = {text:[], isContent:true};
+			jsonParts.push(jsonPart);
+
+			let currentReadingPart = null;
+			let currentReadingIndex = 0;
+			for(let i = 0; i < part.length; i++){
+				if(part[i] == '［'){
+					currentReadingPart = ['', ''];
+					jsonPart.text.push(currentReadingPart);
+					currentReadingIndex = 0;
+				} else if (part[i] == '：') {
+					currentReadingIndex = 1;
+				} else if (part[i] == '］') {
+					currentReadingPart = null;
+				} else {
+					if (!currentReadingPart) {
+						currentReadingPart = [''];
+						jsonPart.text.push(currentReadingPart);
+						currentReadingIndex = 0;
+					}
+					currentReadingPart[currentReadingIndex] += part[i];
+				}
+			}
+		}
+		return jsonParts;
+	};
+
+	const updateRenderedSentence = () => {
+		const formatString = $('textarea').val();
+		$('#rendered-sentence').html(jsonToHtml(formatStringToJson(formatString)));
+	};
+
+	$('textarea').on('keyup', (e) => {
+		updateRenderedSentence();
+	});
+
+	$('textarea').val(jsonToFormatString(sentenceJson));
+	updateRenderedSentence();
+	$('textarea').focus();
+	$('textarea').select();
+
+	wanakana.bind(document.querySelector('textarea'));
+</script>
