@@ -17,6 +17,7 @@ const util = require('./util');
 const jaTools = require('./ja-tools');
 const jaDictionary = require('./ja-dictionary');
 const videoConfig = require('./video-tools/video-config');
+const videoUtil = require('./video-tools/video-util');
 
 const dictionaryAudio = require('./dictionary-audio');
 
@@ -49,7 +50,7 @@ const setUpdatedDue = (state, result) => {
 	} else {
 		state.streak = 0;
 	}
-	state.due = new Date().getTime() + (reviewTools.streakToInterval(state.streak) * (0.9 + (Math.random() * 0.2)));
+	state.due = new Date().getTime() + (reviewTools.streakToInterval(state.streak) * (0.5 + Math.random()));
 };
 
 const resetFact = (deckName, id) => {
@@ -61,7 +62,15 @@ const resetFact = (deckName, id) => {
 
 const createAudioWordFact = (data) => {
 	let type = decks.AUDIO_WORD_TYPE;
-	decks.createFact('kanji', type, data);
+	const deck = decks.getDeck('kanji');
+	const fact = decks.createFact('kanji', type, data);
+	console.log('adding 4 states for ');
+	console.log(fact);
+	const day = 1000 * 60 * 60 * 24;
+	deck.addState(fact.id, 0);
+	deck.addState(fact.id, 1, day);
+	deck.addState(fact.id, 2, 3*day);
+	deck.addState(fact.id, 3, 2*day);
 	return data;
 };
 
@@ -382,6 +391,41 @@ const getSimpleCloze = (text, word, blankLength=2) => {
 	return clean.replaceNewlinesWithBreaks(text.replace(word, "＿".repeat(blankLength)));
 }
 
+const getRandomSentenceJsonCloze = (fact) => {
+	const availableWords = [];
+	for (let i = 0; i < fact['sentence-json'].length; i++) {
+		const jsonPart = fact['sentence-json'][i];
+		if (jsonPart.isContent) {
+			availableWords.push(i);
+		}
+	}
+	const targetWordIndex = util.randomFromArray(availableWords);
+	let text = '';
+	for (let i = 0; i < fact['sentence-json'].length; i++) {
+		const jsonPart = fact['sentence-json'][i];
+		if (i == targetWordIndex) {
+			let kanjiReference = '';
+			let readingReference = '';
+			for (const item of jsonPart.text) {
+				for (const c of item[0]) {
+					text += '＿';
+				}
+
+				kanjiReference += item[0];
+				readingReference += item[1] || item[0];
+			}
+			fact.reading = readingReference;
+			fact.word = readingReference;
+			fact.references = [kanjiReference, readingReference];
+		} else {
+			for (const item of jsonPart.text) {
+				text += item[0];
+			}
+		}
+	}
+	return clean.replaceNewlinesWithBreaks(text);
+}
+
 const getSimpleHighlight = (text, word) => {
 	return clean.replaceNewlinesWithBreaks(text.replace(word, `<b>${word}</b>`));
 }
@@ -486,7 +530,21 @@ const setRandomCloze = (reviewData) => {
 		reviewData.fact.clozeSentence = reviewData.fact['sentence-chunks'];
 		console.log(available, reviewData.options.randomWord);
 	}
-}
+};
+
+const sentenceJsonToFurigana = (sentenceJson) => {
+	let elements = [];
+	for (const word of sentenceJson) {
+		for (const part of word.text) {
+			const element = {s: part[0]};
+			if (part[1]) {
+				element.r = part[1];
+			}
+			elements.push(element);
+		}
+	}
+	return elements;
+};
 
 const renderReview = (res, deckName, id, options, debugData) => {
 	const deck = decks.getDeck(deckName);
@@ -546,7 +604,9 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
 	const sentence = reviewData.fact.sentence || reviewData.fact.context;
 	let furiganaHtml = "";
-	if(reviewData.fact['sentence-reading']){
+	if (reviewData.fact['sentence-json']) {
+		furiganaHtml = ejs.render(template, { elements: sentenceJsonToFurigana(reviewData.fact['sentence-json']) });
+	} else if (reviewData.fact['sentence-reading']){
 		furiganaHtml = ejs.render(template, { elements: renderFurigana(sentence, reviewData.fact['sentence-reading']) });
 	} else {
 		furiganaHtml = ejs.render(template, { elements: furigana(sentence) });
@@ -561,7 +621,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		}
 	}
 
-	if(reviewData.fact['video-id']){
+	if(reviewData.fact['video-id'] && reviewData.fact.type != 8){
 		reviewData.params.videoInfo = videoConfig.getVideoDataForId(reviewData.fact['video-id']);
 	}
 
@@ -597,6 +657,8 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.params);
 	console.log("type:" + type);
 
+	reviewData.fact.references = [reviewData.fact.word, reviewData.fact.reading];
+
 	let condition = 0;
 	switch(type){
 	case 0:
@@ -629,7 +691,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 		console.log(`rendering type ${type} condition ${condition}`);
 		switch (condition){
-			case 0:
+			case 0: // Typed word
 				reviewData.params.promptType = 'typed-reading';
 				reviewData.params.responseRoute = 'partial/typed-response';
 
@@ -637,7 +699,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 				res.render('review-base', reviewData);
 				return;
-			case 1:
+			case 1: // Spoken word
 				reviewData.params.promptType = 'spoken-reading';
 				reviewData.params.responseRoute = 'partial/voice-response';
 
@@ -646,7 +708,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 				res.render('review-base', reviewData);
 				return;
-			case 2:
+			case 2: // Typed cloze
 				reviewData.params.promptType = 'typed-cloze';
 				reviewData.params.responseRoute = 'partial/typed-response';
 
@@ -679,7 +741,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 		console.log('COND: ' + condition);
 		switch (condition){
-			case 0:
+			case 0: // Word audio cloze
 				reviewData.params.promptType = 'audio-cloze';
 
 				reviewData.params.promptRoute = 'partial/audio-prompt';
@@ -695,7 +757,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 				// res.render('recall-review', reviewData);
 				break;
-			case 1:
+			case 1: // Speak word
 				reviewData.params.promptType = 'spoken-reading';
 
 				reviewData.params.promptRoute = 'partial/text-prompt';
@@ -704,7 +766,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				reviewData.params.backgroundRoute = 'partial/image-background';
 				reviewData.params.playAudioOnComplete = true;
 
-				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word);
+				reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 
 				res.render('review-base', reviewData);
@@ -714,7 +776,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				if(options.noSpeech) reviewData.params.useTextInput = true;
 				res.render('kanji-review', reviewData);
 				break;
-			case 2:
+			case 2: // Text cloze
 				reviewData.params.promptType = 'typed-cloze';
 				
 				reviewData.params.promptRoute = 'partial/text-prompt';
@@ -725,11 +787,11 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				reviewData.params.noImage = true;
 
 				reviewData.params.displayText['initial'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
-				reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+				// reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
 
 				res.render('review-base', reviewData);
 				return;
-			case 3:
+			case 3: // Kanji reading only
 				reviewData.params.onlyKanji = true;
 				reviewData.params.useTextInput = true;
 				reviewData.params.useCloze = false;
@@ -745,6 +807,33 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				reviewData.params.noImage = true;
 
 				reviewData.params.displayText['initial'] = reviewData.fact.word;
+				res.render('review-base', reviewData);
+				return;
+			case 4: // Random audio cloze
+				reviewData.params.promptType = 'audio-cloze';
+
+				reviewData.params.promptRoute = 'partial/audio-prompt';
+				reviewData.params.promptButtonContent = '<i class="fas fa-random"></i>';
+				reviewData.params.responseRoute = 'partial/typed-response';
+
+				reviewData.params.backgroundRoute = 'partial/image-background';
+				reviewData.params.noImage = true;
+
+				reviewData.params.displayText['initial'] = "";
+				reviewData.params.displayText['prompt-complete'] = getRandomSentenceJsonCloze(reviewData.fact);
+
+				reviewData.params.boldedFuriganaHtml = ejs.render(template, { 
+					elements: renderFurigana(
+						sentence, 
+						reviewData.fact['sentence-reading'] || furigana(sentence, { onlyFurigana: true }),
+						{
+							tagString: options.clozeWord || reviewData.fact.target || reviewData.fact.word,
+							getTaggedPair: (p) => { return { r: p.r, s: `<b>${p.s}</b>` }; }
+						})
+				});
+				reviewData.params.displayText = reviewData.params.displayText || {};
+				reviewData.params.displayText['response-complete'] = reviewData.params.boldedFuriganaHtml;
+
 				res.render('review-base', reviewData);
 				return;
 			default:
@@ -798,6 +887,40 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		res.render('review-base', reviewData);
 
 		// res.render('recall-review', reviewData);
+		break;
+	case 8: // video
+		reviewData.params.videoInfo = { path: `/video-stream?file=${encodeURIComponent(videoUtil.tryGetVideoFile(reviewData.fact['video-id']))}` };
+		reviewData.params.source = 'video';
+		reviewData.params.responseRoute = 'partial/typed-response';
+
+		reviewData.params.backgroundRoute = 'partial/video-background';
+		reviewData.params.noImage = true;
+		reviewData.params.playAudioOnComplete = true;
+
+		switch (reviewData.state.condition) {
+		case 0:
+			reviewData.params.promptType = 'video-audio-cloze';
+			reviewData.params.promptRoute = 'partial/video-prompt';
+
+			reviewData.params.displayText['initial'] = "";
+			reviewData.params.displayText['prompt-complete'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+			res.render('review-base', reviewData);
+			return;
+		case 2:
+			reviewData.params.promptType = 'video-typed-cloze';
+			reviewData.params.promptRoute = 'partial/text-prompt';
+
+			reviewData.params.displayText['initial'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word);
+			res.render('review-base', reviewData);
+			return;
+		case 3: // Kanji reading only
+			reviewData.params.promptRoute = 'partial/text-prompt';
+			reviewData.params.promptType = 'typed-reading';
+
+			reviewData.params.displayText['initial'] = reviewData.fact.word;
+			res.render('review-base', reviewData);
+			return;
+		}
 		break;
 	default:
 		res.send("unhandled type: " + type);
@@ -1019,6 +1142,7 @@ const handleBaseReviewPost = (req, res) => {
 	}
 	
 	const scoreInfo = reviewTools.scoreReviewWithMatching(req.body.inputs, req.body.references);
+	console.log('score:', scoreInfo, req.body.inputs, req.body.references);
 	scoreInfo.hasTries = hasTries;
 
 	const preStreak = state.streak;
@@ -1083,6 +1207,44 @@ const handleRenderReviewRequest = (req, res, getReviewData) => {
 	renderReviewOrNoReviews(res, deck.name, reviewData.id, reviewData.options, reviewData.debug);
 };
 
+const getTodayNewRandomClozeCount = () => {
+	const states = decks.getDeck('kanji').getAllStates();
+	const beginningOfToday = new Date();
+	beginningOfToday.setHours(0,0,0,0);
+	let newRandomClozeCount = 0;
+	for (const stateId in states){
+		if (states[stateId].created > beginningOfToday) {
+			newRandomClozeCount++;
+		}
+	}
+	return newRandomClozeCount;
+}
+
+const renderSentenceJsonEditor = (req, res) => {
+	const deck = decks.getDeck('kanji');
+	let fact = null;
+	if(req.query.id){
+		fact = deck.find(req.query.id);
+	} else {
+		fact = clozeReviews.getNewClozeFact();
+	}
+
+	let stateAdded = false;
+	if (deck.findState({id: fact.id, condition: 4})) {
+		stateAdded = true;
+	}
+
+	if (!fact['sentence-json']) {
+		fact['sentence-json'] = jaTools.getDefaultSentenceJson(fact.sentence);
+	}
+
+	const furiganaTemplate = fs.readFileSync('./views/furigana.ejs', 'utf-8');
+	console.log(sentenceJsonToFurigana(fact['sentence-json']));
+	const furiganaHtml = ejs.render(furiganaTemplate, { elements: sentenceJsonToFurigana(fact['sentence-json']) });
+
+	res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact, stateAdded: stateAdded });
+};
+
 const falseSet = {
 	'0': true,
 	'f': true,
@@ -1136,18 +1298,25 @@ module.exports.init = (app) => {
 			return;
 		}
 
-		const expiredReviewId = deck.getExpiredReview();
-		if(expiredReviewId == null){
+		let newRandomCloze = req.query.newRandomCloze || 3;
+		newRandomCloze = parseInt(newRandomCloze);
+
+		const expiredReview = deck.getExpiredReview();
+		if(expiredReview == null){
 			let recallReview = null;
 			if(!isFlagSet(req.query, 'skipRecall')) recallReview = getRecallReview();
 			if(deck.name == 'kanji' && recallReview) {
 				// console.log(recallReview);
 				renderReview(res, 'kanji', recallReview, { type: 2, promptType: 'audio', noImage: true, source: 'daily-recall' });
+			} else if(getTodayNewRandomClozeCount() < newRandomCloze) {
+				renderSentenceJsonEditor(req, res);
 			} else {
 				renderNoReviews(res, deck.name);
 			}
 		} else {
+			const expiredReviewId = expiredReview.id;
 			const options = getOptionsForReviewQuery(req.query);
+			options.remainingReviews = expiredReview.count;
 			renderReview(res, deck.name, expiredReviewId, options);
 		}
 	});
@@ -1251,7 +1420,8 @@ module.exports.init = (app) => {
 
 		handleRenderReviewRequest(req, res, () => {
 			const deck = getDeckFromRequest(req);
-			const expiredReviewId = deck.getExpiredReview();
+			const expiredReview = deck.getExpiredReview();
+			const expiredReviewId = expiredReview.id;
 			const respeakFact = expiredReviewId ? deck.find(expiredReviewId) : {};
 			console.log('rs fact', respeakFact);
 
@@ -1310,7 +1480,8 @@ module.exports.init = (app) => {
 		if(!deck) return;
 
 		handleRenderReviewRequest(req, res, () => {
-			const factId = deck.getExpiredReview();
+			const expiredReview = deck.getExpiredReview();
+			const factId = expiredReview.id;
 			const facts = deck.getAllFacts();
 			const reviewData = {
 				id: factId,
@@ -1494,14 +1665,22 @@ module.exports.init = (app) => {
 
 	app.post('/create-video-fact', (req, res) => {
 		console.log("creating video fact", req.body);
-		decks.createFact('video', decks.VIDEO_TYPE, { 
+		const deck = req.body.deck || 'video';
+		const fact = decks.createFact(deck, decks.FILE_VIDEO_TYPE, { 
 			sentence: req.body.text.replace(/\n/g, ''), 
 			word: req.body.word, 
 			reading: req.body.reading, 
 			start: parseFloat(req.body.start),
 			end: parseFloat(req.body.end),
-			'video-id': req.body.videoId
+			'video-id': req.body.videoId,
 		});
+
+		const deckData = decks.getDeck(deck);
+		const day = 1000 * 60 * 60 * 24;
+		deckData.addState(fact.id, 0);
+		deckData.addState(fact.id, 2, day);
+		deckData.addState(fact.id, 3, 2 * day);
+
 		res.json({ success: true });
 	});
 
@@ -1658,15 +1837,7 @@ module.exports.init = (app) => {
 	});
 
 	app.get('/sentence-json-editor', (req, res) => {
-		const fact = clozeReviews.getNewClozeFact();
-		const furiganaTemplate = fs.readFileSync('./views/furigana.ejs', 'utf-8');
-		const furiganaHtml = ejs.render(furiganaTemplate, { elements: furigana(fact.sentence) });
-
-		if (!fact['sentence-json']) {
-			fact['sentence-json'] = jaTools.getDefaultSentenceJson(fact.sentence);
-		}
-
-		res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact });
+		renderSentenceJsonEditor(req, res);
 	});
 
 	app.post('/sentence-json', (req, res) => {
@@ -1674,14 +1845,29 @@ module.exports.init = (app) => {
 			return;
 		}
 
-		const fact = clozeReviews.getNewClozeFact();
-		const furiganaTemplate = fs.readFileSync('./views/furigana.ejs', 'utf-8');
-		const furiganaHtml = ejs.render(furiganaTemplate, { elements: furigana(fact.sentence) });
-
-		if (!fact['sentence-json']) {
-			fact['sentence-json'] = jaTools.getDefaultSentenceJson(fact.sentence);
+		const deck = decks.getDeck('kanji');
+		const fact = deck.find(req.body.id);
+		if (!fact) {
+			return;
 		}
 
-		res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact });
+		fact['sentence-json'] = req.body['sentence-json'];
+		for (const jsonPart of fact['sentence-json']) {
+			if (jsonPart.text.length == 1 && jsonPart.text[0] == '\n'){
+				jsonPart.isContent = false;	
+			} else {
+				jsonPart.isContent = jsonPart.isContent == 'true';
+			}
+		}
+
+		console.log(fact);
+		deck.updateFact(fact);
+
+		const state = deck.findState({id: fact.id, condition: 4});
+		if (!state) {
+			deck.addState(fact.id, 4);
+		}
+
+		res.send('success');
 	});
 };

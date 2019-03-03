@@ -1,31 +1,31 @@
+<% if(fact.image) { %>
+<%- include('image-background', { fact: fact }) %>
+<script type="text/javascript">setBackground()</script>
+<% } %>
+
 <div class="card-row display-text large" style="text-align:left; padding-left: 8px"><%- furiganaHtml %></div>
 <%- include('text-area') %>
 <div id="rendered-sentence" class="card-row display-text large" style="text-align:left; padding-left: 8px"><%= fact.sentence %></div>
 <%- include('button', {id: 'submit-button', label: '<i class="fas fa-plus-circle"></i>'}) %>
 
-<style type="text/css">
-	.text-part {
-		display: inline-block;
-		margin-right: 4px;
-	}
-
-	.text-part.is-content {
-		background: var(--mdc-theme-primary, #6200ee);
-		color:white;
-		border-radius: 6px;
-		padding: 0 8px;
-	}
-</style>
-
 <script type="text/javascript">
 	const sentenceJson = <%- JSON.stringify(fact['sentence-json']) %>;
+	const isContentMap = {};
+	for (const jsonPart of sentenceJson) {
+		isContentMap[JSON.stringify(jsonPart.text)] = jsonPart.isContent;
+	}
 
 	const jsonToHtml = (sentenceJson) => {
 		const htmlParts = [];
 		for (const jsonPart of sentenceJson) {
-			htmlParts.push(`<span class="text-part ${jsonPart.isContent ? 'is-content' : ''}">`);
+			htmlParts.push(`<span class='text-part ${jsonPart.isContent ? 'is-content' : ''}' json='${JSON.stringify(jsonPart.text)}'>`);
 			htmlParts.push('<ruby>');
 			for (const textPart of jsonPart.text) {
+				if (textPart[0] == '\n') {
+					htmlParts.push('<br>');
+					continue;
+				}
+
 				const rb = textPart[0];
 				const rt = textPart[1] || '';
 				htmlParts.push(`<rb>${rb}</rb><rt>${rt}</rt>`);
@@ -39,7 +39,6 @@
 	const jsonToFormatString = (jsonParts) => {
 		const stringParts = [];
 		for (const jsonPart of sentenceJson) {
-			console.log(jsonPart);
 			for (const textPart of jsonPart.text) {
 				if (textPart.length == 1) {
 					stringParts.push(textPart[0]);
@@ -47,14 +46,21 @@
 					stringParts.push(`［${textPart[0]}：${textPart[1]}］`)
 				}
 			}
+			stringParts.push(' ');
 		}
-		return stringParts.join(' ');
+		if (stringParts.length > 0) {
+			stringParts.pop();
+		}
+		return stringParts.join('');
 	}
 
 	const formatStringToJson = (formatString) => {
+		console.log(formatString.split(' '));
+		formatString = formatString.replace(/\n/g, ' \n ').replace(/  +/g, ' ');
+		console.log(formatString);
 		const parts = formatString.split(' ');
-		const jsonParts = [];
 		console.log(parts);
+		const jsonParts = [];
 		for(const part of parts) {
 			let jsonPart = {text:[], isContent:true};
 			jsonParts.push(jsonPart);
@@ -79,13 +85,24 @@
 					currentReadingPart[currentReadingIndex] += part[i];
 				}
 			}
+			const textPartKey = JSON.stringify(jsonPart.text);
+			jsonPart.isContent = textPartKey in isContentMap ? isContentMap[textPartKey] : true;
 		}
 		return jsonParts;
 	};
 
-	const updateRenderedSentence = () => {
+	const getSentenceJson = () => {
 		const formatString = $('textarea').val();
-		$('#rendered-sentence').html(jsonToHtml(formatStringToJson(formatString)));
+		return formatStringToJson(formatString);
+	}
+
+	const updateRenderedSentence = () => {
+		$('#rendered-sentence').html(jsonToHtml(getSentenceJson()));
+		$('.text-part').click((e) => {
+			const textPartElement = $(e.target).closest('.text-part');
+			textPartElement.toggleClass('is-content');
+			isContentMap[textPartElement.attr('json')] = textPartElement.hasClass('is-content');
+		});
 	};
 
 	$('textarea').on('keyup', (e) => {
@@ -98,4 +115,21 @@
 	$('textarea').select();
 
 	wanakana.bind(document.querySelector('textarea'));
+
+	let setCorrect = () => {
+		$("#main-card").toggleClass('correct', true);
+		$("#main-card").toggleClass('incorrect', false);
+		$("#submit-button").html('<i class="fas fa-redo-alt"></i>');
+	};
+
+	$('#submit-button').click(() => {
+		$.post('/sentence-json', { id: '<%- fact.id %>', 'sentence-json': getSentenceJson() }, (res) => {
+			console.log(res);
+			setCorrect();
+		});
+	});
+
+	<% if (stateAdded) { %>
+	setCorrect();
+	<% } %>
 </script>

@@ -1,0 +1,1474 @@
+[
+	{
+		"faceAnnotations": [],
+		"landmarkAnnotations": [],
+		"logoAnnotations": [],
+		"labelAnnotations": [],
+		"textAnnotations": [
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "ja",
+				"description": "ロイド\nああ、態度は厳しいけど\n懇切丁寧に教えてくれたよ。\n",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 206,
+							"y": 32
+						},
+						{
+							"x": 548,
+							"y": 32
+						},
+						{
+							"x": 548,
+							"y": 140
+						},
+						{
+							"x": 206,
+							"y": 140
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "ロイド",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 206,
+							"y": 32
+						},
+						{
+							"x": 283,
+							"y": 32
+						},
+						{
+							"x": 283,
+							"y": 54
+						},
+						{
+							"x": 206,
+							"y": 54
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "ああ",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 211,
+							"y": 73
+						},
+						{
+							"x": 262,
+							"y": 73
+						},
+						{
+							"x": 262,
+							"y": 100
+						},
+						{
+							"x": 211,
+							"y": 100
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "、",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 258,
+							"y": 73
+						},
+						{
+							"x": 265,
+							"y": 73
+						},
+						{
+							"x": 265,
+							"y": 100
+						},
+						{
+							"x": 258,
+							"y": 100
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "態度は厳しいけど",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 301,
+							"y": 73
+						},
+						{
+							"x": 506,
+							"y": 73
+						},
+						{
+							"x": 506,
+							"y": 100
+						},
+						{
+							"x": 301,
+							"y": 100
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "懇切丁寧に教えてくれたよ",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 217,
+							"y": 111
+						},
+						{
+							"x": 536,
+							"y": 111
+						},
+						{
+							"x": 536,
+							"y": 140
+						},
+						{
+							"x": 217,
+							"y": 140
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "。",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 540,
+							"y": 111
+						},
+						{
+							"x": 548,
+							"y": 111
+						},
+						{
+							"x": 548,
+							"y": 140
+						},
+						{
+							"x": 540,
+							"y": 140
+						}
+					],
+					"normalizedVertices": []
+				}
+			}
+		],
+		"localizedObjectAnnotations": [],
+		"safeSearchAnnotation": null,
+		"imagePropertiesAnnotation": null,
+		"error": null,
+		"cropHintsAnnotation": null,
+		"fullTextAnnotation": {
+			"pages": [
+				{
+					"blocks": [
+						{
+							"paragraphs": [
+								{
+									"words": [
+										{
+											"symbols": [
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 206,
+																"y": 32
+															},
+															{
+																"x": 228,
+																"y": 32
+															},
+															{
+																"x": 228,
+																"y": 54
+															},
+															{
+																"x": 206,
+																"y": 54
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ロ",
+													"confidence": 0.9200000166893005
+												},
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 234,
+																"y": 32
+															},
+															{
+																"x": 256,
+																"y": 32
+															},
+															{
+																"x": 256,
+																"y": 54
+															},
+															{
+																"x": 234,
+																"y": 54
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "イ",
+													"confidence": 0.9100000262260437
+												},
+												{
+													"property": {
+														"detectedLanguages": [],
+														"detectedBreak": {
+															"type": "LINE_BREAK",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 262,
+																"y": 32
+															},
+															{
+																"x": 283,
+																"y": 32
+															},
+															{
+																"x": 283,
+																"y": 54
+															},
+															{
+																"x": 262,
+																"y": 54
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ド",
+													"confidence": 0.9700000286102295
+												}
+											],
+											"property": null,
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 206,
+														"y": 32
+													},
+													{
+														"x": 283,
+														"y": 32
+													},
+													{
+														"x": 283,
+														"y": 54
+													},
+													{
+														"x": 206,
+														"y": 54
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9300000071525574
+										}
+									],
+									"property": null,
+									"boundingBox": {
+										"vertices": [
+											{
+												"x": 206,
+												"y": 32
+											},
+											{
+												"x": 283,
+												"y": 32
+											},
+											{
+												"x": 283,
+												"y": 54
+											},
+											{
+												"x": 206,
+												"y": 54
+											}
+										],
+										"normalizedVertices": []
+									},
+									"confidence": 0.9300000071525574
+								}
+							],
+							"property": null,
+							"boundingBox": {
+								"vertices": [
+									{
+										"x": 206,
+										"y": 32
+									},
+									{
+										"x": 283,
+										"y": 32
+									},
+									{
+										"x": 283,
+										"y": 54
+									},
+									{
+										"x": 206,
+										"y": 54
+									}
+								],
+								"normalizedVertices": []
+							},
+							"blockType": "TEXT",
+							"confidence": 0.9300000071525574
+						},
+						{
+							"paragraphs": [
+								{
+									"words": [
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 211,
+																"y": 73
+															},
+															{
+																"x": 234,
+																"y": 73
+															},
+															{
+																"x": 234,
+																"y": 100
+															},
+															{
+																"x": 211,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "あ",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 239,
+																"y": 73
+															},
+															{
+																"x": 262,
+																"y": 73
+															},
+															{
+																"x": 262,
+																"y": 100
+															},
+															{
+																"x": 239,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "あ",
+													"confidence": 0.9800000190734863
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 211,
+														"y": 73
+													},
+													{
+														"x": 262,
+														"y": 73
+													},
+													{
+														"x": 262,
+														"y": 100
+													},
+													{
+														"x": 211,
+														"y": 100
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 258,
+																"y": 73
+															},
+															{
+																"x": 265,
+																"y": 73
+															},
+															{
+																"x": 265,
+																"y": 100
+															},
+															{
+																"x": 258,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "、",
+													"confidence": 0.9900000095367432
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 258,
+														"y": 73
+													},
+													{
+														"x": 265,
+														"y": 73
+													},
+													{
+														"x": 265,
+														"y": 100
+													},
+													{
+														"x": 258,
+														"y": 100
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9900000095367432
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 301,
+																"y": 73
+															},
+															{
+																"x": 324,
+																"y": 73
+															},
+															{
+																"x": 324,
+																"y": 100
+															},
+															{
+																"x": 301,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "態",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 330,
+																"y": 73
+															},
+															{
+																"x": 350,
+																"y": 73
+															},
+															{
+																"x": 350,
+																"y": 100
+															},
+															{
+																"x": 330,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "度",
+													"confidence": 1
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 351,
+																"y": 73
+															},
+															{
+																"x": 374,
+																"y": 73
+															},
+															{
+																"x": 374,
+																"y": 100
+															},
+															{
+																"x": 351,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "は",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 386,
+																"y": 73
+															},
+															{
+																"x": 407,
+																"y": 73
+															},
+															{
+																"x": 407,
+																"y": 100
+															},
+															{
+																"x": 386,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "厳",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 404,
+																"y": 73
+															},
+															{
+																"x": 422,
+																"y": 73
+															},
+															{
+																"x": 422,
+																"y": 100
+															},
+															{
+																"x": 404,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "し",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 429,
+																"y": 73
+															},
+															{
+																"x": 453,
+																"y": 73
+															},
+															{
+																"x": 453,
+																"y": 100
+															},
+															{
+																"x": 429,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "い",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 463,
+																"y": 73
+															},
+															{
+																"x": 486,
+																"y": 73
+															},
+															{
+																"x": 486,
+																"y": 100
+															},
+															{
+																"x": 463,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "け",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": {
+															"type": "EOL_SURE_SPACE",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 488,
+																"y": 73
+															},
+															{
+																"x": 506,
+																"y": 73
+															},
+															{
+																"x": 506,
+																"y": 100
+															},
+															{
+																"x": 488,
+																"y": 100
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ど",
+													"confidence": 0.9900000095367432
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 301,
+														"y": 73
+													},
+													{
+														"x": 506,
+														"y": 73
+													},
+													{
+														"x": 506,
+														"y": 100
+													},
+													{
+														"x": 301,
+														"y": 100
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 217,
+																"y": 111
+															},
+															{
+																"x": 236,
+																"y": 111
+															},
+															{
+																"x": 236,
+																"y": 140
+															},
+															{
+																"x": 217,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "懇",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 241,
+																"y": 111
+															},
+															{
+																"x": 260,
+																"y": 111
+															},
+															{
+																"x": 260,
+																"y": 140
+															},
+															{
+																"x": 241,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "切",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 262,
+																"y": 111
+															},
+															{
+																"x": 286,
+																"y": 111
+															},
+															{
+																"x": 286,
+																"y": 140
+															},
+															{
+																"x": 262,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "丁",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 299,
+																"y": 111
+															},
+															{
+																"x": 321,
+																"y": 111
+															},
+															{
+																"x": 321,
+																"y": 140
+															},
+															{
+																"x": 299,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "寧",
+													"confidence": 1
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 316,
+																"y": 111
+															},
+															{
+																"x": 340,
+																"y": 111
+															},
+															{
+																"x": 340,
+																"y": 140
+															},
+															{
+																"x": 316,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "に",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 358,
+																"y": 111
+															},
+															{
+																"x": 382,
+																"y": 111
+															},
+															{
+																"x": 382,
+																"y": 140
+															},
+															{
+																"x": 358,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "教",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 380,
+																"y": 111
+															},
+															{
+																"x": 397,
+																"y": 111
+															},
+															{
+																"x": 397,
+																"y": 140
+															},
+															{
+																"x": 380,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "え",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 401,
+																"y": 111
+															},
+															{
+																"x": 423,
+																"y": 111
+															},
+															{
+																"x": 423,
+																"y": 140
+															},
+															{
+																"x": 401,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "て",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 430,
+																"y": 111
+															},
+															{
+																"x": 454,
+																"y": 111
+															},
+															{
+																"x": 454,
+																"y": 140
+															},
+															{
+																"x": 430,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "く",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 460,
+																"y": 111
+															},
+															{
+																"x": 484,
+																"y": 111
+															},
+															{
+																"x": 484,
+																"y": 140
+															},
+															{
+																"x": 460,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "れ",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 491,
+																"y": 111
+															},
+															{
+																"x": 513,
+																"y": 111
+															},
+															{
+																"x": 513,
+																"y": 140
+															},
+															{
+																"x": 491,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "た",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 517,
+																"y": 111
+															},
+															{
+																"x": 536,
+																"y": 111
+															},
+															{
+																"x": 536,
+																"y": 140
+															},
+															{
+																"x": 517,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "よ",
+													"confidence": 0.9800000190734863
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 217,
+														"y": 111
+													},
+													{
+														"x": 536,
+														"y": 111
+													},
+													{
+														"x": 536,
+														"y": 140
+													},
+													{
+														"x": 217,
+														"y": 140
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": {
+															"type": "LINE_BREAK",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 540,
+																"y": 111
+															},
+															{
+																"x": 548,
+																"y": 111
+															},
+															{
+																"x": 548,
+																"y": 140
+															},
+															{
+																"x": 540,
+																"y": 140
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "。",
+													"confidence": 0.9100000262260437
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 540,
+														"y": 111
+													},
+													{
+														"x": 548,
+														"y": 111
+													},
+													{
+														"x": 548,
+														"y": 140
+													},
+													{
+														"x": 540,
+														"y": 140
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9100000262260437
+										}
+									],
+									"property": null,
+									"boundingBox": {
+										"vertices": [
+											{
+												"x": 211,
+												"y": 73
+											},
+											{
+												"x": 548,
+												"y": 73
+											},
+											{
+												"x": 548,
+												"y": 140
+											},
+											{
+												"x": 211,
+												"y": 140
+											}
+										],
+										"normalizedVertices": []
+									},
+									"confidence": 0.9800000190734863
+								}
+							],
+							"property": null,
+							"boundingBox": {
+								"vertices": [
+									{
+										"x": 211,
+										"y": 73
+									},
+									{
+										"x": 548,
+										"y": 73
+									},
+									{
+										"x": 548,
+										"y": 140
+									},
+									{
+										"x": 211,
+										"y": 140
+									}
+								],
+								"normalizedVertices": []
+							},
+							"blockType": "TEXT",
+							"confidence": 0.9800000190734863
+						}
+					],
+					"property": {
+						"detectedLanguages": [
+							{
+								"languageCode": "ja",
+								"confidence": 0.8899999856948853
+							}
+						],
+						"detectedBreak": null
+					},
+					"width": 960,
+					"height": 544,
+					"confidence": 0
+				}
+			],
+			"text": "ロイド\nああ、態度は厳しいけど\n懇切丁寧に教えてくれたよ。\n"
+		},
+		"webDetection": null,
+		"productSearchResults": null,
+		"context": null
+	}
+]

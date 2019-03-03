@@ -78,14 +78,32 @@ body {
 	background-color: rgba(255, 205, 210, 0.8);
 }
 
-.correct > div > div > .mdc-button:not(:disabled) {
+.correct .mdc-button:not(:disabled) {
 	background-color: #4CAF50;
 }
 
-.incorrect > div > div > .mdc-button:not(:disabled) {
+.incorrect .mdc-button:not(:disabled) {
 	background-color: #f44336;
 }
 
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
   color: var(--mdc-theme-primary, #6200ee)
+}
+
+.text-part {
+	display: inline-block;
+	margin-right: 4px;
+	margin-bottom: 4px;
+	cursor: pointer;
+	padding: 0 8px;
+}
+
+.text-part.is-content {
+	background: var(--mdc-theme-primary, #6200ee);
+	color:white;
+	border-radius: 6px;
+}
+
+.correct .text-part.is-content {
+	background-color: #4CAF50;
 }

@@ -18,82 +18,27 @@ if(firstReview == null){
 	reviewProgress.timeString = "no cards have been made"
 } else {
 	const time = firstReview.due;
+	const seconds = (time - new Date().getTime()) / 1000;
 	const minutes = (time - new Date().getTime()) / (1000 * 60);
 	const hours = (time - new Date().getTime()) / (1000 * 60 * 60);
-	if(minutes < 60) {
-		reviewProgress.timeString = Math.round(minutes);
-		if(reviewProgress.timeString > 1) reviewProgress.timeString += " minute";
-		else reviewProgress.timeString += " minutes";
-	} else if(hours < 17) {
-		reviewProgress.timeString =  Math.round(hours);
-		if(reviewProgress.timeString == 1) reviewProgress.timeString += " hour";
-		else reviewProgress.timeString += " hours";
+	if(seconds < 60) {
+		reviewProgress.timeString = Math.floor(seconds);
+		reviewProgress.timeString += "秒";
+	} else if(minutes < 60) {
+		reviewProgress.timeString = Math.floor(minutes);
+		reviewProgress.timeString += "分";
+	} else if(hours < 24) {
+		reviewProgress.timeString =  Math.floor(hours);
+		reviewProgress.timeString += "時間";
 	} else {
-		reviewProgress.timeString = Math.round(hours / 24);
-		if(reviewProgress.timeString == 1) reviewProgress.timeString += " day";
-		else reviewProgress.timeString += " days";
+		reviewProgress.timeString = Math.floor(hours / 24);
+		reviewProgress.timeString += "日";
 	}
 }
-%>
-<html>
-<head>
-	<title>(<%= reviewProgress.createdToday %>新枚) 復習</title>
 
-	<script src="/js/jquery-3.2.1.min.js"></script>
-	<script src="https://use.fontawesome.com/d8b5485bc7.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="/css/review.css">
-
-<% 
 let iconDir = 'estelle';
 if (typeof icon != 'undefined' && icon) {
 	iconDir = icon;
 } 
 %>
-	<link rel="apple-touch-icon" sizes="76x76" href="/icons/<%= iconDir %>/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/icons/<%= iconDir %>/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="/icons/<%= iconDir %>/favicon-16x16.png">
-	<link rel="manifest" href="/icons/<%= iconDir %>/site.webmanifest">
-	<link rel="mask-icon" href="/icons/<%= iconDir %>/safari-pinned-tab.svg" color="#5bbad5">
-	<link rel="shortcut icon" href="/icons/<%= iconDir %>/favicon.ico">
-	<meta name="msapplication-TileColor" content="#2d89ef">
-	<meta name="msapplication-config" content="/icons/<%= iconDir %>/browserconfig.xml">
-	<meta name="theme-color" content="#ffffff">
-
-	<script type="text/javascript">
-		setTimeout(() => {
-			location.reload();
-		}, 1000 * 60 * 10);
-		// reload after 10 minutes
-		 
-		$(document).ready(() => {
-			$('#submit-text').click(() => {
-				const note = $('#note-area').val();
-				$.post('/log-note', { note: note }, (res) => {
-					console.log(res);
-					if(res == 'done'){
-						$('#note-area').val("");
-					}
-				});
-			});
-		});
-	</script>
-</head>
-<body>
-	<div class="band" style="text-align:center; font-size: 2rem">
-		Next review in about <%= reviewProgress.timeString %> (<%= reviewProgress.next24hourReviews %> in the next day)
-		<div style="font-size: 1.5rem">
-		<br>
-		<br>
-		<%= Object.keys(facts).length %> total cards added (<%= reviewProgress.createdToday %> today)<br>
-		<br>
-		<br><br>
-		<textarea id="note-area" rows="4" cols="100" placeholder="enter a note..."></textarea>
-		<br>
-		<button id="submit-text">Submit</button>
-		<br><br>
-		<%= new Date() %>
-		</div>
-	</div>
-</body>
-</html>
+<%- include('partial/card-page', { content: include('partial/no-reviews-content', {reviewProgress: reviewProgress}), title: `${reviewProgress.statesCreatedToday}新枚` }) %>

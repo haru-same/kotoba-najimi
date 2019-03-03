@@ -1,12 +1,12 @@
 <script type="text/javascript">
 	const videoButtonContent = '<i class="fas fa-play-circle"></i>';
-	const endTime = <%- fact.end %>;
-	$('#main-video')[0].currentTime = <%= fact.start %>;
+	const endTime = <%- fact.end + 0.1 %>;
+	$('#main-video')[0].currentTime = <%= fact.start - 0.5 %>;
 
 	getPromptPromise = () => {
 		return new Promise((resolve) => {
 			const playPrompt = (callback) => {
-				$('#main-video')[0].currentTime = <%= fact.start %>;
+				$('#main-video')[0].currentTime = <%= fact.start - 0.5 %>;
 				$('#main-video').on('timeupdate', () => {
 					console.log($('#main-video')[0].currentTime, );
 					if($('#main-video')[0].currentTime > endTime) {

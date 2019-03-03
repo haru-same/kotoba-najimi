@@ -26,6 +26,7 @@ $.getScript( "/js/ja/data.js", function( data, textStatus, jqxhr ) {
 	const selectForward = (startNode, startIndex, length) => {
 		let endNode = startNode;
 		let endIndex = startIndex + length;
+		if (!startNode) return;
 		let text = startNode.textContent.substring(startIndex, Math.min(startIndex + length, startNode.textContent.length));
 		if(startNode.parentNode.tagName == "RB"){
 			endNode = startNode.parentNode;
@@ -122,6 +123,7 @@ $.getScript( "/js/ja/data.js", function( data, textStatus, jqxhr ) {
 
 			let newSelection = selectForward(lastStartNode, lastStart, lastSize);
 
+			if (!newSelection) return;
 			let newRange = document.createRange();
 			newRange.setStart(newSelection.startNode, lastStart);
 			newRange.setEnd(newSelection.endNode, newSelection.endIndex); 

@@ -1,0 +1,624 @@
+[
+	{
+		"faceAnnotations": [],
+		"landmarkAnnotations": [],
+		"logoAnnotations": [],
+		"labelAnnotations": [],
+		"textAnnotations": [
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "ja",
+				"description": "共和国軍士官\n到着寸。\n",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 359,
+							"y": 167
+						},
+						{
+							"x": 519,
+							"y": 167
+						},
+						{
+							"x": 519,
+							"y": 237
+						},
+						{
+							"x": 359,
+							"y": 237
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "共和国軍士官",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 359,
+							"y": 167
+						},
+						{
+							"x": 514,
+							"y": 167
+						},
+						{
+							"x": 514,
+							"y": 194
+						},
+						{
+							"x": 359,
+							"y": 194
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "到着寸",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 394,
+							"y": 212
+						},
+						{
+							"x": 519,
+							"y": 212
+						},
+						{
+							"x": 519,
+							"y": 237
+						},
+						{
+							"x": 394,
+							"y": 237
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "。",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 506,
+							"y": 212
+						},
+						{
+							"x": 512,
+							"y": 212
+						},
+						{
+							"x": 512,
+							"y": 237
+						},
+						{
+							"x": 506,
+							"y": 237
+						}
+					],
+					"normalizedVertices": []
+				}
+			}
+		],
+		"localizedObjectAnnotations": [],
+		"safeSearchAnnotation": null,
+		"imagePropertiesAnnotation": null,
+		"error": null,
+		"cropHintsAnnotation": null,
+		"fullTextAnnotation": {
+			"pages": [
+				{
+					"blocks": [
+						{
+							"paragraphs": [
+								{
+									"words": [
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 359,
+																"y": 167
+															},
+															{
+																"x": 377,
+																"y": 167
+															},
+															{
+																"x": 377,
+																"y": 194
+															},
+															{
+																"x": 359,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "共",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 379,
+																"y": 167
+															},
+															{
+																"x": 402,
+																"y": 167
+															},
+															{
+																"x": 402,
+																"y": 194
+															},
+															{
+																"x": 379,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "和",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 412,
+																"y": 167
+															},
+															{
+																"x": 437,
+																"y": 167
+															},
+															{
+																"x": 437,
+																"y": 194
+															},
+															{
+																"x": 412,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "国",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 442,
+																"y": 167
+															},
+															{
+																"x": 462,
+																"y": 167
+															},
+															{
+																"x": 462,
+																"y": 194
+															},
+															{
+																"x": 442,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "軍",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 464,
+																"y": 167
+															},
+															{
+																"x": 484,
+																"y": 167
+															},
+															{
+																"x": 484,
+																"y": 194
+															},
+															{
+																"x": 464,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "士",
+													"confidence": 0.9700000286102295
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": {
+															"type": "EOL_SURE_SPACE",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 491,
+																"y": 167
+															},
+															{
+																"x": 514,
+																"y": 167
+															},
+															{
+																"x": 514,
+																"y": 194
+															},
+															{
+																"x": 491,
+																"y": 194
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "官",
+													"confidence": 1
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 359,
+														"y": 167
+													},
+													{
+														"x": 514,
+														"y": 167
+													},
+													{
+														"x": 514,
+														"y": 194
+													},
+													{
+														"x": 359,
+														"y": 194
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 394,
+																"y": 212
+															},
+															{
+																"x": 415,
+																"y": 212
+															},
+															{
+																"x": 415,
+																"y": 237
+															},
+															{
+																"x": 394,
+																"y": 237
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "到",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 413,
+																"y": 212
+															},
+															{
+																"x": 449,
+																"y": 212
+															},
+															{
+																"x": 449,
+																"y": 237
+															},
+															{
+																"x": 413,
+																"y": 237
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "着",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 469,
+																"y": 212
+															},
+															{
+																"x": 519,
+																"y": 212
+															},
+															{
+																"x": 519,
+																"y": 237
+															},
+															{
+																"x": 469,
+																"y": 237
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "寸",
+													"confidence": 0.10999999940395355
+												}
+											],
+											"property": null,
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 394,
+														"y": 212
+													},
+													{
+														"x": 519,
+														"y": 212
+													},
+													{
+														"x": 519,
+														"y": 237
+													},
+													{
+														"x": 394,
+														"y": 237
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.6899999976158142
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [],
+														"detectedBreak": {
+															"type": "LINE_BREAK",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 506,
+																"y": 212
+															},
+															{
+																"x": 512,
+																"y": 212
+															},
+															{
+																"x": 512,
+																"y": 237
+															},
+															{
+																"x": 506,
+																"y": 237
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "。",
+													"confidence": 0.2199999988079071
+												}
+											],
+											"property": null,
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 506,
+														"y": 212
+													},
+													{
+														"x": 512,
+														"y": 212
+													},
+													{
+														"x": 512,
+														"y": 237
+													},
+													{
+														"x": 506,
+														"y": 237
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.2199999988079071
+										}
+									],
+									"property": null,
+									"boundingBox": {
+										"vertices": [
+											{
+												"x": 359,
+												"y": 167
+											},
+											{
+												"x": 519,
+												"y": 167
+											},
+											{
+												"x": 519,
+												"y": 237
+											},
+											{
+												"x": 359,
+												"y": 237
+											}
+										],
+										"normalizedVertices": []
+									},
+									"confidence": 0.8199999928474426
+								}
+							],
+							"property": null,
+							"boundingBox": {
+								"vertices": [
+									{
+										"x": 359,
+										"y": 167
+									},
+									{
+										"x": 519,
+										"y": 167
+									},
+									{
+										"x": 519,
+										"y": 237
+									},
+									{
+										"x": 359,
+										"y": 237
+									}
+								],
+								"normalizedVertices": []
+							},
+							"blockType": "TEXT",
+							"confidence": 0.8199999928474426
+						}
+					],
+					"property": {
+						"detectedLanguages": [
+							{
+								"languageCode": "ja",
+								"confidence": 0.6000000238418579
+							}
+						],
+						"detectedBreak": null
+					},
+					"width": 960,
+					"height": 544,
+					"confidence": 0
+				}
+			],
+			"text": "共和国軍士官\n到着寸。\n"
+		},
+		"webDetection": null,
+		"productSearchResults": null,
+		"context": null
+	}
+]

@@ -9,17 +9,31 @@ dayStart.setHours(0,0,0,0);
 let dayEnd = new Date();
 dayEnd.setHours(23,59,59,999);
 
-params.reviewProgress.createdToday = 0;
+params.reviewProgress.factsCreatedToday = 0;
 for(let id in facts){
 	const created = facts[id].created;
 	if(created >= dayStart && created <= dayEnd){
-		params.reviewProgress.createdToday++;
+		params.reviewProgress.factsCreatedToday++;
+	}
+}
+
+params.reviewProgress.statesCreatedToday = 0;
+for(let id in states){
+	const created = states[id].created;
+	if(states[id].created && created >= dayStart && created <= dayEnd){
+		params.reviewProgress.statesCreatedToday++;
 	}
 }
 
 const now = new Date().getTime();
+const anHourFromNow = new Date().getTime() + 1000 * 60 * 60;
 params.reviewProgress.nowReviews = 0;
+params.reviewProgress.nextHourReviews = 0;
 for(const id in states){
+	if(states[id].due < anHourFromNow){
+		params.reviewProgress.nextHourReviews++;
+	}
+
 	if(states[id].due < now){
 		params.reviewProgress.nowReviews++;
 	}

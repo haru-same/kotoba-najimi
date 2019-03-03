@@ -127,21 +127,52 @@ class ReviewTable {
 		userdata.saveTable(statesTable);
 	}
 
+	addState(factId, condition, delay) {
+		delay = delay || 0;
+		console.log('delay: ' + delay);
+		const newState = {
+			key_: uuidv4(),
+			id: factId,
+			created: new Date().getTime(),
+			streak: 0,
+			due: new Date().getTime() + delay,
+			condition: condition
+		};
+		this.updateState(newState);
+	}
+
+	isMatch_ (obj, query) {
+		for (const key in query) {
+			if (query[key] != obj[key]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	findState(varName, value){
 		const statesTable = userdata.getTable(this.stateTableName);
-		if(value == null){
+		if(value == null && typeof varName === 'string'){
 			const state = statesTable.data[varName];
 			state.key_ = varName;
 			return state;
+		} else if(value == null) {
+			for(const id in statesTable.data){
+				const state = statesTable.data[id];
+				if(this.isMatch_(state, varName)){
+					state.key_ = id;
+					return state;
+				}
+			}
 		} else {
-			for(let id in statesTable.data){
+			for(const id in statesTable.data){
 				const state = statesTable.data[id];
 				if(state[varName] == value){
 					state.key_ = id;
 					return state;
 				}
 			}
-		}
+		} 
 		return null;
 	}
 
@@ -167,20 +198,51 @@ class ReviewTable {
 	getExpiredReview(){
 		const statesTable = userdata.getTable(this.stateTableName);
 		const now = new Date().getTime();
+
+		let next12HourSet = new Date();
+		if (new Date().getHours() < 12) {
+			next12HourSet.setHours(12, 0, 0, 0);
+		} else {
+			next12HourSet.setHours(24, 0, 0, 0);
+		}
+		console.log(next12HourSet);
+		next12HourSet = next12HourSet.getTime();
+
 		const expiredList = [];
 		for(const id in statesTable.data){
-			if(statesTable.data[id].due < now){
-				const state = statesTable.data[id];
-				state.key_ = id;
-				expiredList.push(state);
+			if (statesTable.data[id].streak <= 0) {
+				if(statesTable.data[id].due < now){
+					const state = statesTable.data[id];
+					state.key_ = id;
+					expiredList.push(state);
+				}
+			} else {
+				if(statesTable.data[id].due < next12HourSet){
+					const state = statesTable.data[id];
+					state.key_ = id;
+					expiredList.push(state);
+				}
 			}
 		}
+
+		// Temporary hack to ensure hardest (reading cloze) is displayed first.
 
 		if(expiredList.length == 0) {
 			return null;
 		}
 		this.sortReviews(expiredList);
-		return expiredList[0].key_;
+
+		let key = expiredList[0].key_;
+
+		for(const state of expiredList){
+			if (expiredList[0].id == state.id && state.condition == 2) {
+				console.log('replacing with cloze review');
+				key = state.key_;
+				break;
+			}
+		}
+
+		return { count: expiredList.length, id: key };
 	}
 }
 

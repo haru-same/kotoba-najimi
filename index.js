@@ -13,6 +13,7 @@ const ejs = require('ejs');
 const furigana = require('./libs/furigana');
 const renderFurigana = require('./libs/render-furigana');
 const reviewRouter = require('./libs/review-router');
+const ocrRouter = require('./libs/ocr/ocr-router');
 const config = require('./libs/config');
 const ip = require('./libs/network-ip');
 const clean = require('./libs/clean');
@@ -21,6 +22,8 @@ const cleanHtml = require('./libs/clean-html');
 const videoConfig = require('./libs/video-tools/video-config');
 // const recommendCaptions = require('./libs/recommend-captions');
 const parseSRT = require('parse-srt');
+
+const videoUtil = require('./libs/video-tools/video-util');
 
 // (() => {
 // 	const template = fs.readFileSync('./views/furigana.ejs', 'utf-8');
@@ -61,10 +64,11 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 app
-	.use(bodyParser.urlencoded({ limit: '1mb', extended: true }))
-	.use(bodyParser.json({ limit: '1mb' }));
+	.use(bodyParser.urlencoded({ limit: '5mb', extended: true, parameterLimit: 1000000 }))
+	.use(bodyParser.json({ limit: '5mb', extended: true }));
 
 reviewRouter.init(app);
+ocrRouter.init(app);
 
 app.get('/', function(req, res){
 	res.render('index', { config: config });
@@ -111,7 +115,7 @@ app.get('/new-text', function(req, res){
 			    }
 
 			    console.log('id is: ' + id);
-			    metadata.img = id;
+			    metadata.img = `screenshotimgs/${id}.png`;
 			    io.sockets.emit('new-text', { html: ejs.render(template, { elements: furiOutput }), text: req.query.text, trans: req.query.trans, metadata: metadata });
 		    });  
 		}, 1000);
@@ -188,6 +192,71 @@ app.get('/video', (req, res) => {
 
 	console.log('media id', videoId);
 	res.render('video-viewer', { videoId: videoId, videoInfo: videoMediaInfo });
+});
+
+app.post('/caption-data', (req, res) => {
+	const videoFile = req.body.videoFile;
+	if (!videoFile) {
+		console.log('No video file');
+		return;
+	}
+
+	let captionData = req.body.captionData;
+	if (!captionData) {
+		console.log('No caption data');
+		return;
+	}
+
+	captionData = JSON.parse(req.body.captionData);
+
+	videoUtil.updateCaptionsFile(videoFile, captionData);
+	res.send('success');
+});
+
+app.get('/caption-editor-launch', (req, res) => {
+	res.render('caption-editor-launch');
+});
+
+app.get('/caption-editor', (req, res) => {
+	const videoFile = req.query.videoFile || 'G:/One Piece/[HorribleSubs] One Piece - 700 [1080p].mkv';
+	console.log('video: ', videoFile);
+	const srtFile = req.query.captionFile || "G:/[kitsunekko.net]Japanese_subtitles/One_Piece/One_Piece_700.srt";
+	console.log('caption: ', srtFile);
+	// const videoFile = 'G:/Downloads/[DHR&Makari][Konosuba S1+S2]/[Konosuba][BDRip][1080P]/[DHR&Makari][Konosuba][05][BDRip][1080P][AVC_P10_FLAC_OPUS].mkv';
+	// const srtFile = "G:/[kitsunekko.net]Japanese_subtitles/Kono Subarashii Sekai ni Shukufuku wo !/Kono Subarashii Sekai ni Shukufuku wo! S1 (01-10)/KonoSuba God's Blessing on This Wonderful World.S01E05.JA.srt";
+	const srtData = videoUtil.getCaptionsForFile(videoFile, srtFile);
+	res.render('caption-editor', {srt: srtData, videoFile: videoFile, videoId: videoUtil.getVideoId(videoFile) });
+});
+
+app.get('/video-stream', (req, res) => {
+	const file = req.query.file;
+	fs.stat(file, function(err, stats) {
+		var range = req.headers.range || 'bytes=0-';
+		// console.log(req.headers);
+		if (!range) {
+			// 416 Wrong range
+			return res.sendStatus(416);
+		}
+		var positions = range.replace(/bytes=/, "").split("-");
+		var start = parseInt(positions[0], 10);
+		var total = stats.size;
+		var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+		var chunksize = (end - start) + 1;
+
+		res.writeHead(206, {
+			"Content-Range": "bytes " + start + "-" + end + "/" + total,
+			"Accept-Ranges": "bytes",
+			"Content-Length": chunksize,
+			// "Content-Type": "video/x-matroska"
+		});
+
+		const stream = fs.createReadStream(file, { start: start, end: end })
+		.on("open", function() {
+			stream.pipe(res);
+		}).on("error", function(err) {
+			res.end(err);
+		});
+	});
 });
 
 app.get('/new-video', (req, res) => {

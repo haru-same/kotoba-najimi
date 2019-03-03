@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/vision": "^0.24.0",
     "@material/button": "^0.40.1",
     "@material/card": "^0.40.1",
     "@material/textfield": "^0.40.1",
@@ -16,8 +17,10 @@
     "chai": "^4.1.2",
     "edit-distance": "^1.0.1",
     "ejs": "^2.4.2",
+    "encoding-japanese": "^1.0.29",
     "express": "^4.14.0",
     "glob": "^7.1.2",
+    "googleapis": "^36.0.0",
     "hepburn": "^1.0.0",
     "kuromoji": "0.0.5",
     "mediaserver": "^0.1.1",

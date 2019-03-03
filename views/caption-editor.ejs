@@ -1,0 +1,231 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
+	<script type="text/javascript" src="/js/utils.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/site.css">
+
+	<script type="text/javascript">
+		const pixelsPerSecond = 50;
+		const srt = <%- JSON.stringify(srt) %>;
+		let currentCaptionIndex = null;
+		let selectedCaptionIndex = 0;
+
+		const selectCaptionBlock = (index) => {
+			selectedCaptionIndex = index;
+			$('.caption-block').toggleClass('selected', false);
+			$(`.caption-block[index='${index}']`).toggleClass('selected', true);
+		}
+
+		const renderCaptions = () => {
+			let start = 0;
+			let lastWidth = 0;
+			$('#caption-container').html('');
+			for(let i = 0; i < srt.length; i++) {
+				const caption = srt[i];
+
+				const newBlock = $('<div>');
+				newBlock.toggleClass('caption-block');
+				newBlock.css('left', caption.start * pixelsPerSecond);
+				lastWidth = (caption.end - caption.start) * pixelsPerSecond;
+				newBlock.css('width', lastWidth);
+				newBlock[0].setAttribute('title', caption.start + ': ' + caption.text);
+				newBlock[0].setAttribute('index', i);
+				$('#caption-container').append(newBlock);
+
+				start = caption.end;
+			}
+
+			$('.caption-block').click((e) => {
+				const index = parseInt(e.target.getAttribute('index'));
+				selectCaptionBlock(index);
+			});
+
+			selectCaptionBlock(selectedCaptionIndex);
+		}
+
+		const selectNextCaption = () => {
+			const time = document.getElementById('video-player').currentTime;
+			for(let i = 0; i < srt.length; i++){
+				const caption = srt[i];
+				if(time < caption.start) {
+					selectCaptionBlock(i);
+					return;
+				}
+			}
+		}
+
+		const trimTimeToNextCaption = () => {
+			selectNextCaption();
+			const time = document.getElementById('video-player').currentTime;
+			offsetCaptions(time - srt[selectedCaptionIndex].start);
+			renderCaptions();
+		}
+
+		const offsetCaptions = (amount) => {
+			for(let i = selectedCaptionIndex; i < srt.length; i++) {
+				const caption = srt[i];
+				caption.start += amount;
+				caption.end += amount;
+			}
+			renderCaptions();
+		}
+
+		$(document).keypress((e) => {
+        	let textData = null;
+        	let text = null;
+        	console.log(e.which);
+        	switch(e.which){
+        	// space key
+        	case 32:
+        		if (document.getElementById('video-player').paused == false) {
+					document.getElementById('video-player').pause();
+				} else {
+					document.getElementById('video-player').play();
+				}
+        		return false;
+			// a key
+    		case 97:
+    			offsetCaptions(-0.1);
+    			break;
+    		// d key
+    		case 100:
+    			offsetCaptions(0.1);
+    			break;
+    		// s key
+    		case 115:
+    			if(confirm('Save caption data?')) {
+    				console.log({ videoFile: '<%- videoFile %>', captionData: srt });
+    				$.post('/caption-data', { videoFile: '<%- videoFile %>', captionData: JSON.stringify(srt) }, (res) => {
+	    				console.log(res);
+    				});
+    			}
+    			break;
+    		// q key
+    		case 113:
+    			document.getElementById('video-player').currentTime -= 5;
+    			break;
+    		// e key
+    		case 101:
+    			document.getElementById('video-player').currentTime += 5;
+    			break;
+    			// r key
+    		case 114:
+    			if(!currentWord) break;
+    			console.log('word: ', currentWord);
+
+    			const sentence = srt[currentCaptionIndex].text;
+				getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${sentence}\nEnter pronunciation for:\n${currentWord}\n(videoId: <%- videoId %>)`, (reading) => {
+					// console.log({ text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord });
+					const postData = {
+						deck: 'kanji',
+						text: sentence, 
+						word: currentWord, 
+						reading: reading, 
+						start: srt[currentCaptionIndex].start,
+						end: srt[currentCaptionIndex].end,
+						videoId: '<%- videoId %>',
+					};
+					$.post('/create-video-fact', postData, (res) => {
+						console.log(res);
+					});
+				});
+    			break; 
+    		case 110:
+    			selectNextCaption();
+    			break;
+    		case 120:
+    			trimTimeToNextCaption();
+    			break;
+    		case 49:
+    			selectCaptionBlock(0);
+    			break;
+    		case 44:
+    			// getNextCaptionIndex()
+    			break;
+    		case 46:
+    			// selectCaptionBlock(0);
+    			break;
+    		}
+    	});
+
+		$(document).ready(() => {
+			renderCaptions();
+
+			setInterval(() => {
+				const time = document.getElementById('video-player').currentTime;
+				document.getElementById('caption-container').style.left = -time * pixelsPerSecond;
+
+				const captionDisplay = document.getElementById('caption-display');
+				let nextCaptionIndex = null;
+				for(let i = 0; i < srt.length; i++) {
+					const caption = srt[i];
+					if (time >= caption.start && time <= caption.end) {
+						nextCaptionIndex = i;
+						break;
+					}
+
+					if(time < caption.start) break;
+				}
+
+				if(nextCaptionIndex != currentCaptionIndex) {
+					if (nextCaptionIndex == null) {
+						captionDisplay.innerHTML = '';
+					} else {
+						captionDisplay.innerHTML = srt[nextCaptionIndex].text;
+					}
+					currentCaptionIndex = nextCaptionIndex;
+				}
+			}, 10);
+		});
+	</script>
+
+	<style type="text/css">
+		#caption-container {
+
+		}
+
+		.caption-space {
+			display: inline-block;
+		}
+
+		.caption-block {
+			background-color: darkblue;
+			height: 18px;
+			display: inline-block;
+			position: absolute;
+			opacity: 0.5;
+		}
+
+		.caption-block.selected {
+			border: solid gray 2px;
+			opacity: 0.9;
+			height: 16px;
+		}
+
+		#caption-display {
+			text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+			bottom: 0;
+			position: absolute;
+			font-size: 48px; 
+			text-align: center; 
+			color:white;
+			width: 100%;
+		}
+	</style>
+</head>
+<body style="height:100%; padding: 0; margin: 0; background-color: black; color:gray">
+	<div style="position:fixed">
+		<video id="video-player" style="height:calc(100vh - 24px)" src="/video-stream?file=<%- encodeURIComponent(videoFile) %>" controls></video>
+		<div style="height: 20px">
+			<div style="white-space: nowrap; overflow-x: hidden;width:100%;height:100%;display: inline-block; ">
+				<div id='caption-container' style="height:100%; position: relative;"></div>
+			</div>
+		</div>
+		<div style="position: relative;top:-1100px; height: 1000px">
+			<div id="caption-display"></div>
+		</div>
+	</div>
+
+	<%- include('partial/hover-dictionary') %>
+</body>

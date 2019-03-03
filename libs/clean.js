@@ -8,8 +8,8 @@ const breaks = [
 ];
 
 const punctuationTable = {};
-for(var i in punctuation){
-	punctuationTable[punctuation[i]] = true;
+for(const c of punctuation){
+	punctuationTable[c] = true;
 }
 
 function addSpace(textArray){
@@ -36,8 +36,8 @@ module.exports.cleanPunctuation = function(text){
 }
 
 module.exports.containsPunctuation = (text) => {
-	for(var i in text){
-		if(text[i] in punctuationTable){
+	for(const c of text){
+		if(c in punctuationTable){
 			return true;
 		} 
 	}

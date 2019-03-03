@@ -1,3 +1,14 @@
+const ed = require('edit-distance');
+
+const _levInsert = (node) => { return 1; };
+const _levRemove = (node) => { return 1; };
+const _levUpdate = (stringA, stringB) => { return stringA !== stringB ? 1 : 0; };
+
+module.exports.getEditDistance = (text1, text2) => {
+	const lev = ed.levenshtein(text1, text2, _levInsert, _levRemove, _levUpdate);
+	return lev.distance;
+};
+
 module.exports.randomInt = (max) =>{
 	return Math.floor(Math.random() * max);	
 } 

@@ -1,0 +1,33 @@
+<div style="font-size: 1.5rem; text-align: left">
+<div style="font-size: 1.2rem; text-align: right">
+<%= new Date().toLocaleDateString("ja-JP") %> <%= new Date().toLocaleTimeString("ja-JP") %>
+</div>
+<div style="font-size: 2rem">
+	完了しまた！
+</div>
+<br>
+次のカード： <%= reviewProgress.timeString %>　(一時間 <%= reviewProgress.nextHourReviews %>枚、 一日 <%= reviewProgress.next24hourReviews %>枚)
+<br>
+全部のカード：<%= Object.keys(facts).length %>句、<%= Object.keys(states).length %>枚　(今日 <%= reviewProgress.factsCreatedToday %>句、<%= reviewProgress.statesCreatedToday %>枚)<br>
+<br>
+<textarea id="note-area" rows="6" cols="100" placeholder="enter a note..." style="width:100%"></textarea>
+<br>
+<%- include('button', {id:'submit-text', label:'<i class="fas fa-comment"></i>'}) %>
+</div>
+
+<script type="text/javascript">
+setTimeout(() => {
+	location.reload();
+}, 1000 * 60 * 10);
+// reload after 10 minutes
+ 
+$('#submit-text').click(() => {
+	const note = $('#note-area').val();
+	$.post('/log-note', { note: note }, (res) => {
+		console.log(res);
+		if(res == 'done'){
+			$('#note-area').val("");
+		}
+	});
+});
+</script>

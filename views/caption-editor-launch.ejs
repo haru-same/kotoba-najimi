@@ -1,0 +1,30 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(() => {
+			$('#launch-button').click(() => {
+				const videoFile = $('#video-file').val();
+				const captionFile = $('#caption-file').val();
+				$('#history').append(videoFile);
+				$('#history').append('<br>');
+				$('#history').append(captionFile);
+				$('#history').append('<br>');
+				window.open(`/caption-editor?videoFile=${encodeURIComponent(videoFile)}&captionFile=${encodeURIComponent(captionFile)}`, '_blank');
+			});
+		});
+	</script>
+</head>
+<body>
+	<div>
+		Video<input id="video-file" type="text" name="video-file" style="width:100%">
+	</div>
+	<div>
+		Caption<input id="caption-file" type="text" name="caption-file" style="width:100%">
+	</div>
+	<div>
+		<button id="launch-button">launch</button>
+	</div>
+	<div id='history'>
+	</div>
+</body>

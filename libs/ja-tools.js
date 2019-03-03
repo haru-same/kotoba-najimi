@@ -169,7 +169,7 @@ module.exports.splitKanjiWithReadingString = (ref, hyp) =>{
 };
 
 module.exports.getDefaultIsContent = (text) => {
-	if (clean.containsPunctuation) {
+	if (clean.containsPunctuation(text)) {
 		return false;
 	}
 	return true;
@@ -184,14 +184,14 @@ module.exports.getDefaultSentenceJson = (text) => {
 		if (token.r && token.r != token.s) {
 			let suffix = '';
 			for (let i = 0; i < token.r.length; i++) {
-				if (token.s[token.s.length - i - 1] != token.s[token.r.length - i - 1]) {
+				if (token.s[token.s.length - i - 1] != token.r[token.r.length - i - 1]) {
 					break;
 				}
-				suffix += token.s[token.s.length - i - 1];
+				suffix = token.s[token.s.length - i - 1] + suffix;
 			}
 			text.push([
 				token.s.substring(0, token.s.length - suffix.length), 
-				token.r.substring(0, token.s.length - suffix.length)]);
+				token.r.substring(0, token.r.length - suffix.length)]);
 			if (suffix.length > 0) {
 				text.push([suffix]);
 			}

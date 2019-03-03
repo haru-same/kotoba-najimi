@@ -1,6 +1,6 @@
 <head>
 	<% include partial/review-progress %>
-	<title>(まだ<%= params.reviewProgress.nowReviews %>枚) 繰り返すの復習</title>
+	<title>(まだ<%= params.remainingReviews %>枚) 繰り返すの復習</title>
 	<%- include('partial/head') %>
 	<link rel="stylesheet" type="text/css" href="/css/review.css">
 
@@ -25,7 +25,7 @@
 		const originalText = '<%= fact.sentence.replace(/\n/g, ' ') %>';
 		const reviewStart = new Date().getTime();
 		let tries = <%= params.tries || 2 %>;
-		let remaining = <%= params.reviewProgress.nowReviews %>;
+		let remaining = <%= params.remainingReviews %>;
 
 		const nextButtonHtmlContent = `<span id="remaining-count"></span><i class="fas fa-arrow-right"></i>`;
 
@@ -90,7 +90,7 @@
     			deck: '<%= deck %>', 
     			id: targetId,
     			inputs: inputs,
-    			references: [ '<%- fact.word %>', '<%- fact.reading %>' ],
+    			references: <%- JSON.stringify(fact.references) %>,
     			duration: new Date().getTime() - reviewStart, 
     			promptType: '<%= params.promptType %>',
     			source: '<%= params.source || 'default' %>',
@@ -100,6 +100,8 @@
     				skipScheduling: <%= !!params.debug %>,
     			}
     		};
+
+    		console.log(reviewData);
     		$.post('/score-review', reviewData, (res) => {
     			$('#next-date-span').html(new Date(res.nextTime).toLocaleDateString("ja-JP"));
     			callback(res);
@@ -165,6 +167,10 @@
 				}
 			});
 
+			$('#random-cloze').click((e) => {
+				window.open('/sentence-json-editor?id=<%- fact.id %>', '_blank');
+			});
+
 			selectionToolsReady((selectionTools) => {
 				console.log(selectionTools);
 				selectionTools.html("<button id='create-respeak-button' class='mdc-button mdc-button--raised large' style='z-index:1000'><%= deck == 'respeak' ? '✎' : '+' %>respeak</button>");
@@ -196,6 +202,7 @@
 					<span class="before-next-review medium" style="display:none;float:left;margin:6px"><%= `${state.streak > 0 ? '+' : ''}${state.streak}` %>
 						&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-arrow-right"></i>&nbsp;&nbsp;&nbsp;&nbsp; <span id='next-date-span'></span>
 					</span>
+					<button id="random-cloze" class="mdc-button mdc-button--raised medium on"><i class="fas fa-random"></i></button>
 					<button id="furigana" class="mdc-button mdc-button--raised medium on"><ruby><rb>字</rb><rt>じ</rt></ruby></button>
 					<button id="replay" class="mdc-button mdc-button--raised medium" disabled><i class="fas fa-volume-up"></i></button>
 					<button id="delete-review" class="mdc-button mdc-button--raised medium"><i class="fas fa-trash"></i></button>

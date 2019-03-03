@@ -40,6 +40,16 @@ TYPE_TO_TEMPLATE[VIDEO_TYPE] = {
 	'video-id': String
 }
 
+const FILE_VIDEO_TYPE = 8;
+TYPE_TO_TEMPLATE[FILE_VIDEO_TYPE] = {
+	sentence: String,
+	word: String, 
+	reading: String, 
+	start: Number,
+	end: Number,
+	'video-id': String
+}
+
 const decks = {};
 module.exports.getDeck = (deckName) => {
 	if(!decks[deckName]){
@@ -71,7 +81,7 @@ module.exports.createFact = (deckName, type, data) => {
 
 	data.type = type;
 	const deck = module.exports.getDeck(deckName);
-	deck.add(data);
+	return deck.add(data);
 };
 
 module.exports.KANJI_TYPE = KANJI_TYPE;
@@ -79,3 +89,4 @@ module.exports.AUDIO_SENTENCE_TYPE = AUDIO_SENTENCE_TYPE;
 module.exports.AUDIO_WORD_TYPE = AUDIO_WORD_TYPE;
 module.exports.RESPEAK_TYPE = RESPEAK_TYPE;
 module.exports.VIDEO_TYPE = VIDEO_TYPE;
+module.exports.FILE_VIDEO_TYPE = FILE_VIDEO_TYPE;

@@ -1,0 +1,85 @@
+<head>
+	<title>OCR card creator</title>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
+	<script type="text/javascript" src="/js/utils.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="/css/site.css">
+
+	<script type="text/javascript">
+		const bestMatches = <%- JSON.stringify(bestMatches) %>;
+		let currentIndex = -1;
+
+		$(document).on('sentence-word-selected', (e, node) => {
+			currentIndex = $(node).closest('.text-chunk').attr('index');
+		});
+
+        $(document).keypress((e) => {
+        	let textData = null;
+        	let text = null;
+        	console.log(e.which);
+        	switch(e.which){
+			// r key
+    		case 114:
+    			if(!currentWord) break;
+    			console.log('word: ', currentWord);
+    			console.log('data index: ', currentIndex);
+    			console.log(bestMatches[currentIndex]);
+
+    			const textData = bestMatches[currentIndex];
+
+				getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${textData.text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
+					// console.log({ text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord });
+					$.post('/create-audio-word-fact', { text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+						console.log(res);
+						$.post('/ocr/handled', {imageFilename: '<%= imageFilename %>'}, () => {
+							location.reload();
+						});
+					});
+				});
+    			break; 
+        	}
+		});
+
+        $(document).ready(() => {
+        	$('#mark-handled-button').click(() => {
+        		console.log('handling');
+        		$.post('/ocr/handled', {imageFilename: '<%= imageFilename %>'}, () => {
+					location.reload();
+				});
+        	});
+        });
+	</script>
+</head>
+<body style="padding:32px">
+	<div style="display:inline-block;width:calc(50% - 32px); vertical-align: top">
+		<div>Add review</div>
+		<div><img style="width: 90%" src='/ocr/image?file=<%= imageFilename %>'></div>
+		<br>
+		OCR:
+		<div><%- ocrData[0].fullTextAnnotation.text.replace(/\n/g, '<br>') %></div>
+		<button id='mark-handled-button'>Mark as handled</button>
+	</div>
+	<div style="display:inline-block;width:calc(50% - 32px)">
+		<div>
+			<% for(let i = 0; i < bestMatches.length; i++) { %>
+			<% const match = bestMatches[i]; %>
+			<div class='text-chunk' index='<%= i %>'>
+				[<%= match.distance %>] <audio controls><source src="/ocr/audio?id=<%- match.voice %>" type="audio/ogg"></audio>
+				<br><%- match.text.replace(/\n/g, '<br>') %>
+			</div>
+			<br>
+			<% } %>
+		</div>
+	</div>
+
+	<div class="top-box no-dict" style="overflow-y: scroll; display:block">Hover over words to translate...</div>
+    <div id="container" style="display:flex; align-items:flex-end; flex-direction:column">
+    	<div style="flex:2; display: flex;"></div>
+		<div id="output"></div>
+	</div>
+
+	<%- include('partial/hover-dictionary') %>
+</body>

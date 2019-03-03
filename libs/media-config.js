@@ -9,10 +9,17 @@ const getConfigFilename = (name) => {
 
 module.exports.getConfig = (name) => {
 	const filename = getConfigFilename(name);
+
+	let configData = {};
 	if(fs.existsSync(filename)){
-		return JSON.parse(fs.readFileSync(filename, 'utf8'));
+		configData = JSON.parse(fs.readFileSync(filename, 'utf8'));
 	}
-	return {};
+
+	configData.save = () => {
+		module.exports.writeConfig(name, configData);
+	};
+
+	return configData;
 };
 
 module.exports.writeConfig = (gameName, config) => {
@@ -32,4 +39,11 @@ module.exports.getValue = (gameName, key, defaultValue) => {
 		module.exports.writeConfig(gameName, config);
 	}
 	return defaultValue;
+};
+
+module.exports.setValue = (gameName, key, value) => {
+	const config = module.exports.getConfig(gameName);
+
+	config[key] = defaultValue;
+	module.exports.writeConfig(gameName, config);
 };

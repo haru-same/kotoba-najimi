@@ -1,5 +1,5 @@
 <script type="text/javascript">
-	const audioButtonContent = '<i class="fas fa-volume-up"></i>';
+	const audioButtonContent = '<%- params.promptButtonContent || '<i class="fas fa-volume-up"></i>' %>';
 	getPromptPromise = () => {
 		return new Promise((resolve) => {
 			const playPrompt = (callback) => {

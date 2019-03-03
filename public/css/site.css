@@ -41,9 +41,10 @@ rt {
 	background-color: #f2f2f2;
 	max-width: 600px;
 	overflow: hidden;
-	pointer-events: none;
+	/*pointer-events: none;*/
 	background-color: black;
 	color:white;
+	/*user-select: none;*/
 }
 
 .dark .top-box {

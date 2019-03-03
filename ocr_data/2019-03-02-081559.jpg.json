@@ -1,0 +1,1485 @@
+[
+	{
+		"faceAnnotations": [],
+		"landmarkAnnotations": [],
+		"logoAnnotations": [],
+		"labelAnnotations": [],
+		"textAnnotations": [
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "ja",
+				"description": "ロイド\nど、どうもエマさん。\nその節はお世話になりました。\n",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 229,
+							"y": 365
+						},
+						{
+							"x": 592,
+							"y": 365
+						},
+						{
+							"x": 592,
+							"y": 477
+						},
+						{
+							"x": 229,
+							"y": 477
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "ロイド",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 229,
+							"y": 365
+						},
+						{
+							"x": 300,
+							"y": 365
+						},
+						{
+							"x": 300,
+							"y": 392
+						},
+						{
+							"x": 229,
+							"y": 392
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "ど",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 229,
+							"y": 405
+						},
+						{
+							"x": 238,
+							"y": 405
+						},
+						{
+							"x": 238,
+							"y": 438
+						},
+						{
+							"x": 229,
+							"y": 438
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "、",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 249,
+							"y": 405
+						},
+						{
+							"x": 258,
+							"y": 405
+						},
+						{
+							"x": 258,
+							"y": 438
+						},
+						{
+							"x": 249,
+							"y": 438
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "どうもエマさん",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 284,
+							"y": 405
+						},
+						{
+							"x": 469,
+							"y": 405
+						},
+						{
+							"x": 469,
+							"y": 438
+						},
+						{
+							"x": 284,
+							"y": 438
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "。",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 474,
+							"y": 405
+						},
+						{
+							"x": 483,
+							"y": 405
+						},
+						{
+							"x": 483,
+							"y": 438
+						},
+						{
+							"x": 474,
+							"y": 438
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "その節はお世話になりました",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 231,
+							"y": 446
+						},
+						{
+							"x": 587,
+							"y": 446
+						},
+						{
+							"x": 587,
+							"y": 477
+						},
+						{
+							"x": 231,
+							"y": 477
+						}
+					],
+					"normalizedVertices": []
+				}
+			},
+			{
+				"locations": [],
+				"properties": [],
+				"mid": "",
+				"locale": "",
+				"description": "。",
+				"score": 0,
+				"confidence": 0,
+				"topicality": 0,
+				"boundingPoly": {
+					"vertices": [
+						{
+							"x": 584,
+							"y": 446
+						},
+						{
+							"x": 592,
+							"y": 446
+						},
+						{
+							"x": 592,
+							"y": 477
+						},
+						{
+							"x": 584,
+							"y": 477
+						}
+					],
+					"normalizedVertices": []
+				}
+			}
+		],
+		"localizedObjectAnnotations": [],
+		"safeSearchAnnotation": null,
+		"imagePropertiesAnnotation": null,
+		"error": null,
+		"cropHintsAnnotation": null,
+		"fullTextAnnotation": {
+			"pages": [
+				{
+					"blocks": [
+						{
+							"paragraphs": [
+								{
+									"words": [
+										{
+											"symbols": [
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 229,
+																"y": 365
+															},
+															{
+																"x": 248,
+																"y": 365
+															},
+															{
+																"x": 248,
+																"y": 392
+															},
+															{
+																"x": 229,
+																"y": 392
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ロ",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": null,
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 251,
+																"y": 365
+															},
+															{
+																"x": 271,
+																"y": 365
+															},
+															{
+																"x": 271,
+																"y": 392
+															},
+															{
+																"x": 251,
+																"y": 392
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "イ",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [],
+														"detectedBreak": {
+															"type": "EOL_SURE_SPACE",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 278,
+																"y": 365
+															},
+															{
+																"x": 300,
+																"y": 365
+															},
+															{
+																"x": 300,
+																"y": 392
+															},
+															{
+																"x": 278,
+																"y": 392
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ド",
+													"confidence": 0.9900000095367432
+												}
+											],
+											"property": null,
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 229,
+														"y": 365
+													},
+													{
+														"x": 300,
+														"y": 365
+													},
+													{
+														"x": 300,
+														"y": 392
+													},
+													{
+														"x": 229,
+														"y": 392
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 229,
+																"y": 405
+															},
+															{
+																"x": 238,
+																"y": 405
+															},
+															{
+																"x": 238,
+																"y": 438
+															},
+															{
+																"x": 229,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ど",
+													"confidence": 0.9800000190734863
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 229,
+														"y": 405
+													},
+													{
+														"x": 238,
+														"y": 405
+													},
+													{
+														"x": 238,
+														"y": 438
+													},
+													{
+														"x": 229,
+														"y": 438
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 249,
+																"y": 405
+															},
+															{
+																"x": 258,
+																"y": 405
+															},
+															{
+																"x": 258,
+																"y": 438
+															},
+															{
+																"x": 249,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "、",
+													"confidence": 0.9800000190734863
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 249,
+														"y": 405
+													},
+													{
+														"x": 258,
+														"y": 405
+													},
+													{
+														"x": 258,
+														"y": 438
+													},
+													{
+														"x": 249,
+														"y": 438
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 284,
+																"y": 405
+															},
+															{
+																"x": 306,
+																"y": 405
+															},
+															{
+																"x": 306,
+																"y": 438
+															},
+															{
+																"x": 284,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ど",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 311,
+																"y": 405
+															},
+															{
+																"x": 333,
+																"y": 405
+															},
+															{
+																"x": 333,
+																"y": 438
+															},
+															{
+																"x": 311,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "う",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 338,
+																"y": 405
+															},
+															{
+																"x": 360,
+																"y": 405
+															},
+															{
+																"x": 360,
+																"y": 438
+															},
+															{
+																"x": 338,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "も",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 365,
+																"y": 405
+															},
+															{
+																"x": 387,
+																"y": 405
+															},
+															{
+																"x": 387,
+																"y": 438
+															},
+															{
+																"x": 365,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "エ",
+													"confidence": 0.47999998927116394
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 392,
+																"y": 405
+															},
+															{
+																"x": 414,
+																"y": 405
+															},
+															{
+																"x": 414,
+																"y": 438
+															},
+															{
+																"x": 392,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "マ",
+													"confidence": 0.8899999856948853
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 420,
+																"y": 405
+															},
+															{
+																"x": 442,
+																"y": 405
+															},
+															{
+																"x": 442,
+																"y": 438
+															},
+															{
+																"x": 420,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "さ",
+													"confidence": 0.8399999737739563
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 447,
+																"y": 405
+															},
+															{
+																"x": 469,
+																"y": 405
+															},
+															{
+																"x": 469,
+																"y": 438
+															},
+															{
+																"x": 447,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ん",
+													"confidence": 0.9399999976158142
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 284,
+														"y": 405
+													},
+													{
+														"x": 469,
+														"y": 405
+													},
+													{
+														"x": 469,
+														"y": 438
+													},
+													{
+														"x": 284,
+														"y": 438
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.8700000047683716
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": {
+															"type": "EOL_SURE_SPACE",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 474,
+																"y": 405
+															},
+															{
+																"x": 483,
+																"y": 405
+															},
+															{
+																"x": 483,
+																"y": 438
+															},
+															{
+																"x": 474,
+																"y": 438
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "。",
+													"confidence": 0.9800000190734863
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 474,
+														"y": 405
+													},
+													{
+														"x": 483,
+														"y": 405
+													},
+													{
+														"x": 483,
+														"y": 438
+													},
+													{
+														"x": 474,
+														"y": 438
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9800000190734863
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 231,
+																"y": 446
+															},
+															{
+																"x": 252,
+																"y": 446
+															},
+															{
+																"x": 252,
+																"y": 477
+															},
+															{
+																"x": 231,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "そ",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 255,
+																"y": 446
+															},
+															{
+																"x": 280,
+																"y": 446
+															},
+															{
+																"x": 280,
+																"y": 477
+															},
+															{
+																"x": 255,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "の",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 294,
+																"y": 446
+															},
+															{
+																"x": 318,
+																"y": 446
+															},
+															{
+																"x": 318,
+																"y": 477
+															},
+															{
+																"x": 294,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "節",
+													"confidence": 1
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 316,
+																"y": 446
+															},
+															{
+																"x": 334,
+																"y": 446
+															},
+															{
+																"x": 334,
+																"y": 477
+															},
+															{
+																"x": 316,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "は",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 338,
+																"y": 446
+															},
+															{
+																"x": 363,
+																"y": 446
+															},
+															{
+																"x": 363,
+																"y": 477
+															},
+															{
+																"x": 338,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "お",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 376,
+																"y": 446
+															},
+															{
+																"x": 402,
+																"y": 446
+															},
+															{
+																"x": 402,
+																"y": 477
+															},
+															{
+																"x": 376,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "世",
+													"confidence": 1
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 405,
+																"y": 446
+															},
+															{
+																"x": 423,
+																"y": 446
+															},
+															{
+																"x": 423,
+																"y": 477
+															},
+															{
+																"x": 405,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "話",
+													"confidence": 1
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 423,
+																"y": 446
+															},
+															{
+																"x": 444,
+																"y": 446
+															},
+															{
+																"x": 444,
+																"y": 477
+															},
+															{
+																"x": 423,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "に",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 455,
+																"y": 446
+															},
+															{
+																"x": 476,
+																"y": 446
+															},
+															{
+																"x": 476,
+																"y": 477
+															},
+															{
+																"x": 455,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "な",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 473,
+																"y": 446
+															},
+															{
+																"x": 497,
+																"y": 446
+															},
+															{
+																"x": 497,
+																"y": 477
+															},
+															{
+																"x": 473,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "り",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 512,
+																"y": 446
+															},
+															{
+																"x": 535,
+																"y": 446
+															},
+															{
+																"x": 535,
+																"y": 477
+															},
+															{
+																"x": 512,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "ま",
+													"confidence": 0.9900000095367432
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 532,
+																"y": 446
+															},
+															{
+																"x": 553,
+																"y": 446
+															},
+															{
+																"x": 553,
+																"y": 477
+															},
+															{
+																"x": 532,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "し",
+													"confidence": 0.9800000190734863
+												},
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": null
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 561,
+																"y": 446
+															},
+															{
+																"x": 587,
+																"y": 446
+															},
+															{
+																"x": 587,
+																"y": 477
+															},
+															{
+																"x": 561,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "た",
+													"confidence": 0.9900000095367432
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 231,
+														"y": 446
+													},
+													{
+														"x": 587,
+														"y": 446
+													},
+													{
+														"x": 587,
+														"y": 477
+													},
+													{
+														"x": 231,
+														"y": 477
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9900000095367432
+										},
+										{
+											"symbols": [
+												{
+													"property": {
+														"detectedLanguages": [
+															{
+																"languageCode": "ja",
+																"confidence": 0
+															}
+														],
+														"detectedBreak": {
+															"type": "LINE_BREAK",
+															"isPrefix": false
+														}
+													},
+													"boundingBox": {
+														"vertices": [
+															{
+																"x": 584,
+																"y": 446
+															},
+															{
+																"x": 592,
+																"y": 446
+															},
+															{
+																"x": 592,
+																"y": 477
+															},
+															{
+																"x": 584,
+																"y": 477
+															}
+														],
+														"normalizedVertices": []
+													},
+													"text": "。",
+													"confidence": 0.9900000095367432
+												}
+											],
+											"property": {
+												"detectedLanguages": [
+													{
+														"languageCode": "ja",
+														"confidence": 0
+													}
+												],
+												"detectedBreak": null
+											},
+											"boundingBox": {
+												"vertices": [
+													{
+														"x": 584,
+														"y": 446
+													},
+													{
+														"x": 592,
+														"y": 446
+													},
+													{
+														"x": 592,
+														"y": 477
+													},
+													{
+														"x": 584,
+														"y": 477
+													}
+												],
+												"normalizedVertices": []
+											},
+											"confidence": 0.9900000095367432
+										}
+									],
+									"property": null,
+									"boundingBox": {
+										"vertices": [
+											{
+												"x": 229,
+												"y": 365
+											},
+											{
+												"x": 592,
+												"y": 365
+											},
+											{
+												"x": 592,
+												"y": 477
+											},
+											{
+												"x": 229,
+												"y": 477
+											}
+										],
+										"normalizedVertices": []
+									},
+									"confidence": 0.949999988079071
+								}
+							],
+							"property": null,
+							"boundingBox": {
+								"vertices": [
+									{
+										"x": 229,
+										"y": 365
+									},
+									{
+										"x": 592,
+										"y": 365
+									},
+									{
+										"x": 592,
+										"y": 477
+									},
+									{
+										"x": 229,
+										"y": 477
+									}
+								],
+								"normalizedVertices": []
+							},
+							"blockType": "TEXT",
+							"confidence": 0.949999988079071
+						}
+					],
+					"property": {
+						"detectedLanguages": [
+							{
+								"languageCode": "ja",
+								"confidence": 0.8899999856948853
+							}
+						],
+						"detectedBreak": null
+					},
+					"width": 960,
+					"height": 544,
+					"confidence": 0
+				}
+			],
+			"text": "ロイド\nど、どうもエマさん。\nその節はお世話になりました。\n"
+		},
+		"webDetection": null,
+		"productSearchResults": null,
+		"context": null
+	}
+]
