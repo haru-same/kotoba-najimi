@@ -72,7 +72,7 @@ const updateOcr = () => {
 };
 
 const shouldPreFilter = (text1, text2) => {
-  return Math.abs(text1.length - text2.length) > 10;
+  return Math.abs(text1.length - text2.length) > 20;
 }
 
 const stripTrailingNewline = (text) => {
@@ -80,6 +80,18 @@ const stripTrailingNewline = (text) => {
     return text.substring(0, text.length - 1);
   }
   return text;
+}
+
+const stripBadLines = (text) => {
+  const candidateLines = [];
+  const lines = text.split('\n');
+  for(const line of lines) {
+  	if (line.includes('Nihon') || line.includes('Falcom')) {
+  		continue;
+  	}
+	candidateLines.push(line);
+  }
+  return candidateLines.join('\n');
 }
 
 const getShortElementsFilteredCandidate = (text) => {
@@ -95,8 +107,12 @@ const getShortElementsFilteredCandidate = (text) => {
 
 const getBestMatches = (text) => {
   text =  stripTrailingNewline(text);
-  const linesJson = JSON.parse(fs.readFileSync('ocr_data/ao_lines.json', 'utf8'));
+  // const linesJson = JSON.parse(fs.readFileSync('ocr_data/ao_lines.json', 'utf8'));
+  const linesJson = JSON.parse(fs.readFileSync('ocr_data/ed8i_lines.json', 'utf8'));
+  console.log("size to check: " + linesJson.length);
   
+  text = stripBadLines(text);
+
   const firstNewLineIndex = text.indexOf('\n');
   const textWithoutFirstLine = text.slice(firstNewLineIndex + 1);
   const candidates = [text, textWithoutFirstLine];
@@ -170,7 +186,8 @@ module.exports.init = (app) => {
   });
 
   app.get('/ocr/audio', (req, res) => {
-    const file = `G:/FALCOM/ao/ogg/v${req.query.id}.ogg`;
+    // const file = `G:/FALCOM/ao/ogg/v${req.query.id}.ogg`;
+    const file = `C:/Program Files (x86)/Steam/SteamApps/common/Trails of Cold Steel/data/voice/wav_jp/e8v${req.query.id}.wav`;
     const stream = fs.createReadStream(file);
     stream.on('open', () => {
       res.set('Content-Type', 'audio/ogg');
@@ -180,7 +197,7 @@ module.exports.init = (app) => {
 
   app.post('/ocr/handled', (req, res) => {
     ocrState.handled[req.body.imageFilename] = true;
-    fs.writeFileSync(stateFileName, JSON.stringify(ocrState, null, '\t'));
+    fs.writeFileSync(stateFileName, JSON.stringify(ocrState, null, '/t'));
     res.send('success');
   });
 };
