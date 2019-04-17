@@ -167,7 +167,7 @@ module.exports.init = (app) => {
       const bestMatches = getBestMatches(ocrJson[0].fullTextAnnotation.text);
       for (const match of bestMatches) {
         match.metadata = {
-          game: 'ed7a',
+          game: 'ed8i',
           voice: match.voice,
           img: imageFilename
         }
