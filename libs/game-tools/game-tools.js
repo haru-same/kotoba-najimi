@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const imgsDir = 'public/img';
+const imgsDir = 'data/img';
 
 if(!fs.existsSync(imgsDir)) fs.mkdirSync(imgsDir);
 
@@ -52,5 +52,5 @@ module.exports.tryStoreImageFile = (metadata) => {
 
 	fs.createReadStream(sourceFilename).pipe(fs.createWriteStream(destFilename));
 
-	return destFilename.replace('public', '');
+	return destFilename.replace('data', '');
 }

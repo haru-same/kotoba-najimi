@@ -200,5 +200,31 @@ module.exports.getDefaultSentenceJson = (text) => {
 		}
 		jsonText.push({text:text, isContent:isContent});
 	}
+
 	return jsonText;
+};
+
+const getSentenceJsonContentString = (sentenceJson, useKana) => {
+	let outString = "";
+	for (const word of sentenceJson) {
+		if (!word.isContent) {
+			continue;
+		}
+		for (const element of word.text) {
+			if (element.length == 2 && useKana) {
+				outString += element[1];
+			} else {
+				outString += element[0];
+			}
+		}
+	}
+	return outString;
+};
+
+module.exports.sentenceJsonToKanjiContentString = (sentenceJson) => {
+	return getSentenceJsonContentString(sentenceJson, false);
+};
+
+module.exports.sentenceJsonToKanaContentString = (sentenceJson) => {
+	return getSentenceJsonContentString(sentenceJson, true);
 };

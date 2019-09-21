@@ -107,3 +107,16 @@ body {
 .correct .text-part.is-content {
 	background-color: #4CAF50;
 }
+
+.pair-correct {
+	font-weight: bold;
+	color:black;
+}
+
+.pair-missing {
+	color:gray;
+}
+
+.pair-wrong {
+	color:red;
+}

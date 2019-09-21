@@ -9,7 +9,7 @@ const _levUpdate = (stringA, stringB) => { return stringA !== stringB ? 1 : 0; }
 module.exports.scoreReview = (original, input) => {
 	const lev = ed.levenshtein(original, input, _levInsert, _levRemove, _levUpdate);
 	const pairs = lev.pairs();
-	console.log('Levenshtein', lev.distance, pairs, lev.alignment());
+	// console.log('Levenshtein', lev.distance, pairs, lev.alignment());
 
 	let totalCount = 0;
 	let correctCount = 0;
@@ -47,9 +47,32 @@ module.exports.scoreSpeechReview = (original, reading, speechResults) => {
 	return { score: 0 };
 };
 
+module.exports.scoreReviewWithFuzzyMatching = (inputs, references) => {
+	let best = { score: -1 };
+
+	inputs = inputs.map(i => wanakana._katakanaToHiragana(i.replace(/\s/g, '')));
+	references = references.map(i => wanakana._katakanaToHiragana(i));
+	console.log('fuzzy match:');
+	console.log(inputs);
+	console.log(references);
+	for(const input of inputs){
+		for(const reference of references){
+			const scoreInfo = module.exports.scoreReview(reference, input);
+			if (scoreInfo.score > best.score) {
+				best = scoreInfo;
+			}
+		}
+	}
+
+	if (best.pairs) best.pairs = best.pairs.reverse();
+
+	return best;
+};
+
 module.exports.scoreReviewWithMatching = (inputs, references) => {
 	inputs = inputs.map(i => wanakana._katakanaToHiragana(i.replace(/\s/g, '')));
 	references = references.map(i => wanakana._katakanaToHiragana(i));
+	console.log('score with matching');
 	console.log(inputs);
 	console.log(references);
 	for(const input of inputs){

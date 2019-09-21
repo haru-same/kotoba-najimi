@@ -82,11 +82,21 @@ const stripTrailingNewline = (text) => {
   return text;
 }
 
+const isAllAscii = (text) => {
+  for(const c of text) {
+  	if(c.charCodeAt(0) > 128){
+  		// console.log(c);
+  		return false;
+  	}
+  }
+  return true;
+}
+
 const stripBadLines = (text) => {
   const candidateLines = [];
   const lines = text.split('\n');
   for(const line of lines) {
-  	if (line.includes('Nihon') || line.includes('Falcom')) {
+  	if (line.includes('Nihon') || line.includes('Falcom') || isAllAscii(line)) {
   		continue;
   	}
 	candidateLines.push(line);
