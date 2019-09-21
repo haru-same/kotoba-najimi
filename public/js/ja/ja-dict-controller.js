@@ -22,6 +22,7 @@ $.getScript( "/js/ja/data.js", function( data, textStatus, jqxhr ) {
 	let lastSearchResult = null;
 	let lastStartNode = null;
 	let lastSize = 0;
+	let enabled = true;
 
 	const selectForward = (startNode, startIndex, length) => {
 		let endNode = startNode;
@@ -106,7 +107,8 @@ $.getScript( "/js/ja/data.js", function( data, textStatus, jqxhr ) {
 
 	$(document.body).not("no-dict").mousemove((e) => {
 		if(window.isMobile) return;
-		handleSelection(e);
+
+		if(enabled) handleSelection(e);
 	});
 
 	$(document.body).not("no-dict").click((e) => {
@@ -142,5 +144,12 @@ $.getScript( "/js/ja/data.js", function( data, textStatus, jqxhr ) {
 				e.preventDefault();
 			}
 		}
+
+		if (e.which == 120) {
+			enabled = !enabled;
+			console.log('enabled: ' + enabled);
+		}
 	});
+
+	console.log('ja-dict-controller loaded');
 });

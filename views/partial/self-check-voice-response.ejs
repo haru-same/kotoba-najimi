@@ -1,0 +1,89 @@
+<div id="response-content" class="card-row" style="text-align:left">
+	<div class="card-row"><i id="microphone" class="fas fa-microphone large" style="margin-left:16px; color:gray"></i><span style="display:inline-block;width:40px"></span><span id="speech-out" class="large"></span></div>
+</div>
+<div id="response-buttons" class="card-row" style="display: none">
+	<span class="incorrect"><button id="review-down" class="mdc-button mdc-button--raised large" style="width:calc(50% - 3px); display: inline-block;"><i class="fas fa-arrow-down"></i></button></span>
+	<span class="correct"><button id="review-up" class="mdc-button mdc-button--raised large" style="width:calc(50% - 3px); display: inline-block;"><i class="fas fa-arrow-up"></i></button></span>
+</div>
+
+<script type="text/javascript">
+	const microphoneButtonContent = '<i class="fas fa-microphone large"></i>';
+	let results = {};
+
+	getResponsePromise = () => {
+		return new Promise((resolve) => {
+			speechRecognizer.setTargetPhrase('<%= fact.references[0] %>');
+
+			const handleScore = () => {
+				$('#continue-button').show();
+				$('#response-buttons').hide();
+				resolve({ info: 'typed response complete' });
+			};
+
+			const handleSelfCheckData = (scoreInfo) => {
+				console.log(scoreInfo);
+
+				let finalSpeechHtml = '';
+				let selectedSpeech = '';
+				for (const pair of scoreInfo.pairs) {
+					if (pair[1] != null) selectedSpeech += pair[1];
+
+					if (pair[0] == null) continue;
+
+					let content = pair[0];
+					let contentClass = '';
+					if (pair[0] == pair[1]) {
+						contentClass = 'pair-correct';
+					} else if (pair[1] == null) {
+						contentClass = 'pair-missing';
+					} else {
+						contentClass = 'pair-wrong';
+					}
+
+					if(content) {
+						finalSpeechHtml += `<span class="${contentClass}">${content}</span>`;
+					}
+				}
+				$('#speech-out').html(finalSpeechHtml + ` [${(scoreInfo.score * 100).toFixed(0)}% ]`);
+				setDisplayText('response-complete');
+
+				$('#review-up').click(() => {
+					tries = 1;
+					setCorrect();
+					postSelfReview(selectedSpeech, 1, handleScore);
+				});
+				
+				$('#review-down').click(() => {
+					tries = 1;
+					setIncorrect();
+					postSelfReview(selectedSpeech, 0, handleScore);
+				});
+			};
+
+			const beginInput = () => {
+				$('#record-button').attr('disabled', false);
+
+				onNextContinueKeypress(microphoneButtonContent, () => {
+					setDisplayText('response-started');
+					
+					$('#microphone').css('color', 'red');
+		    		speechRecognizer.startRecording(() => { 
+		    			$('#microphone').css('color', 'gray');
+						console.log({ id: targetId, results: results });
+						const outResults = [];
+						for(let i = 0; i < results.length; i++){
+							outResults.push(results[i].transcript);
+						}
+
+						$('#continue-button').hide();
+						$('#response-buttons').show();
+
+						postSelfCheckData(outResults, handleSelfCheckData);
+					});
+				});
+			}
+
+			beginInput();
+		});
+	};
+</script>

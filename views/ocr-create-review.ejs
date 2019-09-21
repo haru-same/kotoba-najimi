@@ -6,6 +6,11 @@
 	<script type="text/javascript" src="/js/ja/ja-dict-controller.js"></script>
 	<script type="text/javascript" src="/js/utils.js"></script>
 
+	<%- //include('partial/head') %>
+	<link rel="stylesheet" type="text/css" href="/css/review.css">
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
 	<link rel="stylesheet" type="text/css" href="/css/site.css">
 
 	<script type="text/javascript">
@@ -50,6 +55,32 @@
 					location.reload();
 				});
         	});
+
+        	$('#word-input').change(() => {
+        		$.get('/furigana?text=' + $('#word-input').val(), (furigana) => {
+        			$('#reading-input').val(furigana);
+        		});
+        	});
+
+        	$('#create-review-button').click(() => {
+        		const game = $('#game-input').val();
+        		const sentence = $('#sentence-input').val();
+        		const word = $('#word-input').val();
+        		const reading = $('#reading-input').val();
+
+        		if (!game || !sentence || !word || !reading) {
+        			alert("Add all fields.");
+        		}
+
+        		const reviewPostData = { text: sentence, reading: reading, word: word, metadata: { game: game, img: "<%- bestMatches[0].metadata.img %>"} };
+        		console.log(reviewPostData);
+        		$.post('/create-audio-word-fact', reviewPostData, (res) => {
+					console.log(res);
+					$.post('/ocr/handled', {imageFilename: '<%= imageFilename %>'}, () => {
+						location.reload();
+					});
+				});
+        	});
         });
 	</script>
 </head>
@@ -61,13 +92,21 @@
 		OCR:
 		<div><%- ocrData[0].fullTextAnnotation.text.replace(/\n/g, '<br>') %></div>
 		<button id='mark-handled-button'>Mark as handled</button>
+
+		<%- //include('partial/sentence-json-editor-content', { fact: {}, furiganaHtml: "", stateAdded: false }) %>
+
+		<textarea id="game-input" style="width:100%; margin-top:20px; font-size:x-large" placeholder="game-code"><%- bestMatches[0].metadata.game  %></textarea>
+		<textarea id="sentence-input" style="width:100%; margin-top:20px; font-size:x-large" rows=5 placeholder="sentence"></textarea>
+		<textarea id="word-input" style="width:100%; margin-top:20px; font-size:x-large" placeholder="word"></textarea>
+		<textarea id="reading-input" style="width:100%; margin-top:20px; font-size:x-large" placeholder="reading"></textarea>
+		<button id="create-review-button">Create review</button>
 	</div>
 	<div style="display:inline-block;width:calc(50% - 32px)">
 		<div>
 			<% for(let i = 0; i < bestMatches.length; i++) { %>
 			<% const match = bestMatches[i]; %>
 			<div class='text-chunk' index='<%= i %>'>
-				[<%= match.distance %>] <audio controls><source src="/ocr/audio?id=<%- match.voice %>" type="audio/ogg"></audio>
+				<!-- [<%= match.distance %>] <audio controls><source src="/ocr/audio?id=<%- match.voice %>" type="audio/ogg"></audio> -->
 				<br><%- match.text.replace(/\n/g, '<br>') %>
 			</div>
 			<br>

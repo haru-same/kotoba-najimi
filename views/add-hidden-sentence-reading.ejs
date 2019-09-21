@@ -1,0 +1,19 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(() => {
+			$('#create').click(() => {
+				const reviewPostData = { text: "<%= fact.sentence %>", reading: "<%= fact.reading %>", word: "", condition: 6/*HIDDEN_SENTENCE_READING*/ };
+				$.post('/create-audio-word-fact', reviewPostData, (res) => {
+					console.log(res);
+					$(document.body).css('background-color', 'lightgreen');
+				});
+			});
+		});
+	</script>
+</head>
+<body style="<%= fact.added ? 'background-color:lightgreen' : '' %>">
+	<div><%= fact.sentence %></div>
+	<div><%= fact.reading %></div>
+	<button id="create">create</button>
+</body>

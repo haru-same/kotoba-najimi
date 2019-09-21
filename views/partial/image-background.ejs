@@ -16,7 +16,7 @@
 	}
 
 	.background-image {
-		background: url('<%= fact.image %>');
+		background: url('/img?path=<%= fact.image %>');
 		position: absolute;
 		z-index: -1;
 		top:0;
@@ -41,6 +41,7 @@ setBackground = () => {
 	if(backgroundSet) return;
 	backgroundSet = true;
 	
+	<% if(fact.image) { %>
 	$('#background-container').html(backgroundHtml);
 	console.log('animate');
 	$('body').animate({
@@ -49,5 +50,6 @@ setBackground = () => {
 	$('.background-image').animate({
 		opacity: 0.8
 	}, 250, () => { console.log('animate done'); });
+	<% } %>
 }
 </script>

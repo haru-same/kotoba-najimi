@@ -1,0 +1,8 @@
+<body>
+	test
+	<% for(const fact of facts) { %>
+	<div style="<%= fact.added ? 'background-color:lightgreen' : '' %>">
+		<a href="<%= fact.link %>"><%= fact.sentence %></a>
+	</div>
+	<% } %>
+</body>

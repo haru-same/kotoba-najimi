@@ -1,0 +1,38 @@
+<head>
+	<script src="/js/jquery-3.2.1.min.js"></script>
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+	<script src="/js/speech-recognizer.js"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+</head>
+<body style="padding:32px">
+	<audio controls>
+		<source src="/ocr/audio?id=09331" type="audio/ogg">
+	</audio>
+	<br>
+	あれだけの啖呵を切ったくせに<br>
+	連れ立って来るとは……
+	<br>
+	<div id="response-content" class="card-row" style="text-align:left">
+	<button id="start-button" class="card-row">
+		<i id="microphone" class="fas fa-microphone large" style="margin-left:16px; color:gray"></i><span style="display:inline-block;width:40px"></span><span id="speech-out" class="large"></span></div>
+	</button>
+
+	<script type="text/javascript">
+		const microphoneButtonContent = '<i class="fas fa-microphone large"></i>';
+		let results = {};
+
+		$('#start-button').click(() => {
+			speechRecognizer.setTargetPhrase('あれだけの啖呵を切ったくせに連れ立って来るとは');
+
+			speechRecognizer.startRecording(() => { 
+    			$('#microphone').css('color', 'gray');
+				console.log({ results: results });
+				const outResults = [];
+				for(let i = 0; i < results.length; i++){
+					outResults.push(results[i].transcript);
+				}
+			});
+		});
+	</script>
+</body>

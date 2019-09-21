@@ -108,6 +108,50 @@
     		});
 		};
 
+		const postSelfReview = (selectedInput, selfScore, callback) => {
+			console.log('tries--');
+			tries--;
+			const reviewData =  { 
+    			deck: '<%= deck %>', 
+    			id: targetId,
+    			selfScore: selfScore,
+    			inputs: [selectedInput],
+    			duration: new Date().getTime() - reviewStart, 
+    			promptType: '<%= params.promptType %>',
+    			source: '<%= params.source || 'default' %>',
+    			tries: tries,
+    			options: {
+    				skipLogging: <%= !!params.debug %>,
+    				skipScheduling: <%= !!params.debug %>,
+    			}
+    		};
+
+    		console.log(reviewData);
+    		$.post('/score-review', reviewData, (res) => {
+    			$('#next-date-span').html(new Date(res.nextTime).toLocaleDateString("ja-JP"));
+    			callback(res);
+    		});
+		};
+
+		const postSelfCheckData = (inputs, callback) => {
+			console.log('tries--');
+			tries--;
+			const reviewData =  { 
+    			deck: '<%= deck %>', 
+    			id: targetId,
+    			inputs: inputs,
+    			references: <%- JSON.stringify(fact.references) %>,
+    			duration: new Date().getTime() - reviewStart, 
+    			promptType: '<%= params.promptType %>',
+    			source: '<%= params.source || 'default' %>',
+    		};
+    		console.log(reviewData);
+
+    		$.post('/score-self-check-review', reviewData, (res) => {
+    			callback(res);
+    		});
+		};
+
 		let continueKeypressHandler = null;
 		const onNextContinueKeypress = (buttonContent, callback) => {
 			const wrappedCallback = () => {
@@ -196,7 +240,7 @@
 	<%- include(params.backgroundRoute, { videoInfo: params.videoInfo }) %>
 	<% } %>
 	<div style="z-index:100;height:100%;display:flex;justify-content:center;position:relative;">
-		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:800px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0">
+		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:1000px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0">
 			<div class="before-next-review" class="card-row" style="text-align:right">
 				<div class="card-row">
 					<span class="before-next-review medium" style="display:none;float:left;margin:6px"><%= `${state.streak > 0 ? '+' : ''}${state.streak}` %>

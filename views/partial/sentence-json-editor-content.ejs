@@ -1,4 +1,4 @@
-<% if(fact.image) { %>
+<% if(fact && fact.image) { %>
 <%- include('image-background', { fact: fact }) %>
 <script type="text/javascript">setBackground()</script>
 <% } %>
@@ -9,7 +9,7 @@
 <%- include('button', {id: 'submit-button', label: '<i class="fas fa-plus-circle"></i>'}) %>
 
 <script type="text/javascript">
-	const sentenceJson = <%- JSON.stringify(fact['sentence-json']) %>;
+	const sentenceJson = <%- JSON.stringify(fact['sentence-json']) || '""' %>;
 	const isContentMap = {};
 	for (const jsonPart of sentenceJson) {
 		isContentMap[JSON.stringify(jsonPart.text)] = jsonPart.isContent;
