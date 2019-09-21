@@ -21,3 +21,5 @@
 *.ogg binary
 *.OGG binary
 *.exe binary
+*.wav binary
+*.jpg binary
