@@ -301,7 +301,7 @@ app.get('/recommend-captions', (req, res) => {
 	res.json(recommended.slice(0, 20));
 });
 
-const frequencyTable = JSON.parse(fs.readFileSync('cache/frequencies.json'));
+const frequencyTable = JSON.parse(fs.readFileSync('frequencies.json'));
 const getFrequency = (text) => {
 	const freqs = [];
 	for(var i = 0; i < text.length; i++){
