@@ -38,7 +38,7 @@ const init = () => {
 }
 
 if(fs.existsSync('cache/cloze-sentences.json')){
-	wordClozes = JSON.parse(fs.readFileSync('cache/cloze-sentences.json', 'utf8'));
+	wordClozes = JSON.parse(fs.readFileSync('cloze-sentences.json', 'utf8'));
 } else {
 	init();
 	fs.writeFileSync('cache/cloze-sentences.json', JSON.stringify(wordClozes, null, '\t'));
