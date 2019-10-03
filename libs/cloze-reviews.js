@@ -41,7 +41,7 @@ if(fs.existsSync('cache/cloze-sentences.json')){
 	wordClozes = JSON.parse(fs.readFileSync('cloze-sentences.json', 'utf8'));
 } else {
 	init();
-	fs.writeFileSync('cache/cloze-sentences.json', JSON.stringify(wordClozes, null, '\t'));
+	fs.writeFileSync('cloze-sentences.json', JSON.stringify(wordClozes, null, '\t'));
 }
 
 module.exports.getRandomClozeSentence = (id) => {
