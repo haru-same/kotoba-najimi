@@ -41,6 +41,18 @@
 
 		let setBackground = () => {};
 
+		<% if(fact.audio) { %>
+		let replayPrompt = () => {
+			const audio = new Audio('/audio/<%- fact.audio %>');
+			audio.addEventListener("ended", function(){
+				callback();
+			});
+			audio.play();
+		};
+		<% } else { %>
+		let replayPrompt = () => {};
+		<% } %>
+
 		let setCorrect = () => {
 			$("#main-card").toggleClass('correct', true);
 			$("#main-card").toggleClass('incorrect', false);
@@ -55,21 +67,13 @@
 			$(document).trigger("review-complete");
 			$('.before-next-review').show();
 
-			<% if(fact.audio) { %>
-			replayPrompt = () => {
-				const audio = new Audio('/audio/<%- fact.audio %>');
-				audio.addEventListener("ended", function(){
-					callback();
-				});
-				audio.play();
-			};
-			<% } %>
-
 			<% if(params.playAudioOnComplete){ %>
-			if(replayPrompt) replayPrompt();
+			replayPrompt();
 			<% } %>
 
-			if(replayPrompt) $("#replay").attr('disabled', false);
+			<% if(fact.audio) { %>
+			$("#replay").attr('disabled', false);
+			<% } %>
 
 			onNextContinueKeypress(nextButtonHtmlContent, () => {
 				location.reload();
@@ -174,7 +178,6 @@
 
 		let getPromptPromise = getDefaultPromise;
 		let getResponsePromise = getDefaultPromise;
-		let replayPrompt = null;
 
 		$(document).ready(() => {
 			keypressHandler = (e) => {
@@ -232,6 +235,10 @@
 			        });
 			    });
 			});
+
+			<% if (params.playAudioOnLoad) { %>
+			replayPrompt();
+			<% } %>
 		});
 	</script>
 </head>

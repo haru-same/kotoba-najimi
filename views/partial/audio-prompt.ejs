@@ -15,27 +15,15 @@
 				$('#play-button').attr('disabled', true);
 
 				playPrompt(() => {
-					// $("#pre-prompt-text").hide();
-					// $("#play-button").hide();
-					// $("#prompt-text").show();
-					
-
 					resolve({ info: 'audio prompt complete' });
 				});
 			};
-
-			replayPrompt = playPrompt;
 
 			$('#play-button').on('click', () => {
 				playVideo();
 			});
 
 			onNextContinueKeypress(audioButtonContent, playVideo);
-
-			// $(document).on("review-complete", () => {
-			// 	$('#prompt-text').hide();
-			// 	$('#prompt-answer').show();
-			// });
 		});
 	};
 </script>

@@ -877,7 +877,8 @@ const renderReview = (res, deckName, id, options, debugData) => {
 				reviewData.params.responseRoute = 'partial/self-check-voice-response';
 
 				reviewData.params.backgroundRoute = 'partial/image-background';
-				reviewData.params.playAudioOnComplete = true;
+				reviewData.params.playAudioOnLoad = true;
+				// reviewData.params.playAudioOnComplete = true;
 
 				reviewData.params.displayText['initial'] = reviewData.params.promptText || clean.replaceNewlinesWithBreaks(reviewData.fact.sentence);
 				reviewData.params.displayText['response-complete'] = ejs.render(template, { elements: sentenceJsonToFurigana(reviewData.fact['sentence-json']) });
