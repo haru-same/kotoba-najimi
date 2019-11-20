@@ -126,6 +126,7 @@
 		$.post('/sentence-json', { user: '<%- user %>', id: '<%- fact.id %>', 'sentence-json': getSentenceJson() }, (res) => {
 			console.log(res);
 			setCorrect();
+			location.reload();
 		});
 	});
 
