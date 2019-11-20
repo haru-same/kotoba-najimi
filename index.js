@@ -1,9 +1,16 @@
+const fs = require('fs');
 const express = require('express');
 const app = express();
+// const https = require('https');
 const server = require('http').Server(app);
+// const options = {
+// 	pfx: fs.readFileSync('seiyuu.pfx')
+// };
+// const server = https.createServer(options, app);
+// server.listen(443);
+
 const io = require('socket.io')(server);
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const opener = require('opener');
 
 const exec = require('child_process').execFile;
@@ -34,17 +41,37 @@ const videoUtil = require('./libs/video-tools/video-util');
 
 let openWindow = true;
 let hasUnknownArgv = false;
+let defaultUser = null;
 let argvHandlers = {
 	'nowindow': () => {
 		openWindow = false;
+	},
+	'user=': (flag) => {
+		defaultUser = flag.replace('user=', '');
+		console.log('default user set to: ' + defaultUser);
 	}
 }
 
+const getUserFromRequest = (req) => {
+	const user = req.query.user || req.body.user;
+	if (!user) {
+		throw "Invalid user: " + user;
+	}
+	return user;
+};
+
 for(let i = 2; i < process.argv.length; i++){
 	const argv = process.argv[i];
-	if(argvHandlers[argv]){
-		argvHandlers[argv]();
-	} else {
+
+	let handlerFound = false;
+	for (const handlerKey in argvHandlers) {
+		if (!argv.includes(handlerKey)) continue;
+		
+		argvHandlers[handlerKey](argv);
+		handlerFound = true; 
+	}
+
+	if (!handlerFound) {
 		console.log("Unknown argument: " + argv);
 		hasUnknownArgv = true;
 	}
@@ -56,6 +83,12 @@ if(hasUnknownArgv){
 		console.log(key);
 	}
 	console.log("");
+	process.exit();
+}
+
+if (openWindow && !defaultUser) {
+	console.log("Must specify a user with user=");
+	process.exit();
 }
 
 server.listen(1414);
@@ -71,7 +104,7 @@ reviewRouter.init(app);
 ocrRouter.init(app);
 
 app.get('/', function(req, res){
-	res.render('index', { config: config });
+	res.render('index', { user: getUserFromRequest(req), config: config });
 });
 
 app.get('/options', function(req, res){
@@ -101,7 +134,7 @@ app.get('/new-text', function(req, res){
 	const template = fs.readFileSync('views/furigana.ejs', 'utf-8');
 	const furiOutput = furigana(req.query.text);
 
- 	if(metadata.game == 'ed6t3' || metadata.game == 'ed7z'){
+ 	if(metadata.game == 'ed6fc' || metadata.game == 'ed6t3' || metadata.game == 'ed7z'){
 		setTimeout(() => {
 			exec('ScreenCapture.exe', [ metadata.game ], (err, data) => {
 				let id = "";
@@ -214,7 +247,7 @@ app.post('/caption-data', (req, res) => {
 });
 
 app.get('/caption-editor-launch', (req, res) => {
-	res.render('caption-editor-launch');
+	res.render('caption-editor-launch', { user: getUserFromRequest(req) });
 });
 
 app.get('/caption-editor', (req, res) => {
@@ -225,11 +258,13 @@ app.get('/caption-editor', (req, res) => {
 	// const videoFile = 'G:/Downloads/[DHR&Makari][Konosuba S1+S2]/[Konosuba][BDRip][1080P]/[DHR&Makari][Konosuba][05][BDRip][1080P][AVC_P10_FLAC_OPUS].mkv';
 	// const srtFile = "G:/[kitsunekko.net]Japanese_subtitles/Kono Subarashii Sekai ni Shukufuku wo !/Kono Subarashii Sekai ni Shukufuku wo! S1 (01-10)/KonoSuba God's Blessing on This Wonderful World.S01E05.JA.srt";
 	const srtData = videoUtil.getCaptionsForFile(videoFile, srtFile);
-	res.render('caption-editor', {srt: srtData, videoFile: videoFile, videoId: videoUtil.getVideoId(videoFile) });
+	console.log('srt 0: ' + JSON.stringify(srtData[0]));
+	res.render('caption-editor', { user: getUserFromRequest(req), srt: srtData, videoFile: videoFile, videoId: videoUtil.getVideoId(videoFile) });
 });
 
 app.get('/video-stream', (req, res) => {
 	const file = req.query.file;
+	console.log(file);
 	fs.stat(file, function(err, stats) {
 		var range = req.headers.range || 'bytes=0-';
 		// console.log(req.headers);
@@ -346,5 +381,5 @@ io.on('connection', function (socket) {
 console.log('listening on :1414');
 
 if(openWindow){
-	opener([ "chrome", "--app=http://localhost:1414/" ]);
+	opener([ "chrome", "--app=http://localhost:1414/?user=" + defaultUser ]);
 }

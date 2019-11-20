@@ -91,6 +91,7 @@
 			console.log('tries--');
 			tries--;
 			const reviewData =  { 
+				user: '<%= user %>',
     			deck: '<%= deck %>', 
     			id: targetId,
     			inputs: inputs,
@@ -116,6 +117,7 @@
 			console.log('tries--');
 			tries--;
 			const reviewData =  { 
+				user: '<%= user %>',
     			deck: '<%= deck %>', 
     			id: targetId,
     			selfScore: selfScore,
@@ -198,7 +200,7 @@
 
 			$("#delete-review").click(() => {
 				if(confirm("Are you sure you want to delete this?")){
-					$.post('/delete-review', { deck: '<%= deck %>', id: targetId }, () => {
+					$.post('/delete-review', { user: '<%- user %>', deck: '<%= deck %>', id: targetId }, () => {
 						location.reload();
 					});
 				}
@@ -246,6 +248,53 @@
 	<% if(params.backgroundRoute) { %>
 	<%- include(params.backgroundRoute, { videoInfo: params.videoInfo }) %>
 	<% } %>
+
+	<% if (fact["youtube-id"]) { %>
+	<div style="position: absolute; left: 0; top:0; z-index: 100000" id="ytplayer"></div>
+	<script>
+	  // Load the IFrame Player API code asynchronously.
+	  var tag = document.createElement('script');
+	  tag.src = "https://www.youtube.com/player_api";
+	  var firstScriptTag = document.getElementsByTagName('script')[0];
+	  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+	  let playAfterApiLoad = false;
+	  replayPrompt = () => {
+	  	playAfterApiLoad = true;
+	  }
+
+	  // Replace the 'ytplayer' element with an <iframe> and
+	  // YouTube player after the API code downloads.
+	  var player;
+	  function onYouTubePlayerAPIReady() {
+	    player = new YT.Player('ytplayer', {
+	      height: '360',
+	      width: '640',
+	      videoId: '<%= fact["youtube-id"] %>',
+	      events: {
+            'onReady': onPlayerReady
+          }
+	    });
+	    console.log(player);
+	  }
+
+	  function onPlayerReady(event) {
+	  	const player = event.target;
+
+	  	replayPrompt = () => {
+		  	player.seekTo(<%= fact["youtube-start"] %>);
+		  	setTimeout(() => {
+		  		player.stopVideo();
+		  	}, <%= fact["youtube-duration"] %> * 1000);
+		}
+
+	  	if (playAfterApiLoad) {
+	  		replayPrompt();
+	  	}
+	  }
+	</script>
+	<% } %>
+
 	<div style="z-index:100;height:100%;display:flex;justify-content:center;position:relative;">
 		<div id="main-card" class="mdc-card transparent" style="width:100%;max-width:1000px;display:inline-block;align-self:flex-end;margin-bottom:64px; padding: 8px 6px 0">
 			<div class="before-next-review" class="card-row" style="text-align:right">

@@ -33,8 +33,10 @@ const getCaptionsForFile = (filename, initialCaptionsFile) => {
 	const videosConfig = mediaConfig.getConfig(videoConfigKey);
 
 	if (videosConfig.videos[videoId].captionFile && fs.existsSync(videosConfig.videos[videoId].captionFile)) {
+		console.log('returning: ' + videosConfig.videos[videoId].captionFile);
 		return JSON.parse(fs.readFileSync(videosConfig.videos[videoId].captionFile, 'utf8'));
 	}
+	console.log('generating new caption file');
 
 	let captionData = [];
 	if (initialCaptionsFile) {

@@ -44,6 +44,14 @@ const RANDOM_AUDIO_CLOZE = 4;
 const SENTENCE_READING = 5;
 const HIDDEN_SENTENCE_READING = 6;
 
+const getUserFromRequest = (req) => {
+	const user = req.query.user || req.body.user;
+	if (!user) {
+		throw "Invalid user: " + user;
+	}
+	return user;
+};
+
 const setUpdatedDue = (state, result) => {
 	if(result == 1){
 		if(state["disable-reset"] && state.streak > 0) {
@@ -62,17 +70,10 @@ const setUpdatedDue = (state, result) => {
 	state.due = new Date().getTime() + (reviewTools.streakToInterval(state.streak) * (0.5 + Math.random()));
 };
 
-const resetFact = (deckName, id) => {
-	const deck = decks.getDeck(deckName);
-	const state = deck.findState(id);
-	setUpdatedDue(state, -1);
-	deck.updateState(state);
-}
-
-const createAudioWordFact = (data, state) => {
+const createAudioWordFact = (req, data, state) => {
 	let type = decks.AUDIO_WORD_TYPE;
-	const deck = decks.getDeck('kanji');
-	const fact = decks.createFact('kanji', type, data);
+	const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
+	const fact = decks.createFact(getUserFromRequest(req), 'kanji', type, data);
 	if (state && state.condition) {
 		console.log('adding 1 state for ');
 		console.log(fact);
@@ -93,9 +94,10 @@ const createAudioWordFact = (data, state) => {
 	return data;
 };
 
-const renderNoReviews = (res, deckName) => {
-	const deck = decks.getDeck(deckName);
+const renderNoReviews = (req, res, deckName) => {
+	const deck = decks.getDeck(getUserFromRequest(req), deckName);
 	const reviewData = {
+		user: getUserFromRequest(req),
 		facts: deck.getAllFacts(),
 		states: deck.getAllStates(),
 		icon: DECK_TO_ICON[deckName] || 'estelle',
@@ -104,11 +106,11 @@ const renderNoReviews = (res, deckName) => {
 	res.render('no-reviews', reviewData);
 };
 
-const getDailyReviewInfo = (logTypeKey, logType) => {
+const getDailyReviewInfo = (req, logTypeKey, logType) => {
 	let beginningOfToday = new Date();
 	beginningOfToday.setHours(0,0,0,0);
 	beginningOfToday = beginningOfToday.getTime();
-	const reviewHistory = reviewLogging.getLog();
+	const reviewHistory = reviewLogging.getLog(getUserFromRequest(req));
 	const fourDaysAgo = new Date().getTime() - 4 * 24 * 60 * 60 * 1000;
 
 	let todaysCount = 0;
@@ -137,12 +139,12 @@ const getDailyReviewInfo = (logTypeKey, logType) => {
 	};
 };
 
-const getRecallReview = () => {
-	const reviewInfo = getDailyReviewInfo('source', 'daily-recall');
+const getRecallReview = (req) => {
+	const reviewInfo = getDailyReviewInfo(req, 'source', 'daily-recall');
 
 	console.log("today's recall", reviewInfo.todaysCount);
 
-	const deck = decks.getDeck("kanji");
+	const deck = decks.getDeck(getUserFromRequest(req), "kanji");
 	const facts = deck.getAllFacts();
 	const states = deck.getAllStates();
 	const available = [];
@@ -160,12 +162,12 @@ const getRecallReview = () => {
 	return available[util.randomInt(available.length)];
 };
 
-const getFullRecallReview = () => {
+const getFullRecallReview = (req) => {
 	const now = new Date().getTime();
 	let beginningOfToday = new Date();
 	beginningOfToday.setHours(0,0,0,0);
 	beginningOfToday = beginningOfToday.getTime();
-	const reviewHistory = reviewLogging.getLog();
+	const reviewHistory = reviewLogging.getLog(getUserFromRequest(req));
 	const fourDaysAgo = new Date().getTime() - 4 * 24 * 60 * 60 * 1000;
 
 	let todaysCount = 0;
@@ -226,7 +228,7 @@ const getFullRecallReview = () => {
 	return util.randomFromArray(available);
 };
 
-const getTieredFullRecallReview = (options) => {
+const getTieredFullRecallReview = (req, options) => {
 	options = options || {};
 	options.count = options.count || 2;
 
@@ -234,7 +236,7 @@ const getTieredFullRecallReview = (options) => {
 	let beginningOfToday = new Date();
 	beginningOfToday.setHours(0,0,0,0);
 	beginningOfToday = beginningOfToday.getTime();
-	const reviewHistory = reviewLogging.getLog();
+	const reviewHistory = reviewLogging.getLog(getUserFromRequest(req));
 	const fourDaysAgo = new Date().getTime() - 4 * 24 * 60 * 60 * 1000;
 
 	let todaysCount = 0;
@@ -297,15 +299,15 @@ const getTieredFullRecallReview = (options) => {
 	return review;
 };
 
-const getListenMeaningReview = () => {
-	const reviewInfo = getDailyReviewInfo('type', 'listening-meaning');
+const getListenMeaningReview = (req) => {
+	const reviewInfo = getDailyReviewInfo(req, 'type', 'listening-meaning');
 
 	let fifteenMinutesAgo = new Date().getTime() - 15 * 60 * 1000;
 	let fourDaysAgo = new Date().getTime() - 24 * 60 * 60 * 1000;
 
 	console.log("listen for meaning today's count:", reviewInfo.todaysCount);
 
-	const deck = decks.getDeck("kanji");
+	const deck = decks.getDeck(getUserFromRequest(req), "kanji");
 	const facts = deck.getAllFacts();
 	const states = deck.getAllStates();
 	const available = [];
@@ -329,8 +331,8 @@ const getListenMeaningReview = () => {
 	return finalAvailable[util.randomInt(finalAvailable.length)];
 }
 
-const getClozeChoices = (reviewInfo, factType, count, external) => {
-	const deck = decks.getDeck("kanji");
+const getClozeChoices = (req, reviewInfo, factType, count, external) => {
+	const deck = decks.getDeck(getUserFromRequest(req), "kanji");
 	const facts = deck.getAllFacts();
 	const states = deck.getAllStates();
 
@@ -338,8 +340,8 @@ const getClozeChoices = (reviewInfo, factType, count, external) => {
 	let allChoiceIds = [];
 	const posToChoiceIds = {};
 	for(const id in facts){
-		console.log(facts[id].type, factType, facts[id].type == factType, !clozeReviews.getRandomClozeSentence(id));
-		if(external && !clozeReviews.getRandomClozeSentence(id)) continue;
+		console.log(facts[id].type, factType, facts[id].type == factType, !clozeReviews.getRandomClozeSentence(getUserFromRequest(req), id));
+		if(external && !clozeReviews.getRandomClozeSentence(getUserFromRequest(req), id)) continue;
 
 		// console.log(id, reviewInfo.idToAnyLastReview[id], reviewInfo.fourDaysAgo, reviewInfo.idToAnyLastReview[id] < reviewInfo.fourDaysAgo);
 		console.log(facts[id].type, factType, facts[id].type == factType);
@@ -389,7 +391,7 @@ const getClozeChoices = (reviewInfo, factType, count, external) => {
 
 	if(external){
 		for(const choice of choices) {
-			const externalSentence = clozeReviews.getRandomClozeSentence(choice.id);
+			const externalSentence = clozeReviews.getRandomClozeSentence(getUserFromRequest(req), choice.id);
 			console.log(choice.sentence == externalSentence, choice.sentence, externalSentence);
 			choice.sentence = choice.context = externalSentence;
 		}
@@ -456,13 +458,13 @@ const getExternalClozeReview = (req, options) => {
 	options.dailyCount = options.dailyCount || DailyClozeCount;
 	options.factType = options.factType || 3;
 
-	const reviewInfo = getDailyReviewInfo('type', options.logType);
+	const reviewInfo = getDailyReviewInfo(req, 'type', options.logType);
 
 	console.log(options.logType, "today's count:", reviewInfo.todaysCount);
 
 	if(reviewInfo.todaysCount >= options.dailyCount && !req.query.dbg) return null;
 
-	return getClozeChoices(reviewInfo, options.factType, options.count, true);
+	return getClozeChoices(req, reviewInfo, options.factType, options.count, true);
 }
 
 const getInternalClozeReview = (req, options) => {
@@ -471,28 +473,13 @@ const getInternalClozeReview = (req, options) => {
 	options.factType = options.factType || 1;
 	options.logType = options.logType || 'inverted-cloze';
 
-	const reviewInfo = getDailyReviewInfo('type', options.logType);
+	const reviewInfo = getDailyReviewInfo(req, 'type', options.logType);
 
 	console.log(options.logType, "today's count:", reviewInfo.todaysCount);
 
 	if(reviewInfo.todaysCount >= DailyClozeCount && !req.query.dbg) return null;
 
-	return getClozeChoices(reviewInfo, options.factType, options.count);
-}
-
-const getImageCondition = () => {
-	const states = decks.getDeck('kanji').getAllStates();
-	let withImage = 0;
-	let withoutImage = 0;
-	for(const id in states){
-		const state = states[id];
-		if(state['image-condition'] == 1) withImage++;
-		else if(state['image-condition'] == 0) withoutImage++;
-	}
-
-	if(withImage > withoutImage) return 0;
-	if(withoutImage > withImage) return 1;
-	return util.randomInt(2);
+	return getClozeChoices(req, reviewInfo, options.factType, options.count);
 }
 
 const getChunksForReviewData = (reviewData) => {
@@ -573,14 +560,14 @@ const needsSentenceJson = (reviewData) => {
 	return condition == SENTENCE_READING || condition == HIDDEN_SENTENCE_READING;
 }
 
-const renderReview = (res, deckName, id, options, debugData) => {
-	const deck = decks.getDeck(deckName);
+const renderReview = (req, res, deckName, id, options, debugData) => {
+	const deck = decks.getDeck(getUserFromRequest(req), deckName);
 	if(!deck) {
 		res.send("deck not found: " + deckName);
 		return;
 	}
 
-	const reviewData = { params: {} };
+	const reviewData = { user: getUserFromRequest(req), params: {} };
 	reviewData.state = deck.findState(id);
 	reviewData.stateId = id;
 	reviewData.fact = deck.find(reviewData.state.id);
@@ -589,7 +576,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 		const split = reviewData.fact['linked-fact'].split(':');
 		const linkedDeckName = split[0];
 		const linkedId = split[1];
-		const linkedDeck = decks.getDeck('kanji');
+		const linkedDeck = decks.getDeck(getUserFromRequest(req), 'kanji');
 		const linkedFact = linkedDeck.find(linkedId);
 		for(const propName in linkedFact){
 			if(!reviewData.fact[propName]){
@@ -606,7 +593,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	console.log('reviewData needs sentence json?', reviewData.state.type, reviewData.fact['sentence-json']);
 	// if (reviewData.state.condition == SENTENCE_READING && !reviewData.fact['sentence-json']) {
 	if (needsSentenceJson(reviewData)) {
-		renderSentenceJsonEditor({ query: { id: reviewData.fact.id } }, res);
+		renderSentenceJsonEditor({ query: { user: req.query.user, id: reviewData.fact.id } }, res);
 		return;
 	}
 
@@ -671,23 +658,6 @@ const renderReview = (res, deckName, id, options, debugData) => {
 	reviewData.params.displayText = reviewData.params.displayText || {};
 	reviewData.params.displayText['response-complete'] = reviewData.params.boldedFuriganaHtml;
 
-	// if(type == 3 && reviewData.state.streak > 2 && util.mod(reviewData.state.streak + 1, 4) == 0){
-	// 	reviewData.params.onlyKanji = true;
-	// 	reviewData.params.noImage = true;
-	// 	reviewData.params.useTextInput = true;
-	// 	reviewData.params.useCloze = false;
-	// 	type = 1;
-	// 	console.log('kanji only review');
-
-	// 	reviewData.params.promptRoute = 'partial/text-prompt';
-	// 	reviewData.params.responseRoute = 'partial/typed-response';
-	// 	reviewData.params.promptType = 'typed-reading';
-	// 	reviewData.params.playAudioOnComplete = true;
-
-	// 	reviewData.params.displayText['initial'] = reviewData.fact.word;
-	// 	res.render('review-base', reviewData);
-	// 	return;
-	// }
 	console.log('streak:', reviewData.state.streak, '; mod:', util.mod(reviewData.state.streak + 1, 4), '; reviewData.options:', reviewData.params);
 	console.log("type:" + type);
 
@@ -977,6 +947,20 @@ const renderReview = (res, deckName, id, options, debugData) => {
 			reviewData.params.displayText['prompt-complete'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
 			res.render('review-base', reviewData);
 			return;
+		case SPEECH_WORD:
+			reviewData.params.promptType = 'spoken-reading';
+
+			reviewData.params.promptRoute = 'partial/text-prompt';
+			reviewData.params.responseRoute = 'partial/voice-response';
+
+			reviewData.params.backgroundRoute = 'partial/video-background';
+			reviewData.params.playAudioOnComplete = true;
+
+			reviewData.params.displayText['initial'] = reviewData.params.promptText || getSimpleHighlight(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+			reviewData.params.displayText['response-started'] = getSimpleCloze(reviewData.fact.sentence, reviewData.fact.word, reviewData.fact.word.length);
+
+			res.render('review-base', reviewData);
+			return;
 		case 2:
 			reviewData.params.promptType = 'video-typed-cloze';
 			reviewData.params.promptRoute = 'partial/text-prompt';
@@ -990,6 +974,26 @@ const renderReview = (res, deckName, id, options, debugData) => {
 
 			reviewData.params.displayText['initial'] = reviewData.fact.word;
 			res.render('review-base', reviewData);
+			return;
+		case SENTENCE_READING:
+			reviewData.fact.references = [
+				jaTools.sentenceJsonToKanjiContentString(reviewData.fact['sentence-json']),
+				jaTools.sentenceJsonToKanaContentString(reviewData.fact['sentence-json'])
+			];
+
+			reviewData.params.promptType = 'spoken-reading';
+
+			reviewData.params.promptRoute = 'partial/text-prompt';
+			reviewData.params.responseRoute = 'partial/self-check-voice-response';
+
+			reviewData.params.backgroundRoute = 'partial/video-background';
+			reviewData.params.playAudioOnLoad = true;
+
+			reviewData.params.displayText['initial'] = reviewData.params.promptText || clean.replaceNewlinesWithBreaks(reviewData.fact.sentence);
+			reviewData.params.displayText['response-complete'] = ejs.render(template, { elements: sentenceJsonToFurigana(reviewData.fact['sentence-json']) });
+
+			res.render('review-base', reviewData);
+
 			return;
 		}
 		break;
@@ -1006,7 +1010,7 @@ const renderReview = (res, deckName, id, options, debugData) => {
 };
 
 const handleKanjiReviewResponse = (req, res) => {
-	const deck = decks.getDeck(req.body.deck);
+	const deck = getDeckFromRequest(req);
 
 	const originalFact = deck.find('id', req.body.id);
 	if(!originalFact){
@@ -1087,13 +1091,13 @@ const handleKanjiReviewResponse = (req, res) => {
 	if(req.body.debug == 'true') {
 		console.log('debug is on, no data recorded');
 	} else {
-		reviewLogging.log(logMessage);
+		reviewLogging.log(getUserFromRequest(req), logMessage);
 		deck.updateState(state);
 	}
 };
 
 const handleRecallReviewResponse = (req, res) => {
-	const deck = decks.getDeck(req.body.deck);
+	const deck = getDeckFromRequest(req);
 	let originalFact = deck.find('id', req.body.id);
 	if(!originalFact){
 		const input = req.body.input.replace(/ /g,'');
@@ -1170,7 +1174,8 @@ const handleRecallReviewResponse = (req, res) => {
 	} else {
 		if(source != 'daily-recall') deck.updateState(state);
 
-		reviewLogging.log({ 
+		reviewLogging.log(getUserFromRequest(req),
+		{ 
 			id: req.body.id, 
 			type: "recall", 
 			condition: state.condition,
@@ -1192,7 +1197,7 @@ const handleBaseReviewPost = (req, res) => {
 	console.log('posting:');
 	console.log(req.body);
 
-	const deck = decks.getDeck(req.body.deck);
+	const deck = getDeckFromRequest(req);
 	const source = req.body.source || "default";
 	const hasTries = parseInt(req.body.tries) > 0;
 	const skipScheduling = req.body.options.skipScheduling == 'true';
@@ -1248,7 +1253,7 @@ const handleBaseReviewPost = (req, res) => {
 		logEntry.score = scoreInfo.score;
 		logEntry.streak = preStreak;
 
-		reviewLogging.log(logEntry);
+		reviewLogging.log(getUserFromRequest(req), logEntry);
 	}
 
 	scoreInfo.nextTime = state.due;
@@ -1267,7 +1272,7 @@ const getDeckFromRequest = (req) => {
 	if(req.query.deck) deckName = req.query.deck;
 	if(req.body.deck) deckName = req.body.deck;
 
-	const deck = decks.getDeck(deckName);
+	const deck = decks.getDeck(getUserFromRequest(req), deckName);
 	if(!deck) {
 		res.send("deck not found: " + deckName);
 		return null;
@@ -1278,7 +1283,7 @@ const getDeckFromRequest = (req) => {
 
 const renderReviewOrNoReviews = (res, deckName, id, options, debug) => {
 	if(id == null){
-		renderNoReviews(res, deckName);
+		renderNoReviews(req, res, deckName);
 	} else {
 		renderReview(res, deckName, id, options, debug);
 	}
@@ -1292,8 +1297,8 @@ const handleRenderReviewRequest = (req, res, getReviewData) => {
 	renderReviewOrNoReviews(res, deck.name, reviewData.id, reviewData.options, reviewData.debug);
 };
 
-const getTodayNewRandomClozeCount = () => {
-	const states = decks.getDeck('kanji').getAllStates();
+const getTodayNewRandomClozeCount = (req) => {
+	const states = decks.getDeck(getUserFromRequest(req), 'kanji').getAllStates();
 	const beginningOfToday = new Date();
 	beginningOfToday.setHours(0,0,0,0);
 	let newRandomClozeCount = 0;
@@ -1306,12 +1311,12 @@ const getTodayNewRandomClozeCount = () => {
 }
 
 const renderSentenceJsonEditor = (req, res) => {
-	const deck = decks.getDeck('kanji');
+	const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 	let fact = null;
 	if(req.query.id){
 		fact = deck.find(req.query.id);
 	} else {
-		fact = clozeReviews.getNewClozeFact();
+		fact = clozeReviews.getNewClozeFact(getUserFromRequest(req));
 	}
 
 	let stateAdded = false;
@@ -1327,7 +1332,7 @@ const renderSentenceJsonEditor = (req, res) => {
 	console.log(sentenceJsonToFurigana(fact['sentence-json']));
 	const furiganaHtml = ejs.render(furiganaTemplate, { elements: sentenceJsonToFurigana(fact['sentence-json']) });
 
-	res.render('sentence-json-editor', {furiganaHtml: furiganaHtml, fact: fact, stateAdded: stateAdded });
+	res.render('sentence-json-editor', {user: getUserFromRequest(req), furiganaHtml: furiganaHtml, fact: fact, stateAdded: stateAdded });
 };
 
 const falseSet = {
@@ -1379,37 +1384,37 @@ module.exports.init = (app) => {
 					dbgData[key] = req.query[key];
 			}
 			const options = getOptionsForReviewQuery(req.query);
-			renderReview(res, deck.name, req.query.id, options, dbgData);
+			renderReview(req, res, deck.name, req.query.id, options, dbgData);
 			return;
 		}
 
 		let newRandomCloze = req.query.newRandomCloze || 3;
 		newRandomCloze = parseInt(newRandomCloze);
 
-		const expiredReview = deck.getExpiredReview();
+		const expiredReview = deck.getExpiredReview(getUserFromRequest(req));
 
 		if(expiredReview == null){
 			let recallReview = null;
-			if(!isFlagSet(req.query, 'skipRecall')) recallReview = getRecallReview();
+			if(!isFlagSet(req.query, 'skipRecall')) recallReview = getRecallReview(req);
 			if(deck.name == 'kanji' && recallReview) {
 				// console.log(recallReview);
-				renderReview(res, 'kanji', recallReview, { type: 2, promptType: 'audio', noImage: true, source: 'daily-recall' });
-			} else if(getTodayNewRandomClozeCount() < newRandomCloze) {
+				renderReview(req, res, 'kanji', recallReview, { type: 2, promptType: 'audio', noImage: true, source: 'daily-recall' });
+			} else if(getTodayNewRandomClozeCount(req) < newRandomCloze) {
 				renderSentenceJsonEditor(req, res);
 			} else {
-				renderNoReviews(res, deck.name);
+				renderNoReviews(req, res, deck.name);
 			}
 		} else {
 			const expiredReviewId = req.query.id || expiredReview.id;
 			const options = getOptionsForReviewQuery(req.query);
 			options.remainingReviews = expiredReview.count;
-			renderReview(res, deck.name, expiredReviewId, options);
+			renderReview(req, res, deck.name, expiredReviewId, options);
 		}
 	});
 
 	app.get('/listen-meaning-review', (req, res) => {
 		handleRenderReviewRequest(req, res, () => {
-			const expiredReviewId = getListenMeaningReview();
+			const expiredReviewId = getListenMeaningReview(req);
 			return {
 				id: expiredReviewId,
 				options: { type: 4 }
@@ -1420,7 +1425,7 @@ module.exports.init = (app) => {
 	app.get('/cloze-review', (req, res) => {
 		handleRenderReviewRequest(req, res, () => {
 			const clozeReview = getExternalClozeReview(req) || {};
-			const clozeSentence = clozeReviews.getRandomClozeSentence(clozeReview.targetId);
+			const clozeSentence = clozeReviews.getRandomClozeSentence(getUserFromRequest(req), clozeReview.targetId);
 			return {
 				id: clozeReview.targetId,
 				options:  { type: 5, clozeSentence: clozeSentence, clozeChoices: clozeReview.choices }
@@ -1464,7 +1469,7 @@ module.exports.init = (app) => {
 
 	app.get('/full-recall-review', (req, res) => {
 		handleRenderReviewRequest(req, res, () => {
-			const review = getFullRecallReview();
+			const review = getFullRecallReview(req);
 			console.log(review);
 			return {
 				id: review,
@@ -1477,7 +1482,7 @@ module.exports.init = (app) => {
 		handleRenderReviewRequest(req, res, () => {
 			const options = {};
 			if(req.query.count) options.count = parseInt(req.query.count);
-			const review = getTieredFullRecallReview(options);
+			const review = getTieredFullRecallReview(req, options);
 			if(req.query.maxWords) review.maxWords = parseInt(req.query.maxWords);
 			console.log('tiered-full-recall review:', review);
 			return {
@@ -1506,7 +1511,7 @@ module.exports.init = (app) => {
 
 		handleRenderReviewRequest(req, res, () => {
 			const deck = getDeckFromRequest(req);
-			const expiredReview = deck.getExpiredReview();
+			const expiredReview = deck.getExpiredReview(getUserFromRequest(req));
 			const expiredReviewId = expiredReview.id;
 			const respeakFact = expiredReviewId ? deck.find(expiredReviewId) : {};
 			console.log('rs fact', respeakFact);
@@ -1530,7 +1535,7 @@ module.exports.init = (app) => {
 		if(!deck) return;
 
 		handleRenderReviewRequest(req, res, () => {
-			const deck = decks.getDeck("kanji");
+			const deck = decks.getDeck(getUserFromRequest(req), "kanji");
 			const facts = deck.getAllFacts();
 			const factList = [];
 			for(const id in facts){
@@ -1566,7 +1571,7 @@ module.exports.init = (app) => {
 		if(!deck) return;
 
 		handleRenderReviewRequest(req, res, () => {
-			const expiredReview = deck.getExpiredReview();
+			const expiredReview = deck.getExpiredReview(getUserFromRequest(req));
 			const factId = expiredReview.id;
 			const facts = deck.getAllFacts();
 			const reviewData = {
@@ -1602,7 +1607,7 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/review', (req, res) => {
-		const deck = decks.getDeck(req.body.deck);
+		const deck = getDeckFromRequest(req);
 		const fact = deck.find(req.body.id);
 		const state = deck.findState(req.body.id);
 
@@ -1629,14 +1634,14 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/delete-review', (req, res) => {
-		const deck = getDeckFromRequest(req, res);
+		const deck = getDeckFromRequest(req);
 		console.log('delete', req.body, deck);
 		if(deck){
 			const id = req.body.id;
 			if(id){
 				console.log(deck);
 				const state = deck.findState(id);
-				reviewLogging.log({ type: 'delete-state', state: state });
+				reviewLogging.log(getUserFromRequest(req), { user: getUserFromRequest(req), type: 'delete-state', state: state });
 				deck.deleteState(id);
 			}
 			res.send('done');	
@@ -1644,7 +1649,7 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/set-disable-reset', (req, res) => {
-		const deck = getDeckFromRequest(req, res);
+		const deck = getDeckFromRequest(req);
 		if(deck){
 			const id = req.body.id;
 			if(id){
@@ -1667,12 +1672,12 @@ module.exports.init = (app) => {
 	app.get('/review-stats', (req, res) => {
 		const facts = kanjiReviews.getAllFacts();
 		const states = kanjiReviews.getAllStates();
-		const reviewHistory = reviewLogging.getLog();
-		res.render('review-stats', { facts: facts, reviewStates: states, reviewLogs: reviewHistory });
+		const reviewHistory = reviewLogging.getLog(getUserFromRequest(req));
+		res.render('review-stats', { user: getUserFromRequest(req), facts: facts, reviewStates: states, reviewLogs: reviewHistory });
 	});
 
 	app.get('/create-fact', (req, res) => {
-		res.render('create-fact');
+		res.render('create-fact', {user: getUserFromRequest(req)});
 	});
 
 	app.post('/create-recall-fact', (req, res) => {
@@ -1707,6 +1712,7 @@ module.exports.init = (app) => {
 			}
 		}
 		createAudioWordFact(
+			req,
 			{ sentence: req.body.text, word: req.body.word, reading: req.body.reading, audio: voice, image: img }, 
 			{ condition: req.body.condition });
 		res.json({ success: true });
@@ -1720,7 +1726,7 @@ module.exports.init = (app) => {
 			fact.image = gameTools.tryStoreImageFile(req.body.metadata);
 		}
 
-		const deck = decks.getDeck('kanji');
+		const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 		fact = deck.add(fact);
 		deck.assignState(fact.id, { "experiments": { "listen-speak-cloze": 2 } });
 		res.json({ success: true });
@@ -1753,14 +1759,14 @@ module.exports.init = (app) => {
 				image: img 
 			};
 		}
-		decks.createFact('respeak', decks.RESPEAK_TYPE, fact);
+		decks.createFact(getUserFromRequest(req), 'respeak', decks.RESPEAK_TYPE, fact);
 		res.json({ success: true });
 	});
 
 	app.post('/create-video-fact', (req, res) => {
 		console.log("creating video fact", req.body);
 		const deck = req.body.deck || 'video';
-		const fact = decks.createFact(deck, decks.FILE_VIDEO_TYPE, { 
+		const fact = decks.createFact(getUserFromRequest(req), deck, decks.FILE_VIDEO_TYPE, { 
 			sentence: req.body.text.replace(/\n/g, ''), 
 			word: req.body.word, 
 			reading: req.body.reading, 
@@ -1769,18 +1775,20 @@ module.exports.init = (app) => {
 			'video-id': req.body.videoId,
 		});
 
-		const deckData = decks.getDeck(deck);
+		const deckData = decks.getDeck(getUserFromRequest(req), deck);
 		const day = 1000 * 60 * 60 * 24;
-		deckData.addState(fact.id, 0);
-		deckData.addState(fact.id, 2, day);
-		deckData.addState(fact.id, 3, 2 * day);
+
+		deckData.addState(fact.id, SPEECH_WORD, 0*day);
+		deckData.addState(fact.id, TEXT_WORD, 2*day);
+		deckData.addState(fact.id, SENTENCE_READING, 4*day);
+		deckData.addState(fact.id, TEXT_CLOZE, 6*day);
 
 		res.json({ success: true });
 	});
 
 	app.post('/update-respeak-fact', (req, res) => {
 		console.log('updating fact: ' + req.body.id);
-		const deck = decks.getDeck('respeak');
+		const deck = decks.getDeck(getUserFromRequest(req), 'respeak');
 		const fact = deck.find(req.body.id);
 		fact['word'] = req.body.word;
 		fact['reading'] = req.body.word;
@@ -1826,7 +1834,7 @@ module.exports.init = (app) => {
 	});
 
 	app.get('/youtube-review', (req, res) => {
-		res.render('youtube-review');
+		res.render('youtube-review', {user: getUserFromRequest(req)});
 	});
 
 	app.post('/log-meaning-assessment', (req, res) => {
@@ -1842,11 +1850,8 @@ module.exports.init = (app) => {
 			streak: req.body.streak,
 			duration: req.body.duration,
 		};
-		reviewLogging.log(logMessage);
+		reviewLogging.log(getUserFromRequest(req), logMessage);
 
-		if(req.body.result == 0 && !req.body.skipReset){
-			// resetFact('kanji', req.body.id);
-		}
 		res.send('done');
 	});
 
@@ -1865,12 +1870,12 @@ module.exports.init = (app) => {
 			promptType: req.body.promptType,
 			leadDuration: req.body.leadDuration,
 		};
-		reviewLogging.log(logMessage);
+		reviewLogging.log(getUserFromRequest(req), logMessage);
 		res.send('done');
 	});
 
 	app.post('/sentence-reading', (req, res) => {
-		const deck = decks.getDeck("kanji");
+		const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 		const fact = deck.find(req.body.id);
 		fact['sentence-reading'] = req.body.sentenceReading;
 		deck.updateFact(fact);
@@ -1879,7 +1884,7 @@ module.exports.init = (app) => {
 
 	app.get('/sentence-chunks', (req, res) => {
 		if(req.query.id){
-			const deck = decks.getDeck("kanji");
+			const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 			const fact = deck.find(req.query.id);
 			if(fact['sentence-chunks']){
 				res.send(fact['sentence-chunks'].replace( /\s\s+/g, ' '));
@@ -1900,7 +1905,7 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/sentence-chunks', (req, res) => {
-		const deck = decks.getDeck("kanji");
+		const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 		const fact = deck.find(req.body.id);
 		fact['sentence-chunks'] = req.body.sentenceChunks;
 		deck.updateFact(fact);
@@ -1908,13 +1913,13 @@ module.exports.init = (app) => {
 	});
 
 	app.post('/log-note', (req, res) => {
-		reviewLogging.log({ note: req.body.note });
+		reviewLogging.log(getUserFromRequest(req), { note: req.body.note });
 		res.send('done');
 	});
 
 	app.get('/edit-distance', (req, res) => {
 		if(req.query.id){
-			const deck = decks.getDeck("kanji");
+			const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 			const fact = deck.find(req.query.id);
 			req.query.input = fact['sentence-chunks'];
 			req.query.reference = fact.context || fact.sentence;
@@ -1954,7 +1959,7 @@ module.exports.init = (app) => {
 			return;
 		}
 
-		const deck = decks.getDeck('kanji');
+		const deck = decks.getDeck(getUserFromRequest(req), 'kanji');
 		const fact = deck.find(req.body.id);
 		if (!fact) {
 			return;
@@ -1986,7 +1991,7 @@ module.exports.init = (app) => {
 	});
 
 	app.get('/full-respeak', (req, res) => {
-		res.render('full-respeak-demo');
+		res.render('full-respeak-demo', {user: getUserFromRequest(req)});
 	});
 
 	app.get('/add-hidden-sentence-reading', (req, res) => {
@@ -1995,18 +2000,18 @@ module.exports.init = (app) => {
 			return;
 		}
 
-		const facts = decks.getDeck('kanji').getAllFacts();
+		const facts = decks.getDeck(getUserFromRequest(req), 'kanji').getAllFacts();
 		const addedSentences = {};
 		for (const factId in facts) {
 			addedSentences[facts[factId].sentence] = true;
 		}
 
 		const factParts = req.query.fact.split('|');
-		res.render('add-hidden-sentence-reading', { fact: { sentence: factParts[0], reading: factParts[1], added: factParts[0] in addedSentences } });
+		res.render('add-hidden-sentence-reading', { user: getUserFromRequest(req), fact: { sentence: factParts[0], reading: factParts[1], added: factParts[0] in addedSentences } });
 	});
 
 	app.get('/view-japanese-sentences', (req, res) => {
-		const facts = decks.getDeck('kanji').getAllFacts();
+		const facts = decks.getDeck(getUserFromRequest(req), 'kanji').getAllFacts();
 		const addedSentences = {};
 		for (const factId in facts) {
 			addedSentences[facts[factId].sentence] = true;
@@ -2021,6 +2026,6 @@ module.exports.init = (app) => {
 			sentenceData.push({ added: addedSentences[split[0]], link: `/add-hidden-sentence-reading?fact=${japaneseSentence}`, sentence: split[0] });
 		}
 
-		res.render('view-japanese-sentences', { facts: sentenceData.slice(0, 1000) });
+		res.render('view-japanese-sentences', { user: getUserFromRequest(req), facts: sentenceData.slice(0, 1000) });
 	});
 };

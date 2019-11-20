@@ -6,6 +6,7 @@ const imgsDir = 'data/img';
 if(!fs.existsSync(imgsDir)) fs.mkdirSync(imgsDir);
 
 const toolSets = {
+	'ed6fc': require('./ed6fc-tools'),
 	'ed6sc': require('./ed6sc-tools'),
 	'ed6t3': require('./ed6t3-tools'),
 	'ed7z': require('./ed7zero-tools'),

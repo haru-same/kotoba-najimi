@@ -8,12 +8,35 @@ if(!fs.existsSync(folderName)){
 	fs.mkdirSync(folderName);
 }
 
-const nameToFilename = (name) => {
-	return folderName + '/' + name + JsonExtension;
+const nameToFilename = (user, name) => {
+	if (!user || !name) {
+		console.trace();
+		throw "invalid user, filename: " + user + "; " + name;
+	}
+
+	const userDir = folderName + '/' + user;
+	if(!fs.existsSync(userDir)){
+		fs.mkdirSync(userDir);
+	}
+
+	return userDir + '/' + name + JsonExtension;
 }
 
-module.exports.getTable = (name) => {
-	const filename = nameToFilename(name);
+module.exports.getDir = (user, name) => {
+	if (!user || !name) {
+		throw "invalid user, filename: " + user + "; " + name;
+	}
+
+	const userDir = config.userdataPath + '/' + name + '/' + user;
+	if(!fs.existsSync(userDir)){
+		fs.mkdirSync(userDir);
+	}
+
+	return userDir;
+}
+
+module.exports.getTable = (user, name) => {
+	const filename = nameToFilename(user, name);
 	const table = { name: name, data: {} };
 	if(fs.existsSync(filename)){
 		table.data = JSON.parse(fs.readFileSync(filename));
@@ -21,18 +44,18 @@ module.exports.getTable = (name) => {
 	return table;
 };
 
-module.exports.saveTable = (table) => {
+module.exports.saveTable = (user, table) => {
 	if(!table.name || !table.data){
 		console.error("Table not valid. Unable to save.");
 		return;
 	}
 
-	const filename = nameToFilename(table.name);
+	const filename = nameToFilename(user, table.name);
 	fs.writeFileSync(filename, JSON.stringify(table.data, null, '\t'));
 };
 
-module.exports.deleteTable = (name) => {
-	const filename = nameToFilename(name);
+module.exports.deleteTable = (user, name) => {
+	const filename = nameToFilename(user, name);
 	if(fs.existsSync(filename)){
 		fs.unlink(filename);
 	}

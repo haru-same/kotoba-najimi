@@ -1,6 +1,6 @@
 <script type="text/javascript">
 	const videoButtonContent = '<i class="fas fa-play-circle"></i>';
-	const endTime = <%- fact.end + 0.1 %>;
+	// const endTime = <%- fact.end + 0.1 %>;
 	$('#main-video')[0].currentTime = <%= fact.start - 0.5 %>;
 
 	getPromptPromise = () => {

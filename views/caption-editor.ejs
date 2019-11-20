@@ -97,7 +97,7 @@
     		case 115:
     			if(confirm('Save caption data?')) {
     				console.log({ videoFile: '<%- videoFile %>', captionData: srt });
-    				$.post('/caption-data', { videoFile: '<%- videoFile %>', captionData: JSON.stringify(srt) }, (res) => {
+    				$.post('/caption-data', { videoFile: '<%- videoFile.replace(new RegExp('\\\\', 'g'), '\\\\') %>', captionData: JSON.stringify(srt) }, (res) => {
 	    				console.log(res);
     				});
     			}
@@ -119,6 +119,7 @@
 				getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${sentence}\nEnter pronunciation for:\n${currentWord}\n(videoId: <%- videoId %>)`, (reading) => {
 					// console.log({ text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord });
 					const postData = {
+						user: '<%= user %>',
 						deck: 'kanji',
 						text: sentence, 
 						word: currentWord, 
@@ -218,6 +219,7 @@
 <body style="height:100%; padding: 0; margin: 0; background-color: black; color:gray">
 	<div style="position:fixed">
 		<video id="video-player" style="height:calc(100vh - 24px)" src="/video-stream?file=<%- encodeURIComponent(videoFile) %>" controls></video>
+
 		<div style="height: 20px">
 			<div style="white-space: nowrap; overflow-x: hidden;width:100%;height:100%;display: inline-block; ">
 				<div id='caption-container' style="height:100%; position: relative;"></div>

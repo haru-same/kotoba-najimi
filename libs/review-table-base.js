@@ -5,22 +5,23 @@ const experiments = require('./experiments');
 const util = require('./util');
 
 class ReviewTable {
-	constructor(name, factTableName, stateTableName){
+	constructor(user, name, factTableName, stateTableName){
+		this.user = user;
 		this.name = name;
 		this.factTableName = factTableName;
 		this.stateTableName = stateTableName;
 	}
 
 	getAllFacts(){
-		return userdata.getTable(this.factTableName).data;
+		return userdata.getTable(this.user, this.factTableName).data;
 	}
 
 	getAllStates(){
-		return userdata.getTable(this.stateTableName).data;
+		return userdata.getTable(this.user, this.stateTableName).data;
 	}
 
 	find(varName, value){
-		const factsTable = userdata.getTable(this.factTableName);
+		const factsTable = userdata.getTable(this.user, this.factTableName);
 		if(value == null){
 			return factsTable.data[varName];
 		} else {
@@ -38,38 +39,38 @@ class ReviewTable {
 		if(!id) return; 
 
 		console.log('deleting ' + id);
-		const factsTable = userdata.getTable(this.factTableName);
-		const statesTable = userdata.getTable(this.stateTableName);
+		const factsTable = userdata.getTable(this.user, this.factTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 
 		if(factsTable.data[id]) delete factsTable.data[id];
 		if(statesTable.data[id]) delete statesTable.data[id];
 		
-		userdata.saveTable(factsTable);
-		userdata.saveTable(statesTable);
+		userdata.saveTable(this.user, factsTable);
+		userdata.saveTable(this.user, statesTable);
 	}
 
 	deleteState(id){
 		if(!id) return; 
 
-		const statesTable = userdata.getTable(this.stateTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 
 		if(statesTable.data[id]) delete statesTable.data[id];
 		
-		userdata.saveTable(statesTable);
+		userdata.saveTable(this.user, statesTable);
 	}
 
 	deleteAll(){
-		userdata.deleteTable(this.factTableName);
-		userdata.deleteTable(this.stateTableName);
+		userdata.deleteTable(this.user, this.factTableName);
+		userdata.deleteTable(this.user, this.stateTableName);
 	}
 
 	add(newFact){
-		const factsTable = userdata.getTable(this.factTableName);
+		const factsTable = userdata.getTable(this.user, this.factTableName);
 		const guid = uuidv4();
 		newFact.id = guid;
 		newFact.created = new Date().getTime();
 		factsTable.data[guid] = newFact;
-		userdata.saveTable(factsTable);
+		userdata.saveTable(this.user, factsTable);
 		return newFact;
 	}
 
@@ -80,9 +81,9 @@ class ReviewTable {
 			return;
 		}
 
-		const factsTable = userdata.getTable(this.factTableName);
+		const factsTable = userdata.getTable(this.user, this.factTableName);
 		factsTable.data[item.id] = item;
-		userdata.saveTable(factsTable);
+		userdata.saveTable(this.user, factsTable);
 	}
 
 	assignCondition(fact, counts){
@@ -92,19 +93,19 @@ class ReviewTable {
 	}
 
 	assignState(id, state){
-		const statesTable = userdata.getTable(this.stateTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 		state = state || { };
 		state.id = id;
 		state.streak = 0;
 		state.due = new Date().getTime();
 		state['ignore-experiment'] = true;
 		statesTable.data[id] = state;
-		userdata.saveTable(statesTable);
+		userdata.saveTable(this.user, statesTable);
 	}
 
 	syncStates(){
-		const factsTable = userdata.getTable(this.factTableName);
-		const statesTable = userdata.getTable(this.stateTableName);
+		const factsTable = userdata.getTable(this.user, this.factTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 
 		let counts = {};// { 0: 0, 1: 0 };
 		for(const id in statesTable.data){
@@ -124,7 +125,7 @@ class ReviewTable {
 			}
 		}
 
-		userdata.saveTable(statesTable);
+		userdata.saveTable(this.user, statesTable);
 	}
 
 	addState(factId, condition, delay) {
@@ -151,7 +152,7 @@ class ReviewTable {
 	}
 
 	findState(varName, value){
-		const statesTable = userdata.getTable(this.stateTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 		if(value == null && typeof varName === 'string'){
 			const state = statesTable.data[varName];
 			state.key_ = varName;
@@ -186,9 +187,9 @@ class ReviewTable {
 		const key = item.key_;
 		delete item['key_'];
 
-		const statesTable = userdata.getTable(this.stateTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 		statesTable.data[key] = item;
-		userdata.saveTable(statesTable);
+		userdata.saveTable(this.user, statesTable);
 	}
 
 	sortReviews(expiredList){
@@ -196,7 +197,7 @@ class ReviewTable {
 	}
 
 	getExpiredReview(){
-		const statesTable = userdata.getTable(this.stateTableName);
+		const statesTable = userdata.getTable(this.user, this.stateTableName);
 		const now = new Date().getTime();
 
 		let next12HourSet = new Date();

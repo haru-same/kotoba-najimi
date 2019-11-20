@@ -51,15 +51,24 @@ TYPE_TO_TEMPLATE[FILE_VIDEO_TYPE] = {
 }
 
 const decks = {};
-module.exports.getDeck = (deckName) => {
-	if(!decks[deckName]){
-		decks[deckName] = new ReviewTable(deckName, deckName + '-facts', deckName + '-review-states');
+module.exports.getDeck = (user, deckName) => {
+	if (!user || !deckName) {
+		console.trace();
+		throw "Invalid user, deck: " + user + "; " + deckName;
 	}
-	return decks[deckName];
+
+	if (!decks[user]) {
+		decks[user] = {};
+	}
+
+	if(!decks[user][deckName]){
+		decks[user][deckName] = new ReviewTable(user, deckName, deckName + '-facts', deckName + '-review-states');
+	}
+	return decks[user][deckName];
 };
 
-module.exports.deleteDeck = (deckName) => {
-	const deck = module.exports.getDeck(deckName);
+module.exports.deleteDeck = (user, deckName) => {
+	const deck = module.exports.getDeck(user, deckName);
 	deck.deleteAll();
 };
 
@@ -68,7 +77,7 @@ module.exports.deleteDeck = (deckName) => {
  * @param  {number}
  * @param  {Object}
  */
-module.exports.createFact = (deckName, type, data) => {
+module.exports.createFact = (user, deckName, type, data) => {
 	if(!TYPE_TO_TEMPLATE[type]) {
 		throw type + " is not a valid type";
 	}
@@ -80,7 +89,7 @@ module.exports.createFact = (deckName, type, data) => {
 	}
 
 	data.type = type;
-	const deck = module.exports.getDeck(deckName);
+	const deck = module.exports.getDeck(user, deckName);
 	return deck.add(data);
 };
 

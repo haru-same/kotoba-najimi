@@ -17,6 +17,14 @@ if (fs.existsSync(stateFileName)) {
 }
 console.log(ocrState);
 
+const getUserFromRequest = (req) => {
+  const user = req.query.user || req.body.user;
+  if (!user) {
+    throw "Invalid user: " + user;
+  }
+  return user;
+};
+
 const getOcrForFile = (fileName) => {
   return new Promise((resolve) => {
     const request = {
@@ -183,7 +191,7 @@ module.exports.init = (app) => {
         }
       }
 
-      res.render('ocr-create-review', { imageFilename: imageFilename, ocrData: ocrJson, bestMatches: bestMatches });
+      res.render('ocr-create-review', { user: getUserFromRequest(req), imageFilename: imageFilename, ocrData: ocrJson, bestMatches: bestMatches });
     });
   });
 

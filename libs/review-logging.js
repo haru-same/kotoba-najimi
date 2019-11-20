@@ -1,25 +1,34 @@
 const fs = require('fs');
 const winston = require('winston');
 const config = require('./config');
+const userdata = require('./userdata');
 
-const folderName = config.userdataPath + '/review';
-if(!fs.existsSync(folderName)) fs.mkdirSync(folderName);
+const loggers = {};
 
-const logPath = folderName + '/reviews.log';
+module.exports.getLogger = (user) => {
+	if (!user) {
+		console.trace();
+		throw "invalid user: " + user;
+	}
 
-const logger = winston.createLogger({
-	level: 'info',
-	format: winston.format.json(),
-	transports: [
-		new winston.transports.File({ filename: logPath })
-	]
-});
+	if (!loggers[user]) {
+		const logPath = userdata.getDir(user, 'review') + '/reviews.log';
+		const logger = winston.createLogger({
+			level: 'info',
+			format: winston.format.json(),
+			transports: [
+				new winston.transports.File({ filename: logPath })
+			]
+		});
+		loggers[user] = logger;
+	}
 
-module.exports.getLogger = () => {
-	return logger;
+	return loggers[user];
 };
 
-module.exports.getLog = () => {
+module.exports.getLog = (user) => {
+	const logPath = userdata.getDir(user, 'review') + '/reviews.log';
+	
 	const reviewHistory = [];
 	const logStrings = fs.readFileSync(logPath, 'utf8').split('\n');
 	for(const logString of logStrings){
@@ -33,12 +42,13 @@ module.exports.getLog = () => {
 	return reviewHistory;
 };
 
-module.exports.log = (message) => {
+module.exports.log = (user, message) => {
 	for(const key in message){
 		if(typeof message[key] == 'string'){
 			message[key] = message[key].replace(/(?:\r\n|\r|\n)/g, '');
 		}
 	}
 	message.time = new Date().getTime();
+	const logger = module.exports.getLogger(user);
 	logger.log({ level: 'info', message: message });
 };

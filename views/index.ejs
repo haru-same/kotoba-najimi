@@ -192,7 +192,7 @@
 	        });
 
 	        $("#do-reviews").click(() => {
-	        	window.open('/review', '_blank');
+	        	window.open('/review?user=<%= user %>', '_blank');
 	        });
 
 	        $(document).on('options-changed', () => {
@@ -226,7 +226,7 @@
 					text = textData.text.replace(/\n/g, '');
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata ? textData.metadata.voice : 'NULL'})`, (reading) => {
-						$.post('/create-cloze-fact', { sentence: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+						$.post('/create-cloze-fact', { user: "<%= user %>", sentence: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
 							console.log(res);
 						});
 					});
@@ -244,7 +244,7 @@
 
 					let inputWord = prompt(`Phrase for:\n\n${text}`, currentWord);
 					getVerifiedPronunciation(inputWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${inputWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
-						$.post('/create-respeak-fact', { text: text, metadata: textData.metadata, reading: reading, word: inputWord }, (res) => {
+						$.post('/create-respeak-fact', { user: "<%= user %>", text: text, metadata: textData.metadata, reading: reading, word: inputWord }, (res) => {
 							console.log(res);
 						});
 					});
@@ -254,7 +254,7 @@
         			if(!currentWord) break;
 
     				getVerifiedPronunciation(currentWord, `Enter pronunciation for:\n${currentWord}`, (reading) => {
-						$.post('/create-kanji-fact', { target: currentWord, context: currentPhrase, reading: reading }, (res) => {
+						$.post('/create-kanji-fact', { user: "<%= user %>", target: currentWord, context: currentPhrase, reading: reading }, (res) => {
 							console.log(res);
 						});
     				});
@@ -271,7 +271,7 @@
 					console.log('text data with voice found', textData);
 
 					getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
-						$.post('/create-audio-word-fact', { text: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+						$.post('/create-audio-word-fact', { user: "<%= user %>", text: text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
 							console.log(res);
 						});
 					});
@@ -286,7 +286,7 @@
 				const text = textData.text;
 
 				getVerifiedPronunciation(text, `Enter pronunciation for:\n${text}\n(voice: ${textData.metadata.voice})`, (reading) => {
-					$.post('/try-create-recall-fact', { text: text, metadata: textData.metadata, reading: reading }, (res) => {
+					$.post('/try-create-recall-fact', { user: "<%= user %>", text: text, metadata: textData.metadata, reading: reading }, (res) => {
 						console.log(res);
 					});
 				});
@@ -297,9 +297,9 @@
 <body class="dark">
 	<div class="message"></div>
 	<div class="top-bar" style="position:fixed; width:100%; top:0; left:0; padding:4px; text-align: right; box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 16px 0 rgba(0,0,0,0.19);">
-		<span class="instruction-text">Hover over Kanji and [F] key to create fact (<a id="do-reviews">reviews</a>)</span>
-		<i id="options-button" class="fas fa-cog link-button header-button"></i>
-		<i id="fullscreen-button" class="fas fa-expand link-button header-button"></i>
+		<span class="instruction-text">Hover over Kanji and [R] key to create review item (<a id="do-reviews">reviews</a>)</span>
+		<!-- <i id="options-button" class="fas fa-cog link-button header-button"></i>
+		<i id="fullscreen-button" class="fas fa-expand link-button header-button"></i> -->
 	</div>
 	<div class="top-box no-dict">Hover over words to translate...</div>
     <div id="container" style="display:flex; align-items:flex-end; flex-direction:column">

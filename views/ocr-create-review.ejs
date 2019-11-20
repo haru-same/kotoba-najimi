@@ -37,7 +37,12 @@
 
 				getVerifiedPronunciation(currentWord, `🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊🔊\n\n${textData.text}\nEnter pronunciation for:\n${currentWord}\n(voice: ${textData.metadata.voice})`, (reading) => {
 					// console.log({ text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord });
-					$.post('/create-audio-word-fact', { text: textData.text, metadata: textData.metadata, reading: reading, word: currentWord }, (res) => {
+					$.post('/create-audio-word-fact', {
+						user: '<%- user %>',
+						text: textData.text, 
+						metadata: textData.metadata, 
+						reading: reading, 
+						word: currentWord }, (res) => {
 						console.log(res);
 						$.post('/ocr/handled', {imageFilename: '<%= imageFilename %>'}, () => {
 							location.reload();
@@ -72,7 +77,13 @@
         			alert("Add all fields.");
         		}
 
-        		const reviewPostData = { text: sentence, reading: reading, word: word, metadata: { game: game, img: "<%- bestMatches[0].metadata.img %>"} };
+        		const reviewPostData = {
+        			user: '<%- user %>',
+        			text: sentence, 
+        			reading: reading, 
+        			word: word, 
+        			metadata: { game: game, img: "<%- bestMatches[0].metadata.img %>"} 
+        		};
         		console.log(reviewPostData);
         		$.post('/create-audio-word-fact', reviewPostData, (res) => {
 					console.log(res);

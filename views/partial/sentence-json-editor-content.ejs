@@ -123,7 +123,7 @@
 	};
 
 	$('#submit-button').click(() => {
-		$.post('/sentence-json', { id: '<%- fact.id %>', 'sentence-json': getSentenceJson() }, (res) => {
+		$.post('/sentence-json', { user: '<%- user %>', id: '<%- fact.id %>', 'sentence-json': getSentenceJson() }, (res) => {
 			console.log(res);
 			setCorrect();
 		});
