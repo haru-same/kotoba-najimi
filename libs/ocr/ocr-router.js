@@ -191,7 +191,7 @@ module.exports.init = (app) => {
         }
       }
 
-      res.render('ocr-create-review', { user: getUserFromRequest(req), imageFilename: imageFilename, ocrData: ocrJson, bestMatches: bestMatches });
+      res.render('ocr-create-review', { user: getUserFromRequest(req), imageFilename: imageFilename, remainingImageCount: unhandledFiles.length, ocrData: ocrJson, bestMatches: bestMatches });
     });
   });
 
