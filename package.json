@@ -9,9 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.18.2",
+    "body-parser": "^1.20.1",
     "ejs": "^2.4.2",
-    "express": "^4.14.0",
+    "express": "^4.18.2",
     "hepburn": "^1.0.0",
     "kuromoji": "0.0.5",
     "opener": "^1.4.3",
